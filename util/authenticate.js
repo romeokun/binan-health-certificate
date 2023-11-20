@@ -1,25 +1,17 @@
 import { onAuthStateChanged } from "firebase/auth";
-import { auth } from '@/config/firebase'
-import { usePathname, useRouter } from "next/navigation";
+import { auth } from "@/config/firebase";
 
-const authenticate = (setUser, router, currentPath) => {
- const unsubscribe = onAuthStateChanged(auth, (user) => {
-  setUser(user)
-  console.log(currentPath);
-  if(user) {
-   if(currentPath == '/login') {
-    router.push('/')
-   }
-  } else {
-   console.log('not logged in');
-   if(currentPath !== '/login') {
-    router.push('/login')
-   }
-  }
-  
-  unsubscribe()
-})
- 
-}
+export const authenticate = () => {
+  let result
+  onAuthStateChanged(auth, (user) => {
+    console.log(user);
+    if (user) {
+      result = true
+    } else {
+      result = false
+    }
 
-export default authenticate
+  })
+  return result
+};
+
