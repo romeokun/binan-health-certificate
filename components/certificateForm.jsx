@@ -5,7 +5,7 @@ import { nationalities, baranggays } from "@/config/local";
 export function CertificateForm() {
   return (
     <div>
-      <form action="" method="post">
+      <form>
         <div>
           no.
           <input type="text" className="border" />
@@ -54,6 +54,9 @@ export function CertificateForm() {
             return <option selected={isSelected} key={index} value={x}>{x}</option>
            })}
           </select>
+        </div>
+        <div>
+          <button type="submit"></button>
         </div>
       </form>
     </div>
