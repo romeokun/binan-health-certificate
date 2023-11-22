@@ -1,6 +1,21 @@
+'use client'
 import React from "react";
 import { nationalities, baranggays } from "@/config/local";
 
+function addToDatabase(e) {
+  e.preventDefault()
+}
+
+function DateInput() {
+  let currentDate = new Date()
+  let day = currentDate.getDate();
+  let month = currentDate.getMonth() + 1;
+  let year = currentDate.getFullYear();
+
+  let today = year + '-' + month + '-' + day
+  console.log(today);
+  return <input defaultValue={today} type="date" className="border" />
+}
 
 export function CertificateForm() {
   return (
@@ -16,7 +31,7 @@ export function CertificateForm() {
         </div>
         <div>
           Date Issued
-          <input type="text" className="border" />
+          {DateInput()}
         </div>
         <div>
           Name
@@ -39,9 +54,9 @@ export function CertificateForm() {
         </div>
         <div>
           Nationality
-          <select name="" id="">
+          <select name="" id="" defaultValue={'Filipino'}>
            {nationalities.map( (x, index) => {
-            return <option key={index} value={x}>{x}</option>
+            return <option  key={index} value={x}>{x}</option>
            })}
           </select>
         </div>
@@ -49,14 +64,12 @@ export function CertificateForm() {
           Place of Work
           <select name="" id="">
           {baranggays.map( (x, index) => {
-            let isSelected = false
-            if(x == 'Filipino') isSelected = true
-            return <option selected={isSelected} key={index} value={x}>{x}</option>
+            return <option key={index} value={x}>{x}</option>
            })}
           </select>
         </div>
         <div>
-          <button type="submit"></button>
+          <button type="submit" className="border" onClick={addToDatabase}>submit</button>
         </div>
       </form>
     </div>
