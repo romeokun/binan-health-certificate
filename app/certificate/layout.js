@@ -26,6 +26,6 @@ export default function CertificateLayout({ children }) {
   }
 
   return (
-    <>{children}</>
+    <div className='min-w-[800px]'>{children}</div>
   )
 }
