@@ -1,23 +1,36 @@
 'use client'
-import React from "react";
+import React, { useState } from "react";
 import { nationalities, baranggays } from "@/config/local";
-
-function addToDatabase(e) {
-  e.preventDefault()
-}
-
-function DateInput() {
-  let currentDate = new Date()
-  let day = currentDate.getDate();
-  let month = currentDate.getMonth() + 1;
-  let year = currentDate.getFullYear();
-
-  let today = year + '-' + month + '-' + day
-  console.log(today);
-  return <input defaultValue={today} type="date" className="border" />
-}
+import { collection, addDoc, Timestamp } from "firebase/firestore"; 
+import { db } from "@/config/firebase";
 
 export function CertificateForm() {
+  const [ dateIssued, setdateIssued] = useState('')
+
+  function DateInput() {
+    let currentDate = new Date()
+    let day = currentDate.getDate();
+    let month = currentDate.getMonth() + 1;
+    let year = currentDate.getFullYear();
+  
+    let today = year + '-' + month + '-' + day
+    return <input onChange= {(e) => {
+      setdateIssued(e.target.value)
+    }} defaultValue={today} type="date" className="border" />
+  }
+  
+  async function addToDatabase(e) {
+    e.preventDefault()
+
+    let dateissued = new Date(dateIssued + "T00:00+08:00")
+
+    await addDoc(collection(db, 'certificates'), {
+      No: '12345',
+      OrNo: '12345',
+      DateIssued: Timestamp.fromDate(dateissued),
+    })
+  }
+
   return (
     <div>
       <form>

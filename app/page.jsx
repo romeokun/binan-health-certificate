@@ -3,6 +3,7 @@ import { auth } from "@/config/firebase";
 import { onAuthStateChanged, signOut } from "firebase/auth";
 import { useEffect, useState } from "react";
 import { redirect } from "next/navigation";
+import { Loading } from "@/components/loading";
 
 export default function Home() {
   
@@ -18,7 +19,7 @@ export default function Home() {
   }), [])
   
   if(!initialized) {
-    return <>loading</>
+    return <Loading />
   } else if(!loggedIn) {
     redirect('/login')
   }

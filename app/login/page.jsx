@@ -5,6 +5,7 @@ import { useEffect, useState } from 'react'
 import { onAuthStateChanged } from 'firebase/auth'
 import { auth } from '@/config/firebase'
 import { redirect } from 'next/navigation'
+import { Loading } from '@/components/loading'
 
 export default function LoginPage() {
   const [ loggedIn, setLoggedIn ] = useState(false)
@@ -19,7 +20,7 @@ export default function LoginPage() {
   }), [])
   
   if(!initialized) {
-    return <>loading</>
+    return <Loading />
   } else if(loggedIn) {
     redirect('/')
   }
