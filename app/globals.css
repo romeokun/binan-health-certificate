@@ -8,7 +8,12 @@
 }
 
 body {
-  color: rgb(var(--foreground-rgb));
-  background: rgb(var(--background-rgb));
+  /* color: rgb(var(--foreground-rgb));
+  background: rgb(var(--background-rgb)); */
+
+  min-height: 100vh;
+
+  background: rgb(87,142,68);
+  background: radial-gradient(circle, rgba(87,142,68,1) 0%, rgba(255,255,255,1) 100%);
 }
 
