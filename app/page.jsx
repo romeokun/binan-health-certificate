@@ -164,7 +164,7 @@ export default function Home() {
           className="bg-white rounded w-[700px] h-[600px] shadow-lg"
         >
           {" "}
-          <CertificateForm />{" "}
+          <CertificateForm submitFunction={reload} />{" "}
         </div>
       </div>
     </main>

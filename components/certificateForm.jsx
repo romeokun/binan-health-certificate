@@ -4,7 +4,7 @@ import { nationalities, baranggays } from "@/config/local";
 import { collection, addDoc, Timestamp, serverTimestamp } from "firebase/firestore"; 
 import { db } from "@/config/firebase";
 
-export function CertificateForm() {
+export function CertificateForm( {submitFunction} ) {
   let currentDate = new Date()
   let day = currentDate.getDate();
   let month = currentDate.getMonth() + 1;
@@ -54,11 +54,14 @@ export function CertificateForm() {
 
       // todo: success modal
       alert('success')
-      console.log('success'); // temp
+      try {
+        submitFunction()
+      } catch (error) {
+        console.error(error);
+      }
     } else {
       // todo: fail
       alert('fail')
-      console.log('fail'); // temp
     }
 
   }
