@@ -6,10 +6,31 @@ import { redirect } from "next/navigation";
 import { Loading } from "@/components/loading";
 import { CertificateForm } from "@/components/certificateForm";
 
+import { SingleCertificate } from "@/components/certificateView/singleCertificate";
+import {
+  collection,
+  getDocs,
+  Timestamp,
+  query,
+  orderBy,
+} from "firebase/firestore";
+import { db } from "@/config/firebase";
+
+
+
+async function loadQuery(func) {
+  func('')
+  const q = query(collection(db, "certificates"), orderBy('created','desc'))
+  const querySnapshot = await getDocs(q);
+  func(querySnapshot);
+}
+
 export default function Home() {
   const [loggedIn, setLoggedIn] = useState(false);
   const [initialized, setInitialized] = useState(false);
-  useEffect(
+  const [querySnapshot,setQuerySnapshot] = useState('')
+
+  useEffect( () => {
     onAuthStateChanged(auth, (user) => {
       if (user) {
         setLoggedIn(true);
@@ -17,8 +38,10 @@ export default function Home() {
         setLoggedIn(false);
       }
       setInitialized(true);
-    }),
-    []
+    })
+    loadQuery(setQuerySnapshot)
+  }
+    ,[]    
   );
 
   if (!initialized) {
@@ -60,8 +83,12 @@ export default function Home() {
   function showCreateForm() {
     const modal = document.getElementById("modal");
     modal.classList.remove("hidden");
-
   }
+
+  function reload() {
+    loadQuery(setQuerySnapshot)
+  }
+  
 
   return (
     <main>
@@ -81,6 +108,16 @@ export default function Home() {
             filter
           </p>
         </div>
+
+        <div
+          onClick={reload}
+          className="flex content-center flex-wrap"
+        >
+          <p className="w-[15ch] text-center cursor-pointer border rounded-full px-[8px] bg-white hover:scale-105">
+            reload
+          </p>
+        </div>
+        
         <div className="flex content-center flex-wrap">
           <p className="w-[15ch] text-center cursor-pointer border rounded-full px-[8px] bg-white hover:scale-105">
             select all
@@ -103,7 +140,11 @@ export default function Home() {
           id="mainContent"
           className="rounded-br-lg bg-emerald-200 min-w-[500px] mr-[24px] shadow-xl flex-auto transition-[width] ease-in-out"
         >
-          main - content
+          {querySnapshot?.docs?.map((Certificate, index) => {
+            return (
+              <SingleCertificate key={index} certificate={Certificate.data()} />
+            );
+          })}
         </div>
       </section>
 
@@ -118,7 +159,10 @@ export default function Home() {
           }}
           className="fixed bg-slate-300/80 w-full h-full -z-10"
         ></div>
-        <div id="modalcontent" className="bg-white rounded w-[700px] h-[600px] shadow-lg">
+        <div
+          id="modalcontent"
+          className="bg-white rounded w-[700px] h-[600px] shadow-lg"
+        >
           {" "}
           <CertificateForm />{" "}
         </div>
