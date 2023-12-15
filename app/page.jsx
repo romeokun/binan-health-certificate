@@ -89,6 +89,10 @@ export default function Home() {
     loadQuery(setQuerySnapshot)
   }
   
+  function view() {
+    const modal = document.getElementById("modal");
+    modal.classList.remove("hidden");
+  }
 
   return (
     <main>
@@ -129,7 +133,7 @@ export default function Home() {
           </p>
         </div>
       </div>
-      <section className=" w-[100vw] flex flex-row min-h-[600px] ">
+      <section className=" w-[100vw] flex flex-row min-h-[600px] box-content">
         <div
           id="filterTab"
           className="rounded-bl-lg border-gray-300 bg-emerald-200 w-[0px] ml-[24px] shadow-xl transition-all ease-in-out"
@@ -138,11 +142,12 @@ export default function Home() {
         </div>
         <div
           id="mainContent"
-          className="rounded-br-lg bg-emerald-200 min-w-[500px] mr-[24px] shadow-xl flex-auto transition-[width] ease-in-out"
+          className="rounded-br-lg bg-emerald-200 min-w-[500px] max-w-[1432.8px] mr-[24px] shadow-xl flex flex-col p-[8px] flex-auto transition-[width] ease-in-out gap-[12px] "
         >
           {querySnapshot?.docs?.map((Certificate, index) => {
+            
             return (
-              <SingleCertificate key={index} certificate={Certificate.data()} />
+              <SingleCertificate className='w-full overflow-hidden' key={index} certificate={Certificate} viewForm={view}/>
             );
           })}
         </div>
@@ -156,6 +161,7 @@ export default function Home() {
           onClick={() => {
             const modal = document.getElementById("modal");
             modal.classList.add("hidden");
+            reload()
           }}
           className="fixed bg-slate-300/80 w-full h-full -z-10"
         ></div>
@@ -164,7 +170,7 @@ export default function Home() {
           className="bg-white rounded w-[700px] h-[600px] shadow-lg"
         >
           {" "}
-          <CertificateForm submitFunction={reload} />{" "}
+          <CertificateForm />{" "}
         </div>
       </div>
     </main>
