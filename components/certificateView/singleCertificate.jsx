@@ -18,12 +18,13 @@ import React from 'react'
 
 
 
-export function SingleCertificate({ certificate, viewForm }) {
+export function SingleCertificate({ certificate, viewForm, set }) {
   const { created, No, OrNo, DateIssued, Name, Occupation, Age, Sex, Nationality, PlaceOfWork} = certificate.data() || {}
 
 
   function view() {
-    viewForm(console.log(certificate.id))
+    viewForm()
+    set(certificate)
   }
 
   return (
@@ -40,7 +41,7 @@ export function SingleCertificate({ certificate, viewForm }) {
       <span className="mx-4 w-[8ch] whitespace-nowrap truncate flex-none text-center ">{Nationality}</span>
       <span className="mx-4 w-[16ch] whitespace-nowrap truncate flex-none text-center ">{PlaceOfWork}</span>
 
-      <div onClick={viewForm} className='px-[8px] hover:bg-red-600'>view</div>
+      <div onClick={view} className='px-[8px] hover:bg-red-600'>view</div>
       <div className='px-[8px] hover:bg-red-600'>delete</div>
     </div>
   )

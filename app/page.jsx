@@ -15,6 +15,7 @@ import {
   orderBy,
 } from "firebase/firestore";
 import { db } from "@/config/firebase";
+import { CertificateFormView } from "@/components/certificateFormView";
 
 
 
@@ -29,6 +30,8 @@ export default function Home() {
   const [loggedIn, setLoggedIn] = useState(false);
   const [initialized, setInitialized] = useState(false);
   const [querySnapshot,setQuerySnapshot] = useState('')
+  const [certificate,setCertificate] = useState('')
+  const [ isView, setIsView] = useState(false)
 
   useEffect( () => {
     onAuthStateChanged(auth, (user) => {
@@ -89,10 +92,16 @@ export default function Home() {
     loadQuery(setQuerySnapshot)
   }
   
+  
+
   function view() {
     const modal = document.getElementById("modal");
     modal.classList.remove("hidden");
+    console.log(certificate)
+
+    setIsView(true)
   }
+
 
   return (
     <main>
@@ -147,7 +156,7 @@ export default function Home() {
           {querySnapshot?.docs?.map((Certificate, index) => {
             
             return (
-              <SingleCertificate className='w-full overflow-hidden' key={index} certificate={Certificate} viewForm={view}/>
+              <SingleCertificate className='w-full overflow-hidden' key={index} certificate={Certificate} set={setCertificate} viewForm={view}/>
             );
           })}
         </div>
@@ -161,6 +170,7 @@ export default function Home() {
           onClick={() => {
             const modal = document.getElementById("modal");
             modal.classList.add("hidden");
+            setIsView(false)
             reload()
           }}
           className="fixed bg-slate-300/80 w-full h-full -z-10"
@@ -169,8 +179,8 @@ export default function Home() {
           id="modalcontent"
           className="bg-white rounded w-[700px] h-[600px] shadow-lg"
         >
-          {" "}
-          <CertificateForm />{" "}
+          { !isView ? <CertificateForm /> : <CertificateFormView certificate={certificate}/> }
+          
         </div>
       </div>
     </main>
