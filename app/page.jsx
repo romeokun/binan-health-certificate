@@ -10,7 +10,6 @@ import { SingleCertificate } from "@/components/certificateView/singleCertificat
 import {
   collection,
   getDocs,
-  Timestamp,
   query,
   orderBy,
 } from "firebase/firestore";
@@ -141,16 +140,16 @@ export default function Home() {
           </p>
         </div>
       </div>
-      <section className=" w-[100vw] flex flex-row min-h-[600px] box-content">
+      <section className=" mx-[24px] flex flex-row min-h-[600px] box-content">
         <div
           id="filterTab"
-          className="rounded-bl-lg border-gray-300 bg-emerald-200 w-[0px] ml-[24px] shadow-xl transition-all ease-in-out"
+          className="rounded-bl-lg border-gray-300 bg-emerald-200 w-[0px] shadow-xl transition-all ease-in-out"
         >
           side - filter
         </div>
         <div
           id="mainContent"
-          className="rounded-br-lg bg-emerald-200 min-w-[500px] max-w-[1432.8px] mr-[24px] shadow-xl flex flex-col p-[8px] flex-auto transition-[width] ease-in-out gap-[12px] "
+          className="rounded-br-lg bg-emerald-200 min-w-[500px] shadow-xl flex flex-col p-[8px] flex-auto transition-[width] ease-in-out gap-[12px] "
         >
           {querySnapshot?.docs?.map((Certificate, index) => {
             
