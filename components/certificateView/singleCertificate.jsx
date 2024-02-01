@@ -1,4 +1,6 @@
 import React from 'react'
+import { doc, deleteDoc } from "firebase/firestore";
+import { db } from "@/config/firebase";
 
 // possible data
 // created: serverTimestamp(),
@@ -18,13 +20,18 @@ import React from 'react'
 
 
 
-export function SingleCertificate({ certificate, viewForm, set }) {
+export function SingleCertificate({ certificate, viewForm, set, reload }) {
   const { created, No, OrNo, DateIssued, Name, Occupation, Age, Sex, Nationality, PlaceOfWork} = certificate.data() || {}
 
 
   function view() {
     viewForm()
     set(certificate)
+  }
+
+  async function deleteCertificate() {
+    await deleteDoc(doc(db, 'certificates', certificate.id))
+    reload()
   }
 
   return (
@@ -42,7 +49,7 @@ export function SingleCertificate({ certificate, viewForm, set }) {
       <span className="mx-4 w-[16ch] whitespace-nowrap truncate flex-none text-center ">{PlaceOfWork}</span>
 
       <div onClick={view} className='px-[8px] hover:bg-red-600'>view</div>
-      <div className='px-[8px] hover:bg-red-600'>delete</div>
+      <div onClick={deleteCertificate} className='px-[8px] hover:bg-red-600'>delete</div>
     </div>
   )
 }

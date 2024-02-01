@@ -97,7 +97,6 @@ export default function Home() {
   function view() {
     const modal = document.getElementById("modal");
     modal.classList.remove("hidden");
-    console.log(certificate)
 
     setIsView(true)
   }
@@ -156,7 +155,7 @@ export default function Home() {
           {querySnapshot?.docs?.map((Certificate, index) => {
             
             return (
-              <SingleCertificate className='w-full overflow-hidden' key={index} certificate={Certificate} set={setCertificate} viewForm={view}/>
+              <SingleCertificate className='w-full overflow-hidden' key={index} certificate={Certificate} set={setCertificate} viewForm={view} reload={reload} />
             );
           })}
         </div>
