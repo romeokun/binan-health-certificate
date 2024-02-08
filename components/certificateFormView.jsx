@@ -5,7 +5,7 @@ import { doc, setDoc, Timestamp, serverTimestamp } from "firebase/firestore";
 import { db } from "@/config/firebase";
 
 export function CertificateFormView({ submitFunction, certificate }) {
-
+  
   let date = certificate.data().DateIssued.toDate();
   let day = date.getDate();
   let month = date.getMonth() + 1;
@@ -39,7 +39,6 @@ export function CertificateFormView({ submitFunction, certificate }) {
   const [editMode, setEditMode] = useState(false);
 
   function DateInput() {
-    console.log(certificate.data().DateIssued.toDate());
     return (
       <input
         disabled={!editMode}
@@ -143,6 +142,7 @@ export function CertificateFormView({ submitFunction, certificate }) {
             type="number"
             className="inNo border"
             defaultValue={certificate.data().No}
+            key={certificate.data().No}
           />
         </div>
         <div>
@@ -155,6 +155,7 @@ export function CertificateFormView({ submitFunction, certificate }) {
             type="number"
             className="inOrNo border"
             defaultValue={certificate.data().OrNo}
+            key={certificate.data().OrNo}
           />
         </div>
         <div>
@@ -171,6 +172,7 @@ export function CertificateFormView({ submitFunction, certificate }) {
             type="text"
             className="inName border"
             defaultValue={certificate.data().Name}
+            key={certificate.data().Name}
           />
         </div>
         <div>
@@ -183,6 +185,7 @@ export function CertificateFormView({ submitFunction, certificate }) {
             type="text"
             className="inOccupation border"
             defaultValue={certificate.data().Occupation}
+            key={certificate.data().Occupation}
           />
         </div>
         <div>
@@ -195,6 +198,7 @@ export function CertificateFormView({ submitFunction, certificate }) {
             type="number"
             className="inAge border"
             defaultValue={certificate.data().Age}
+            key={certificate.data().Age}
           />
         </div>
         <div>
@@ -203,6 +207,7 @@ export function CertificateFormView({ submitFunction, certificate }) {
             className="inSex"
             disabled={!editMode}
             defaultValue={certificate.data().Sex}
+            key={certificate.data().Sex}
             onChange={(e) => {
               setSex(e.target.value);
             }}
@@ -228,6 +233,7 @@ export function CertificateFormView({ submitFunction, certificate }) {
             name=""
             id=""
             defaultValue={certificate.data().Nationality}
+            key={certificate.data().Nationality}
           >
             {nationalities.map((x, index) => {
               return (
@@ -249,6 +255,7 @@ export function CertificateFormView({ submitFunction, certificate }) {
             name=""
             id=""
             defaultValue={certificate.data().PlaceOfWork}
+            key={certificate.data().PlaceOfWork}
           >
             {baranggays.map((x, index) => {
               return (

@@ -4,9 +4,10 @@ import { onAuthStateChanged, signOut } from "firebase/auth";
 import { useEffect, useState } from "react";
 import { redirect } from "next/navigation";
 import { Loading } from "@/components/loading";
-import { CertificateForm } from "@/components/certificateForm";
 
+import { CertificateForm } from "@/components/certificateForm";
 import FormButton from "@/components/main page components/formButton";
+import Modal from "@/components/main page components/modal";
 
 import { SingleCertificate } from "@/components/main page components/singleCertificate";
 import { collection, getDocs, query, orderBy } from "firebase/firestore";
@@ -14,6 +15,7 @@ import { db } from "@/config/firebase";
 import { CertificateFormView } from "@/components/certificateFormView";
 
 async function loadQuery(func) {
+  console.log('querying');
   func("");
   const q = query(collection(db, "certificates"), orderBy("created", "desc"));
   const querySnapshot = await getDocs(q);
@@ -25,7 +27,8 @@ export default function Home() {
   const [initialized, setInitialized] = useState(false);
   const [querySnapshot, setQuerySnapshot] = useState("");
   const [certificate, setCertificate] = useState("");
-  const [isView, setIsView] = useState(false);
+
+  const [modalView, setModalView] = useState('new')
 
   useEffect(() => {
     onAuthStateChanged(auth, (user) => {
@@ -56,6 +59,7 @@ export default function Home() {
 
   function showCreateForm() {
     const modal = document.getElementById("modal");
+    setModalView('new');
     modal.classList.remove("hidden");
   }
 
@@ -65,10 +69,11 @@ export default function Home() {
 
   function view() {
     const modal = document.getElementById("modal");
+    setModalView('view');
     modal.classList.remove("hidden");
-
-    setIsView(true);
   }
+
+  
 
   return (
     <main>
@@ -82,6 +87,8 @@ export default function Home() {
       <div className="rounded-t-lg bg-emerald-200 min-w-[800px] mx-[24px] mt-[4px] h-[48px] border-b-[1px] border-black flex justify-center content-center gap-2">
         <FormButton func={reload} text={"reload"} />
         <FormButton func={showCreateForm} text={"new"} />
+        <FormButton text={"search"} />
+        <FormButton text={"show table"} />
       </div>
       <section className=" mx-[24px] flex flex-row min-h-[600px] box-content min-w-[800px]">
         <div
@@ -103,30 +110,11 @@ export default function Home() {
         </div>
       </section>
 
-      <div
-        id="modal"
-        className="fixed w-screen h-screen top-0 flex flex-wrap place-content-center hidden"
-      >
-        <div
-          onClick={() => {
-            const modal = document.getElementById("modal");
-            modal.classList.add("hidden");
-            setIsView(false);
-            reload();
-          }}
-          className="fixed bg-slate-300/80 w-full h-full -z-10"
-        ></div>
-        <div
-          id="modalcontent"
-          className="bg-white rounded w-[700px] h-[600px] shadow-lg"
-        >
-          {!isView ? (
-            <CertificateForm />
-          ) : (
-            <CertificateFormView certificate={certificate} />
-          )}
-        </div>
-      </div>
+      <Modal reload={reload}>
+        {modalView === 'new' && <CertificateForm/>}
+        {modalView === 'view' && <CertificateFormView certificate={certificate}/>}
+      </Modal>
     </main>
   );
 }
+
