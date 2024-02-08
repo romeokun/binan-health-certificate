@@ -61,33 +61,6 @@ export default function Home() {
     }
   };
 
-  function toggleFilterTab() {
-    const element = document.getElementById("filterTab");
-    const content = document.getElementById("mainContent");
-
-    if (element.classList.contains("w-[300px]")) {
-      element.classList.add("w-[0px]");
-      element.classList.remove("w-[300px]");
-      element.classList.remove("border-r-[4px]");
-      element.classList.remove("border-gray-300");
-      content.classList.add("rounded-bl-lg");
-      element.classList.add("opacity-0");
-
-      content.classList.add("min-w-[800px]");
-      content.classList.remove("min-w-[500px]");
-    } else {
-      element.classList.remove("w-[0px]");
-      element.classList.add("w-[300px]");
-      element.classList.add("border-r-[4px]");
-      element.classList.add("border-gray-300");
-      content.classList.remove("rounded-bl-lg");
-      element.classList.remove("opacity-0");
-
-      content.classList.add("min-w-[500px]");
-      content.classList.remove("min-w-[800px]");
-    }
-  }
-
   function showCreateForm() {
     const modal = document.getElementById("modal");
     modal.classList.remove("hidden");
@@ -96,8 +69,6 @@ export default function Home() {
   function reload() {
     loadQuery(setQuerySnapshot)
   }
-  
-  
 
   function view() {
     const modal = document.getElementById("modal");
@@ -118,26 +89,11 @@ export default function Home() {
 
       <div className="rounded-t-lg bg-emerald-200 min-w-[800px] mx-[24px] mt-[4px] h-[48px] border-b-[1px] border-black flex justify-center content-center gap-2">
         <div
-          onClick={toggleFilterTab}
-          className="flex content-center flex-wrap"
-        >
-          <p className="w-[15ch] text-center cursor-pointer border rounded-full px-[8px] bg-white hover:scale-105">
-            filter
-          </p>
-        </div>
-
-        <div
           onClick={reload}
           className="flex content-center flex-wrap"
         >
           <p className="w-[15ch] text-center cursor-pointer border rounded-full px-[8px] bg-white hover:scale-105">
             reload
-          </p>
-        </div>
-        
-        <div className="flex content-center flex-wrap">
-          <p className="w-[15ch] text-center cursor-pointer border rounded-full px-[8px] bg-white hover:scale-105">
-            select all
           </p>
         </div>
         <div onClick={showCreateForm} className="flex content-center flex-wrap">
@@ -147,12 +103,6 @@ export default function Home() {
         </div>
       </div>
       <section className=" mx-[24px] flex flex-row min-h-[600px] box-content min-w-[800px]">
-        <div
-          id="filterTab"
-          className="rounded-bl-lg border-gray-300 bg-emerald-200 w-[0px] shadow-xl transition-all ease-in-out"
-        >
-          side - filter
-        </div>
         <div
           id="mainContent"
           className="rounded-br-lg bg-emerald-200 min-w-[800px] shadow-xl flex flex-col p-[8px] flex-auto transition-[width] ease-in-out gap-[12px] "
