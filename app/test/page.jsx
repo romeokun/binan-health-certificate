@@ -6,21 +6,16 @@ import { redirect } from "next/navigation";
 import { Loading } from "@/components/loading";
 import { CertificateForm } from "@/components/certificateForm";
 
-import { SingleCertificate } from "@/components/certificateView/singleCertificate";
-import {
-  collection,
-  getDocs,
-  query,
-  orderBy,
-} from "firebase/firestore";
+import FormButton from "@/components/main page components/formButton";
+
+import { SingleCertificate } from "@/components/main page components/singleCertificate";
+import { collection, getDocs, query, orderBy } from "firebase/firestore";
 import { db } from "@/config/firebase";
 import { CertificateFormView } from "@/components/certificateFormView";
 
-
-
 async function loadQuery(func) {
-  func('')
-  const q = query(collection(db, "certificates"), orderBy('created','desc'))
+  func("");
+  const q = query(collection(db, "certificates"), orderBy("created", "desc"));
   const querySnapshot = await getDocs(q);
   func(querySnapshot);
 }
@@ -28,11 +23,11 @@ async function loadQuery(func) {
 export default function Home() {
   const [loggedIn, setLoggedIn] = useState(false);
   const [initialized, setInitialized] = useState(false);
-  const [querySnapshot,setQuerySnapshot] = useState('')
-  const [certificate,setCertificate] = useState('')
-  const [ isView, setIsView] = useState(false)
+  const [querySnapshot, setQuerySnapshot] = useState("");
+  const [certificate, setCertificate] = useState("");
+  const [isView, setIsView] = useState(false);
 
-  useEffect( () => {
+  useEffect(() => {
     onAuthStateChanged(auth, (user) => {
       if (user) {
         setLoggedIn(true);
@@ -40,11 +35,9 @@ export default function Home() {
         setLoggedIn(false);
       }
       setInitialized(true);
-    })
-    loadQuery(setQuerySnapshot)
-  }
-    ,[]    
-  );
+    });
+    loadQuery(setQuerySnapshot);
+  }, []);
 
   if (!initialized) {
     return <Loading />;
@@ -67,16 +60,15 @@ export default function Home() {
   }
 
   function reload() {
-    loadQuery(setQuerySnapshot)
+    loadQuery(setQuerySnapshot);
   }
 
   function view() {
     const modal = document.getElementById("modal");
     modal.classList.remove("hidden");
 
-    setIsView(true)
+    setIsView(true);
   }
-
 
   return (
     <main>
@@ -88,19 +80,8 @@ export default function Home() {
       </nav>
 
       <div className="rounded-t-lg bg-emerald-200 min-w-[800px] mx-[24px] mt-[4px] h-[48px] border-b-[1px] border-black flex justify-center content-center gap-2">
-        <div
-          onClick={reload}
-          className="flex content-center flex-wrap"
-        >
-          <p className="w-[15ch] text-center cursor-pointer border rounded-full px-[8px] bg-white hover:scale-105">
-            reload
-          </p>
-        </div>
-        <div onClick={showCreateForm} className="flex content-center flex-wrap">
-          <p className="w-[15ch] text-center cursor-pointer border rounded-full px-[8px] bg-white hover:scale-105">
-            new
-          </p>
-        </div>
+        <FormButton func={reload} text={"reload"} />
+        <FormButton func={showCreateForm} text={"new"} />
       </div>
       <section className=" mx-[24px] flex flex-row min-h-[600px] box-content min-w-[800px]">
         <div
@@ -108,9 +89,15 @@ export default function Home() {
           className="rounded-br-lg bg-emerald-200 min-w-[800px] shadow-xl flex flex-col p-[8px] flex-auto transition-[width] ease-in-out gap-[12px] "
         >
           {querySnapshot?.docs?.map((Certificate, index) => {
-            
             return (
-              <SingleCertificate className='w-full overflow-hidden' key={index} certificate={Certificate} set={setCertificate} viewForm={view} reload={reload} />
+              <SingleCertificate
+                className="w-full overflow-hidden"
+                key={index}
+                certificate={Certificate}
+                set={setCertificate}
+                viewForm={view}
+                reload={reload}
+              />
             );
           })}
         </div>
@@ -124,8 +111,8 @@ export default function Home() {
           onClick={() => {
             const modal = document.getElementById("modal");
             modal.classList.add("hidden");
-            setIsView(false)
-            reload()
+            setIsView(false);
+            reload();
           }}
           className="fixed bg-slate-300/80 w-full h-full -z-10"
         ></div>
@@ -133,8 +120,11 @@ export default function Home() {
           id="modalcontent"
           className="bg-white rounded w-[700px] h-[600px] shadow-lg"
         >
-          { !isView ? <CertificateForm /> : <CertificateFormView certificate={certificate}/> }
-          
+          {!isView ? (
+            <CertificateForm />
+          ) : (
+            <CertificateFormView certificate={certificate} />
+          )}
         </div>
       </div>
     </main>

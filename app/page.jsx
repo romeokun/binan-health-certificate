@@ -6,7 +6,7 @@ import { redirect } from "next/navigation";
 import { Loading } from "@/components/loading";
 import { CertificateForm } from "@/components/certificateForm";
 
-import { SingleCertificate } from "@/components/certificateView/singleCertificate";
+import { SingleCertificate } from "@/components/main page components/singleCertificate";
 import {
   collection,
   getDocs,
