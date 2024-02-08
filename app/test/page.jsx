@@ -15,7 +15,6 @@ import { db } from "@/config/firebase";
 import { CertificateFormView } from "@/components/certificateFormView";
 
 async function loadQuery(func) {
-  console.log('querying');
   func("");
   const q = query(collection(db, "certificates"), orderBy("created", "desc"));
   const querySnapshot = await getDocs(q);
@@ -99,7 +98,7 @@ export default function Home() {
             return (
               <SingleCertificate
                 className="w-full overflow-hidden"
-                key={index}
+                key={Certificate.id}
                 certificate={Certificate}
                 set={setCertificate}
                 viewForm={view}
