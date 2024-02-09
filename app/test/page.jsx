@@ -15,6 +15,7 @@ import { db } from "@/config/firebase";
 import { CertificateFormView } from "@/components/certificateFormView";
 
 async function loadQuery(func) {
+ console.log('querying');
   func("");
   const q = query(collection(db, "certificates"), orderBy("created", "desc"));
   const querySnapshot = await getDocs(q);
@@ -63,7 +64,7 @@ export default function Home() {
   }
 
   function reload() {
-    loadQuery(setQuerySnapshot);
+   loadQuery(setQuerySnapshot);
   }
 
   function view() {
@@ -87,7 +88,8 @@ export default function Home() {
         <FormButton func={reload} text={"reload"} />
         <FormButton func={showCreateForm} text={"new"} />
         <FormButton text={"search"} />
-        <FormButton text={"show table"} />
+        <FormButton text={"report"} />
+        <FormButton text={"analytics"} />
       </div>
       <section className=" mx-[24px] flex flex-row min-h-[600px] box-content min-w-[800px]">
         <div

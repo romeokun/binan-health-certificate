@@ -36,7 +36,7 @@ export function SingleCertificate({ certificate, viewForm, set, reload }) {
 
   return (
     // <div>created No OrNo DateIssued Name Occupation Age Sex Nationality PlaceofWork</div>
-    <div className='bg-white rounded-full h-[32px] flex hover:scale-[100.5%] hover:bg-[rgb(188,188,188)] hover:shadow cursor-pointer overflow-x-auto overflow-y-hidden '>
+    <div className='bg-white rounded-full h-[48px] flex hover:scale-[100.5%] hover:bg-[rgb(188,188,188)] hover:shadow cursor-pointer overflow-x-auto overflow-y-hidden'>
       {/* <span className="mx-4">{created}</span> */}
       <span className="mx-4 w-[9ch] whitespace-nowrap truncate flex-none text-center ">{No}</span>
       <span className="mx-4 w-[9ch] whitespace-nowrap truncate flex-none text-center ">{OrNo}</span>
