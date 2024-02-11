@@ -1,11 +1,11 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { nationalities, baranggays } from "@/config/local";
 import { doc, setDoc, Timestamp, serverTimestamp } from "firebase/firestore";
 import { db } from "@/config/firebase";
+import QRCode from "qrcode";
 
 export function CertificateFormView({ submitFunction, certificate }) {
-  
   let date = certificate.data().DateIssued.toDate();
   let day = date.getDate();
   let month = date.getMonth() + 1;
@@ -107,15 +107,15 @@ export function CertificateFormView({ submitFunction, certificate }) {
       // todo: success modal
       alert("success");
 
-      currentNo = no
-      currentOrNo = orNo
-      currentDate = dateIssued
-      currentName = namePerson
-      currentOccupation = occupation
-      currentAge = age
-      currentSex = sex
-      currentNationality = nationality
-      currentPlaceOfWork = placeOfWork
+      currentNo = no;
+      currentOrNo = orNo;
+      currentDate = dateIssued;
+      currentName = namePerson;
+      currentOccupation = occupation;
+      currentAge = age;
+      currentSex = sex;
+      currentNationality = nationality;
+      currentPlaceOfWork = placeOfWork;
 
       try {
         submitFunction();
@@ -127,6 +127,14 @@ export function CertificateFormView({ submitFunction, certificate }) {
       alert("fail");
     }
   }
+
+  useEffect(() => {
+    const canvas = document.getElementById("canvas");
+    
+    QRCode.toCanvas(canvas, certificate.id, function (error) {
+      if (error) console.error(error);
+    });
+  }, []);
 
   return (
     <div>
@@ -286,6 +294,9 @@ export function CertificateFormView({ submitFunction, certificate }) {
         </div>
         {!editMode ? "" : "now Editing"}
       </form>
+
+      here goes qr
+      <canvas id="canvas"></canvas>
     </div>
   );
 }

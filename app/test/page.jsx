@@ -15,7 +15,6 @@ import { db } from "@/config/firebase";
 import { CertificateFormView } from "@/components/certificateFormView";
 
 async function loadQuery(func) {
- console.log('querying');
   func("");
   const q = query(collection(db, "certificates"), orderBy("created", "desc"));
   const querySnapshot = await getDocs(q);
@@ -113,7 +112,7 @@ export default function Home() {
 
       <Modal reload={reload}>
         {modalView === 'new' && <CertificateForm/>}
-        {modalView === 'view' && <CertificateFormView certificate={certificate}/>}
+        {modalView === 'view' && <CertificateFormView key={certificate.id} certificate={certificate}/>}
       </Modal>
     </main>
   );
