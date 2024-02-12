@@ -12,7 +12,7 @@ function Modal( {children, reload} ) {
        modal.classList.add("hidden");
        reload();
      }}
-     className="fixed bg-slate-300/80 w-full h-full -z-10"
+     className="fixed bg-slate-300/80 w-[100vw] h-full -z-10"
    ></div>
    <div
      id="modalcontent"

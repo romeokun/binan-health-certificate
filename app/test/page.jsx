@@ -13,6 +13,7 @@ import { SingleCertificate } from "@/components/main page components/singleCerti
 import { collection, getDocs, query, orderBy } from "firebase/firestore";
 import { db } from "@/config/firebase";
 import { CertificateFormView } from "@/components/certificateFormView";
+import SearchView from '@/components/searchView';
 
 async function loadQuery(func) {
   func("");
@@ -72,6 +73,11 @@ export default function Home() {
     modal.classList.remove("hidden");
   }
 
+  function search() {
+    const modal = document.getElementById("modal");
+    setModalView('search');
+    modal.classList.remove("hidden");
+  }
   
 
   return (
@@ -86,7 +92,7 @@ export default function Home() {
       <div className="rounded-t-lg bg-emerald-200 min-w-[800px] mx-[24px] mt-[4px] h-[48px] border-b-[1px] border-black flex justify-center content-center gap-2">
         <FormButton func={reload} text={"reload"} />
         <FormButton func={showCreateForm} text={"new"} />
-        <FormButton text={"search"} />
+        <FormButton func={search} text={"search"} />
         <FormButton text={"report"} />
         <FormButton text={"analytics"} />
       </div>
@@ -113,6 +119,7 @@ export default function Home() {
       <Modal reload={reload}>
         {modalView === 'new' && <CertificateForm/>}
         {modalView === 'view' && <CertificateFormView key={certificate.id} certificate={certificate}/>}
+        {modalView === 'search' && <SearchView changeModalView={setModalView} setCertificate={setCertificate} />}
       </Modal>
     </main>
   );
