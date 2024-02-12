@@ -294,8 +294,7 @@ export function CertificateFormView({ submitFunction, certificate }) {
         </div>
         {!editMode ? "" : "now Editing"}
       </form>
-
-      here goes qr
+      
       <canvas id="canvas"></canvas>
     </div>
   );
