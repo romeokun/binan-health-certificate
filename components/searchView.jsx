@@ -21,36 +21,39 @@ async function loadQuery(docID, setCertificate, changeModalView) {
 }
 
 function SearchView({ modalView, changeModalView, setCertificate }) {
-  let html5QrcodeScanner;
-
-  function initializeScannerClosure() {
-    let isRendered = false;
+  function initializeScannerClosure(componentId, html5QrcodeScanner) {
     let hasBeenCalled = false;
-    return (componentId, bool) => {
-      if (!hasBeenCalled) {
-        try {
+    let rendered = false;
+    return () => {
+      console.log("hasbeencalled: ", hasBeenCalled);
+
+      try {
+        if (!hasBeenCalled) {
           html5QrcodeScanner = new Html5QrcodeScanner(
             componentId,
             { fps: 10, qrbox: 250 },
             /* verbose= */ false
           );
-
           hasBeenCalled = true;
-        } catch (error) {
-          console.error(error);
         }
-      }
-      console.log("render: ", bool === true && !isRendered);
-      if (bool === true && !isRendered) {
-        html5QrcodeScanner.render(onScanSuccess);
-        isRendered = true;
-      } else {
-        html5QrcodeScanner.clear();
-        isRendered = false;
+
+        if (!rendered) {
+          setTimeout(() => {
+            const container = document.getElementById(componentId);
+            if (html5QrcodeScanner && container?.innerHTML == "") {
+              html5QrcodeScanner.render(onScanSuccess);
+            }
+          }, 0);
+          rendered = true;
+        } else {
+          html5QrcodeScanner.clear();
+          rendered = false;
+        }
+      } catch (error) {
+        console.error(error);
       }
     };
   }
-  const initializeScanner = initializeScannerClosure();
 
   function onScanSuccess(decodedText, decodedResult) {
     let result = decodedText.split("-");
@@ -62,12 +65,15 @@ function SearchView({ modalView, changeModalView, setCertificate }) {
   }
 
   const id = useId();
+  let html5QrcodeScanner;
+  const initializeScanner = initializeScannerClosure(id, html5QrcodeScanner);
+
   useEffect(() => {
     console.log("open");
-    initializeScanner(id, true);
+    initializeScanner();
     return () => {
       console.log("close");
-      initializeScanner(id, false);
+      initializeScanner();
     };
   }, []);
 
