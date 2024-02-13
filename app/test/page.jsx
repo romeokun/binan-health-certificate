@@ -119,7 +119,7 @@ export default function Home() {
       <Modal reload={reload}>
         {modalView === 'new' && <CertificateForm/>}
         {modalView === 'view' && <CertificateFormView key={certificate.id} certificate={certificate}/>}
-        {modalView === 'search' && <SearchView changeModalView={setModalView} setCertificate={setCertificate} />}
+        {modalView === 'search' && <SearchView modalView={modalView} changeModalView={setModalView} setCertificate={setCertificate} />}
       </Modal>
     </main>
   );

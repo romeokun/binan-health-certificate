@@ -9,7 +9,7 @@ async function loadQuery(docID, setCertificate) {
     const docSnap = await getDoc(docRef);
 
     if (docSnap.exists()) {
-      console.log("Document data:",docSnap);
+      console.log("Document data:", docSnap);
       setCertificate(docSnap);
     } else {
       console.log("No such document!");
@@ -19,7 +19,7 @@ async function loadQuery(docID, setCertificate) {
   }
 }
 
-function SearchView({ changeModalView, setCertificate }) {
+function SearchView({ modalView, changeModalView, setCertificate }) {
   let html5QrcodeScanner;
 
   function initializeScannerClosure() {
@@ -44,8 +44,14 @@ function SearchView({ changeModalView, setCertificate }) {
   const initializeScanner = initializeScannerClosure();
 
   function onScanSuccess(decodedText, decodedResult) {
-    loadQuery(decodedText, setCertificate);
-    changeModalView("view");
+    let result = decodedText.split("-");
+    if (result[0] === "binancert") {
+      loadQuery(result[1], setCertificate);
+      changeModalView("view");
+      html5QrcodeScanner.clear();
+    } else {
+      console.log('qr is not binancert');
+    }
   }
 
   const id = useId();

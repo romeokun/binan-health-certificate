@@ -131,7 +131,7 @@ export function CertificateFormView({ submitFunction, certificate }) {
   useEffect(() => {
     const canvas = document.getElementById("canvas");
     
-    QRCode.toCanvas(canvas, certificate.id, function (error) {
+    QRCode.toCanvas(canvas, 'binancert-' + certificate.id, function (error) {
       if (error) console.error(error);
     });
   }, []);
