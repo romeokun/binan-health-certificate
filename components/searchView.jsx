@@ -9,7 +9,6 @@ async function loadQuery(docID, setCertificate, changeModalView) {
     const docSnap = await getDoc(docRef);
 
     if (docSnap.exists()) {
-      console.log("Document data:", docSnap);
       setCertificate(docSnap);
       changeModalView("view");
     } else {
@@ -25,7 +24,6 @@ function SearchView({ modalView, changeModalView, setCertificate }) {
     let hasBeenCalled = false;
     let rendered = false;
     return () => {
-      console.log("hasbeencalled: ", hasBeenCalled);
 
       try {
         if (!hasBeenCalled) {
@@ -69,10 +67,8 @@ function SearchView({ modalView, changeModalView, setCertificate }) {
   const initializeScanner = initializeScannerClosure(id, html5QrcodeScanner);
 
   useEffect(() => {
-    console.log("open");
     initializeScanner();
     return () => {
-      console.log("close");
       initializeScanner();
     };
   }, []);
