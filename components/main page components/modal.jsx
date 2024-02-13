@@ -1,6 +1,6 @@
 import React from 'react'
 
-function Modal( {children, reload} ) {
+function Modal( {children, reload, setModalView} ) {
   return (
    <div
    id="modal"
@@ -10,6 +10,7 @@ function Modal( {children, reload} ) {
      onClick={() => {
        const modal = document.getElementById("modal");
        modal.classList.add("hidden");
+       setModalView('none')
        reload();
      }}
      className="fixed bg-slate-300/80 w-[100vw] h-full -z-10"

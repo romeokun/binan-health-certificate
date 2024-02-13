@@ -3,7 +3,7 @@ import { Html5QrcodeScanner } from "html5-qrcode";
 import { doc, getDoc } from "firebase/firestore";
 import { db } from "@/config/firebase";
 
-async function loadQuery(docID, setCertificate) {
+async function loadQuery(docID, setCertificate, changeModalView) {
   try {
     const docRef = doc(db, "certificates", docID);
     const docSnap = await getDoc(docRef);
@@ -11,6 +11,7 @@ async function loadQuery(docID, setCertificate) {
     if (docSnap.exists()) {
       console.log("Document data:", docSnap);
       setCertificate(docSnap);
+      changeModalView("view");
     } else {
       console.log("No such document!");
     }
@@ -23,8 +24,9 @@ function SearchView({ modalView, changeModalView, setCertificate }) {
   let html5QrcodeScanner;
 
   function initializeScannerClosure() {
+    let isRendered = false;
     let hasBeenCalled = false;
-    return (componentId) => {
+    return (componentId, bool) => {
       if (!hasBeenCalled) {
         try {
           html5QrcodeScanner = new Html5QrcodeScanner(
@@ -32,12 +34,19 @@ function SearchView({ modalView, changeModalView, setCertificate }) {
             { fps: 10, qrbox: 250 },
             /* verbose= */ false
           );
+
+          hasBeenCalled = true;
         } catch (error) {
           console.error(error);
         }
-
+      }
+      console.log("render: ", bool === true && !isRendered);
+      if (bool === true && !isRendered) {
         html5QrcodeScanner.render(onScanSuccess);
-        hasBeenCalled = true;
+        isRendered = true;
+      } else {
+        html5QrcodeScanner.clear();
+        isRendered = false;
       }
     };
   }
@@ -46,18 +55,20 @@ function SearchView({ modalView, changeModalView, setCertificate }) {
   function onScanSuccess(decodedText, decodedResult) {
     let result = decodedText.split("-");
     if (result[0] === "binancert") {
-      loadQuery(result[1], setCertificate);
-      changeModalView("view");
-      html5QrcodeScanner.clear();
+      loadQuery(result[1], setCertificate, changeModalView);
     } else {
-      console.log('qr is not binancert');
+      console.log("qr is not binancert");
     }
   }
 
   const id = useId();
   useEffect(() => {
-    initializeScanner(id);
-    return () => {};
+    console.log("open");
+    initializeScanner(id, true);
+    return () => {
+      console.log("close");
+      initializeScanner(id, false);
+    };
   }, []);
 
   return <div id={id}></div>;

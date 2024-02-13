@@ -13,7 +13,7 @@ import { SingleCertificate } from "@/components/main page components/singleCerti
 import { collection, getDocs, query, orderBy } from "firebase/firestore";
 import { db } from "@/config/firebase";
 import { CertificateFormView } from "@/components/certificateFormView";
-import SearchView from '@/components/searchView';
+import SearchView from "@/components/searchView";
 
 async function loadQuery(func) {
   func("");
@@ -28,7 +28,7 @@ export default function Home() {
   const [querySnapshot, setQuerySnapshot] = useState("");
   const [certificate, setCertificate] = useState("");
 
-  const [modalView, setModalView] = useState('new')
+  const [modalView, setModalView] = useState("none");
 
   useEffect(() => {
     onAuthStateChanged(auth, (user) => {
@@ -59,26 +59,25 @@ export default function Home() {
 
   function showCreateForm() {
     const modal = document.getElementById("modal");
-    setModalView('new');
+    setModalView("new");
     modal.classList.remove("hidden");
   }
 
   function reload() {
-   loadQuery(setQuerySnapshot);
+    loadQuery(setQuerySnapshot);
   }
 
   function view() {
     const modal = document.getElementById("modal");
-    setModalView('view');
+    setModalView("view");
     modal.classList.remove("hidden");
   }
 
   function search() {
     const modal = document.getElementById("modal");
-    setModalView('search');
+    setModalView("search");
     modal.classList.remove("hidden");
   }
-  
 
   return (
     <main>
@@ -116,12 +115,19 @@ export default function Home() {
         </div>
       </section>
 
-      <Modal reload={reload}>
-        {modalView === 'new' && <CertificateForm/>}
-        {modalView === 'view' && <CertificateFormView key={certificate.id} certificate={certificate}/>}
-        {modalView === 'search' && <SearchView modalView={modalView} changeModalView={setModalView} setCertificate={setCertificate} />}
+      <Modal reload={reload} setModalView={setModalView}>
+        {modalView === "new" && <CertificateForm />}
+        {modalView === "view" && (
+          <CertificateFormView key={certificate.id} certificate={certificate} />
+        )}
+        {modalView === "search" && (
+          <SearchView
+            modalView={modalView}
+            changeModalView={setModalView}
+            setCertificate={setCertificate}
+          />
+        )}
       </Modal>
     </main>
   );
 }
-
