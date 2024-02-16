@@ -78,6 +78,38 @@ export default function Home() {
     setModalView("search");
     modal.classList.remove("hidden");
   }
+  function report() {
+    let arr = [
+      "name,occupation,age,sex,placeofwork,nationality",
+
+      ...querySnapshot?.docs?.map((x) => {
+        const data = x.data();
+        const str =
+          data.Name +
+          "," +
+          data.Occupation +
+          "," +
+          data.Age +
+          "," +
+          data.Sex +
+          "," +
+          data.PlaceOfWork +
+          "," +
+          data.Nationality;
+        return str;
+      }),
+    ];
+
+    const csv = arr.join("\n");
+    console.log(csv);
+
+    const blob = new Blob([csv], { type: "text/csv" });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.setAttribute("href", url);
+    a.setAttribute("download", "download.csv");
+    a.click();
+  }
 
   return (
     <main>
@@ -92,8 +124,8 @@ export default function Home() {
         <FormButton func={reload} text={"reload"} />
         <FormButton func={showCreateForm} text={"new"} />
         <FormButton func={search} text={"search"} />
-        <FormButton text={"report"} />
-        <FormButton text={"analytics"} />
+        <FormButton func={report} text={"report"} />
+        <FormButton func={()=> {location.href='/analytics'}} text={"analytics"} />
       </div>
       <section className=" mx-[24px] flex flex-row min-h-[600px] box-content min-w-[800px]">
         <div
