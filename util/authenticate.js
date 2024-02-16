@@ -1,17 +1,16 @@
-import { onAuthStateChanged } from "firebase/auth";
 import { auth } from "@/config/firebase";
+import { onAuthStateChanged } from "firebase/auth";
 
-export const authenticate = () => {
-  let result
+export default () => {
+  
   onAuthStateChanged(auth, (user) => {
-    console.log(user);
     if (user) {
-      result = true
+      setLoggedIn(true);
     } else {
-      result = false
+      setLoggedIn(false);
     }
+    setInitialized(true);
+  }); 
+} 
 
-  })
-  return result
-};
 

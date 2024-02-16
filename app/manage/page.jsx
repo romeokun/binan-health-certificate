@@ -1,12 +1,17 @@
-import React from 'react'
+"use client";
+
+import React, { useEffect } from "react";
+import authenticate from "@/util/authenticate";
 
 // todo: for admin, manage users such as add and change role
 // 3 role: admin, normal, disabled
 // admin must not able to change another admin
-function page() {
-  return (
-    <div>page</div>
-  )
+function Manage() {
+  useEffect(() => {
+    authenticate();
+  }, []);
+
+  return <div>page</div>;
 }
 
-export default page
+export default Manage;
