@@ -148,7 +148,7 @@ export default function Home() {
       </section>
 
       <Modal reload={reload} setModalView={setModalView}>
-        {modalView === "new" && <CertificateForm />}
+        {modalView === "new" && <CertificateForm key={certificate.id} submitFunction={setCertificate}/>}
         {modalView === "view" && (
           <CertificateFormView key={certificate.id} certificate={certificate} />
         )}

@@ -39,7 +39,7 @@ export function CertificateForm( {submitFunction} ) {
         namePerson.trim() != '' && occupation.trim() != ''
     ) {
 
-      await addDoc(collection(db, 'certificates'), {
+      const ref = await addDoc(collection(db, 'certificates'), {
         created: serverTimestamp(),
         No: no,
         OrNo: orNo,
@@ -55,7 +55,7 @@ export function CertificateForm( {submitFunction} ) {
       // todo: success modal
       alert('success')
       try {
-        submitFunction()
+        submitFunction(ref)
       } catch (error) {
         console.error(error);
       }
