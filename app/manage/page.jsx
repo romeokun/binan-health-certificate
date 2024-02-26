@@ -7,10 +7,7 @@ import authenticate from "@/util/authenticate";
 // 3 role: admin, normal, disabled
 // admin must not able to change another admin
 function Manage() {
-  useEffect(() => {
-    authenticate();
-  }, []);
-
+  
   return <div>page</div>;
 }
 
