@@ -1,9 +1,6 @@
 "use client";
-import { auth } from "@/config/firebase";
-import { onAuthStateChanged, signOut } from "firebase/auth";
-import { useEffect, useState } from "react";
-import { redirect } from "next/navigation";
-import { Loading } from "@/components/loading";
+import { AuthContext } from "@/components/auth-provider";
+import { useContext, useEffect, useState } from "react";
 
 import { CertificateForm } from "@/components/certificateForm";
 import FormButton from "@/components/main page components/formButton";
@@ -14,6 +11,7 @@ import { collection, getDocs, query, orderBy } from "firebase/firestore";
 import { db } from "@/config/firebase";
 import { CertificateFormView } from "@/components/certificateFormView";
 import SearchView from "@/components/searchView";
+import { useRouter } from "next/navigation";
 
 async function loadQuery(func) {
   func("");
@@ -23,39 +21,21 @@ async function loadQuery(func) {
 }
 
 export default function Home() {
-  const [loggedIn, setLoggedIn] = useState(false);
-  const [initialized, setInitialized] = useState(false);
+  const router = useRouter();
+  const { currentUser, isLoading, signout } = useContext(AuthContext);
+
   const [querySnapshot, setQuerySnapshot] = useState("");
   const [certificate, setCertificate] = useState("");
 
   const [modalView, setModalView] = useState("none");
 
   useEffect(() => {
-    onAuthStateChanged(auth, (user) => {
-      if (user) {
-        setLoggedIn(true);
-      } else {
-        setLoggedIn(false);
-      }
-      setInitialized(true);
-    });
-    loadQuery(setQuerySnapshot);
-  }, []);
-
-  if (!initialized) {
-    return <Loading />;
-  } else if (!loggedIn) {
-    redirect("/login");
-  }
-
-  const signout = async () => {
-    try {
-      await signOut(auth);
+    if (!currentUser && !isLoading) {
       router.push("/login");
-    } catch (error) {
-      console.error(error);
+    } else {
+      loadQuery(setQuerySnapshot);
     }
-  };
+  }, []);
 
   function showCreateForm() {
     const modal = document.getElementById("modal");
@@ -115,7 +95,13 @@ export default function Home() {
     <main>
       <nav className="bg-emerald-400 mb-[12px] min-w-[800px]">
         binan health office - Username
-        <button className="border m-2" onClick={signout}>
+        <button
+          className="border m-2"
+          onClick={(e) => {
+            console.log("clicked");
+            signout();
+          }}
+        >
           signout
         </button>
       </nav>
@@ -125,7 +111,12 @@ export default function Home() {
         <FormButton func={showCreateForm} text={"new"} />
         <FormButton func={search} text={"search"} />
         <FormButton func={report} text={"report"} />
-        <FormButton func={()=> {location.href='/analytics'}} text={"analytics"} />
+        <FormButton
+          func={() => {
+            location.href = "/analytics";
+          }}
+          text={"analytics"}
+        />
       </div>
       <section className=" mx-[24px] flex flex-row min-h-[600px] box-content min-w-[800px]">
         <div
@@ -148,7 +139,12 @@ export default function Home() {
       </section>
 
       <Modal reload={reload} setModalView={setModalView}>
-        {modalView === "new" && <CertificateForm key={certificate.id} submitFunction={setCertificate}/>}
+        {modalView === "new" && (
+          <CertificateForm
+            key={certificate.id}
+            submitFunction={setCertificate}
+          />
+        )}
         {modalView === "view" && (
           <CertificateFormView key={certificate.id} certificate={certificate} />
         )}
