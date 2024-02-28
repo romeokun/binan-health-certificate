@@ -1,7 +1,6 @@
 "use client";
 import React, { useContext, useEffect } from "react";
 import { AuthContext } from "@/components/auth-provider";
-import DashboardComponent from "@/components/dashboard/dashboard";
 
 function Dashboard() {
   const { currentUser } = useContext(AuthContext);
@@ -12,9 +11,10 @@ function Dashboard() {
   }, []);
 
   return (
-    <div className="grid place-items-center min-h-screen ">
-      <DashboardComponent>dash</DashboardComponent>
-    </div>
+    <>
+      Month Year Company Renew refresh
+      <div>table</div>
+    </>
   );
 }
 

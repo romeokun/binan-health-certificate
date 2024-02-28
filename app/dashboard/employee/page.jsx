@@ -1,7 +1,6 @@
 "use client";
 import React, { useContext, useEffect } from "react";
 import { AuthContext } from "@/components/auth-provider";
-import DashboardComponent from "@/components/dashboard/dashboard";
 
 function Employee() {
   const { currentUser } = useContext(AuthContext);
@@ -12,9 +11,7 @@ function Employee() {
   }, []);
 
   return (
-    <div className="grid place-items-center min-h-screen ">
-      <DashboardComponent>employee</DashboardComponent>
-    </div>
+    <>Employee</>
   );
 }
 
