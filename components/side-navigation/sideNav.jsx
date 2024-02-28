@@ -1,3 +1,4 @@
+'use client'
 import React, { useState } from "react";
 
 import Link from "next/link";
@@ -22,7 +23,7 @@ function sideNavigation() {
   const defaultStyle =
     "top-0 h-screen bg-slate-700 overflow-y-auto overflow-x-hidden transition w-[320px]";
   return (
-    <>
+    <div>
       <div
         className={
           defaultStyle + (showNav ? " sticky " : " fixed translate-x-[-100%] ")
@@ -36,7 +37,7 @@ function sideNavigation() {
           </div>
           <ul>
             {navigations.map((nav) => {
-              const samePage = pathname == nav.link;
+              const samePage = pathname.includes(nav.link);
               return (
                 <li key={nav.link}>
                   <NavigationButton isPressed={samePage} link={nav.link}>
@@ -58,7 +59,7 @@ function sideNavigation() {
         {showNav && <ChevronLeft />}
         {!showNav && <ChevronRight />}
       </button>
-    </>
+    </div>
   );
 }
 

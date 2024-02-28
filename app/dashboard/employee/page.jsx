@@ -3,7 +3,7 @@ import React, { useContext, useEffect } from "react";
 import { AuthContext } from "@/components/auth-provider";
 import DashboardComponent from "@/components/dashboard/dashboard";
 
-function Dashboard() {
+function Employee() {
   const { currentUser } = useContext(AuthContext);
   useEffect(() => {
     if (!currentUser && !isLoading) {
@@ -13,9 +13,9 @@ function Dashboard() {
 
   return (
     <div className="grid place-items-center min-h-screen ">
-      <DashboardComponent>dash</DashboardComponent>
+      <DashboardComponent>employee</DashboardComponent>
     </div>
   );
 }
 
-export default Dashboard;
+export default Employee;
