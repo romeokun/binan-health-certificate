@@ -18,7 +18,7 @@ const DashLink = ({ href, children }) => {
 
   return (
     <NavigationMenuItem>
-      <Link href={href}>
+      <Link href={href} legacyBehavior passHref>
         <NavigationMenuLink
           active={active}
           className={navigationMenuTriggerStyle()}
@@ -33,7 +33,7 @@ const DashLink = ({ href, children }) => {
 function DashboardComponent({ children }) {
   return (
     <div className="min-w-[300px] w-8/12 min-h-[300px] p-10 border rounded shadow bg-white">
-      <h1 className="pl-4">Dashboard</h1>
+      <h1 className="pl-4 pb-2 text-2xl font-semibold">Dashboard</h1>
       <NavigationMenu>
         <NavigationMenuList className="border p-2 rounded-sm shadow">
           <DashLink href="/dashboard"> Record </DashLink>
