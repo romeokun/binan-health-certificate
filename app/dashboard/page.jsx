@@ -3,7 +3,7 @@ import React, { useContext, useEffect } from "react";
 import { AuthContext } from "@/components/auth-provider";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { RotateCcw } from "lucide-react";
+import { RotateCcw, MoreHorizontal } from "lucide-react";
 import {
   Table,
   TableBody,
@@ -89,31 +89,26 @@ function Dashboard() {
           <TableCaption>Nothing to Show / Page 1 of 100</TableCaption>
           <TableHeader>
             <TableRow>
-              <TableHead className="w-[20ch]">ID</TableHead>
-              <TableHead className="w-[20ch]">Name</TableHead>
-              <TableHead className="">Place of Work</TableHead>
+              <TableHead className="w-[200px]">Name</TableHead>
+              <TableHead className="w-[200px]">Place of Work</TableHead>
               <TableHead className="">Occupation</TableHead>
               <TableHead className="text-center">Date Issued</TableHead>
+              <TableHead className="w-[100px]"></TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
-            <TableRow onClick={()=> {console.log('clicked');}}>
-              <TableCell className="font-medium">
-                3CdLQuqOTQvZhehgCRHf
-              </TableCell>
+            <TableRow
+              onClick={() => {
+                console.log("clicked");
+              }}
+            >
               <TableCell>Jerome Evangelista</TableCell>
               <TableCell className="">UPHSL</TableCell>
               <TableCell className="">Student</TableCell>
               <TableCell className="text-center">02-29-24</TableCell>
-            </TableRow>
-            <TableRow>
-              <TableCell className="font-medium">
-                3CdLQuqOTQvZhehgCRHf
+              <TableCell className="grid place-items-center">
+                <MoreHorizontal />
               </TableCell>
-              <TableCell>Jerome Evangelista</TableCell>
-              <TableCell className="">UPHSL</TableCell>
-              <TableCell className="">Student</TableCell>
-              <TableCell className="text-center">02-29-24</TableCell>
             </TableRow>
           </TableBody>
         </Table>
