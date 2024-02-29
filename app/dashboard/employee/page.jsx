@@ -1,5 +1,5 @@
 "use client";
-import React, { useContext, useEffect } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { AuthContext } from "@/components/auth-provider";
 import { Button } from "@/components/ui/button";
 import { RotateCcw, MoreHorizontal } from "lucide-react";
@@ -30,14 +30,28 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import Link from "next/link";
+import { useSearchParams, useRouter } from "next/navigation";
 
 function Employee() {
   const { currentUser } = useContext(AuthContext);
+  const searchParams = useSearchParams();
+  const [showDialog, setShowDialog] = useState(searchParams.has("id"));
+
   useEffect(() => {
     if (!currentUser && !isLoading) {
       router.push("/login");
     }
   }, []);
+
+  useEffect(() => {
+    if (searchParams.has("id")) {
+      setShowDialog(true);
+    } else {
+      setShowDialog(false);
+    }
+  }, [searchParams]);
+
 
   return (
     <>
@@ -66,27 +80,54 @@ function Employee() {
           <TableBody>
             <TableRow>
               <TableCell className="font-medium">
-                3CdLQuqOTQvZhehgCRHf
+                <Link
+                  href={{
+                    pathname: "/dashboard",
+                    query: { id: "3CdLQuqOTQvZhehgCRHf" },
+                  }}
+                >
+                  3CdLQuqOTQvZhehgCRHf
+                </Link>
               </TableCell>
               <TableCell>Jerome Evangelista</TableCell>
               <TableCell className="">Male</TableCell>
               <TableCell className="">2001</TableCell>
               <TableCell className="grid place-items-center">
-                <View>
+                <Link
+                  href={{
+                    pathname: "/dashboard/employee",
+                    query: { id: "3CdLQuqOTQvZhehgCRHf" },
+                  }}
+                >
                   <MoreHorizontal />
-                </View>
+                </Link>
               </TableCell>
             </TableRow>
           </TableBody>
         </Table>
       </div>
+      <View open={showDialog} isOpen={showDialog} set={setShowDialog}></View>
     </>
   );
 }
 
-const View = ({ children }) => {
+const View = ({ children, employee, set, ...props }) => {
+  // use employee object to display
+  const [isEdit, setIsEdit] = useState(false);
+
+  const handleEdit = () => {
+    setIsEdit(!isEdit);
+  };
+
+  const router = useRouter();
+  const handleOnOpenChange = (open) => {
+    set(open);
+    if (!open) {
+      router.push("/dashboard/employee");
+    }
+  };
   return (
-    <Dialog>
+    <Dialog onOpenChange={handleOnOpenChange} {...props}>
       <DialogTrigger>{children}</DialogTrigger>
       <DialogContent>
         <DialogHeader>
@@ -106,7 +147,7 @@ const View = ({ children }) => {
             <Label className="text-right">Name</Label>
             <Input
               className="col-span-3"
-              disabled
+              disabled={!isEdit}
               type="text"
               defaultValue="Jerome Evangelista"
             />
@@ -114,7 +155,7 @@ const View = ({ children }) => {
           <div className="grid grid-cols-4 items-center gap-4">
             <Label className="text-right">Sex</Label>
             <SelectOption
-              disabled
+              disabled={!isEdit}
               data={[
                 { value: "male", text: "Male" },
                 { value: "female", text: "Female" },
@@ -125,7 +166,7 @@ const View = ({ children }) => {
           <div className="grid grid-cols-4 items-center gap-4">
             <Label className="text-right">Birthyear</Label>
             <Input
-              disabled
+              disabled={!isEdit}
               type="text"
               pattern="[0-9]+"
               className="col-span-3"
@@ -140,8 +181,21 @@ const View = ({ children }) => {
           </div>
         </div>
         <DialogFooter>
-          <Button type="">Cancel</Button>
-          <Button type="">Edit</Button>
+          {isEdit ? (
+            <>
+              <Button onClick={handleEdit} type="">
+                Cancel
+              </Button>
+              <Button type="">Save</Button>
+            </>
+          ) : (
+            <>
+              <Button variant="destructive">Delete</Button>
+              <Button onClick={handleEdit} type="">
+                Edit
+              </Button>
+            </>
+          )}
         </DialogFooter>
       </DialogContent>
     </Dialog>
