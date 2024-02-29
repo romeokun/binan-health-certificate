@@ -1,7 +1,8 @@
 import SideNavigation from "@/components/side-navigation/sideNav";
 import DashboardComponent from "@/components/dashboard/dashboard";
 
-function template({ children }) {
+function layout({ children }) {
+
   return (
     <main className={"grid grid-cols-[min-content_1fr] bg-slate-100"}>
       <SideNavigation />
@@ -13,4 +14,4 @@ function template({ children }) {
   );
 }
 
-export default template;
+export default layout;

@@ -1,5 +1,5 @@
 'use client'
-import React, { useState } from "react";
+import React, { useState,  } from "react";
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -8,6 +8,9 @@ import { Separator } from "@/components/ui/separator";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
 function sideNavigation() {
+
+  console.log('side nav render');
+
   const [showNav, setShowNav] = useState(true);
   const handleToggleNav = () => {
     setShowNav(!showNav);
@@ -20,7 +23,6 @@ function sideNavigation() {
     { link: "/manage", text: "Manage" },
   ];
 
-  // useEffect(() => {}, []);
   const defaultStyle =
     "top-0 h-screen bg-slate-700 overflow-y-auto overflow-x-hidden transition w-[320px]";
   return (
