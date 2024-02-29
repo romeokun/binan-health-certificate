@@ -4,6 +4,15 @@ import { AuthContext } from "@/components/auth-provider";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { RotateCcw } from "lucide-react";
+import {
+  Table,
+  TableBody,
+  TableCaption,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 
 import {
   Select,
@@ -52,9 +61,11 @@ function Dashboard() {
       <div className="grid mt-2 grid-cols-[1fr_min-content]">
         <div></div>
         <div className="grid grid-cols-[min-content_min-content_min-content]">
-          <Button className="mx-1" >Filter</Button>
+          <Button className="mx-1">Filter</Button>
           <Button className="mx-1">Renew</Button>
-          <Button className="mx-1" variant="outline"><RotateCcw /></Button>
+          <Button className="mx-1" variant="outline">
+            <RotateCcw />
+          </Button>
         </div>
       </div>
       {/* <div className="grid mt-2 grid-cols-[min-content_min-content_min-content_1fr]">
@@ -73,8 +84,40 @@ function Dashboard() {
           <Button>Search</Button>
         </div>
       </div> */}
-      Month Year Company Renew refresh
-      <div>table</div>
+      <div className="mt-4">
+        <Table>
+          <TableCaption>Nothing to Show / Page 1 of 100</TableCaption>
+          <TableHeader>
+            <TableRow>
+              <TableHead className="w-[20ch]">ID</TableHead>
+              <TableHead className="w-[20ch]">Name</TableHead>
+              <TableHead className="">Place of Work</TableHead>
+              <TableHead className="">Occupation</TableHead>
+              <TableHead className="text-center">Date Issued</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            <TableRow onClick={()=> {console.log('clicked');}}>
+              <TableCell className="font-medium">
+                3CdLQuqOTQvZhehgCRHf
+              </TableCell>
+              <TableCell>Jerome Evangelista</TableCell>
+              <TableCell className="">UPHSL</TableCell>
+              <TableCell className="">Student</TableCell>
+              <TableCell className="text-center">02-29-24</TableCell>
+            </TableRow>
+            <TableRow>
+              <TableCell className="font-medium">
+                3CdLQuqOTQvZhehgCRHf
+              </TableCell>
+              <TableCell>Jerome Evangelista</TableCell>
+              <TableCell className="">UPHSL</TableCell>
+              <TableCell className="">Student</TableCell>
+              <TableCell className="text-center">02-29-24</TableCell>
+            </TableRow>
+          </TableBody>
+        </Table>
+      </div>
     </>
   );
 }

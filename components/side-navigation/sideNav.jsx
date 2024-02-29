@@ -16,6 +16,7 @@ function sideNavigation() {
   const pathname = usePathname();
   const navigations = [
     { link: "/dashboard", text: "Dashboard" },
+    { link: "/analytics", text: "Analytics" },
     { link: "/manage", text: "Manage" },
   ];
 
@@ -35,7 +36,7 @@ function sideNavigation() {
               Binan Health Certificate
             </span>
           </div>
-          <ul>
+          <ul className="bg-slate-600">
             {navigations.map((nav) => {
               const samePage = pathname.includes(nav.link);
               return (
@@ -51,7 +52,7 @@ function sideNavigation() {
       </div>
       <button
         className={
-          "h-[50px] w-[50px] rounded-full fixed flex justify-center content-center flex-wrap bottom-2 " +
+          "h-[50px] w-[50px] rounded-full fixed flex justify-center content-center flex-wrap bottom-2 shadow-black shadow-lg " +
           (showNav ? "bg-white left-[250px]" : "bg-slate-400 left-2")
         }
         onClick={handleToggleNav}
@@ -66,7 +67,7 @@ function sideNavigation() {
 function NavigationButton({ link, children, isPressed }) {
   return (
     <Link href={link}>
-      <Toggle className="block w-9/12 mx-auto my-1" pressed={isPressed}>
+      <Toggle className="block w-9/12 mx-auto my-1 text-left" pressed={isPressed}>
         {children}
       </Toggle>
     </Link>
