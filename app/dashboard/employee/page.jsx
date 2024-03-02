@@ -43,45 +43,74 @@ import {
   addDoc,
   Timestamp,
   serverTimestamp,
+  limit,
+  startAfter,
 } from "firebase/firestore";
 import { db } from "@/config/firebase";
 import { format } from "date-fns";
 import { ScrollArea } from "@/components/ui/scroll-area";
 
-async function loadQuery({
-  collectionID,
-  order,
-  setSnap,
-  setLoading,
-  condition,
-}) {
-  setSnap("");
-  setLoading(true);
-  const q = condition
-    ? query(collection(db, collectionID), condition, order)
-    : query(collection(db, collectionID), order);
-  const querySnapshot = await getDocs(q);
-  setSnap(querySnapshot);
-  setLoading(false);
+const PAGELIMIT = 25;
+
+function handleQuery(array = []) {
+  // return array.filter(x => x !== null)
+  const x = array.filter((x) => x);
+  return x;
+}
+async function loadQuery({ collectionID, order, condition, loadAfter }) {
+  const q = query(
+    collection(db, collectionID),
+    ...handleQuery([order, condition, loadAfter]),
+    limit(PAGELIMIT)
+  );
+
+  return getDocs(q);
 }
 
-function employeesQuery({ setSnap, setLoading }) {
+function employeesQuery({ setSnap, setLoading, setCallback, loadAfter }) {
   loadQuery({
     collectionID: "employees",
     order: orderBy("created", "desc"),
     setSnap,
     setLoading,
+    loadAfter,
+  }).then((result) =>
+    setSnap((previous) => {
+      return setCallback({ prev: previous, res: result });
+    })
+  );
+}
+
+function loadMoreEmployees({ setSnap, setLoading, cursor }) {
+  employeesQuery({
+    setSnap,
+    setLoading,
+    loadAfter: startAfter(cursor),
+    setCallback: ({ prev, res }) => {
+      return [...prev, ...res.docs];
+    },
+  });
+}
+
+function initializeEmployees({ setSnap, setLoading }) {
+  employeesQuery({
+    setSnap,
+    setLoading,
+    setCallback: ({ res }) => {
+      return [...res.docs];
+    },
   });
 }
 
 function certificatesQuery({ setSnap, setLoading, employeeID }) {
+  setSnap("");
+  setLoading(true);
   loadQuery({
     collectionID: "records",
     order: orderBy("dateIssuance", "desc"),
     condition: where("employee", "==", employeeID),
-    setSnap,
-    setLoading,
-  });
+  }).then((result) => setSnap(result));
+  setLoading(false);
 }
 
 async function loadDoc(id, setEmployee, setIsQuerying) {
@@ -105,7 +134,7 @@ function Employee() {
   const [showNewDialog, setShowNewDialog] = useState(false);
   const [employee, setEmployee] = useState(null);
   const [isQuerying, setIsQuerying] = useState(false);
-  const [query, setQuery] = useState(null);
+  const [query, setQuery] = useState([]);
   const [tableQuerying, setTableQuerying] = useState(false);
 
   useEffect(() => {
@@ -114,7 +143,7 @@ function Employee() {
     }
 
     try {
-      employeesQuery({ setSnap: setQuery, setLoading: setTableQuerying });
+      initializeEmployees({ setSnap: setQuery, setLoading: setTableQuerying });
     } catch (error) {
       console.error(error);
     }
@@ -130,8 +159,17 @@ function Employee() {
     }
   }, [searchParams]);
 
+  useEffect(() => {}, [query]);
   const handleTableReload = () => {
-    employeesQuery({ setSnap: setQuery, setLoading: setTableQuerying });
+    initializeEmployees({ setSnap: setQuery, setLoading: setTableQuerying });
+  };
+
+  const handleLoadMore = (e) => {
+    loadMoreEmployees({
+      setSnap: setQuery,
+      setLoading: setTableQuerying,
+      cursor: query.at(query.length - 1),
+    });
   };
 
   return (
@@ -163,7 +201,7 @@ function Employee() {
           <TableCaption>
             {tableQuerying ? "loading" : null}
             {/* {query?.docs && !tableQuerying && "Showing 1 of 10" } */}
-            {!query?.docs && !tableQuerying && "Nothing to Show"}
+            {!query && !tableQuerying && "Nothing to Show"}
           </TableCaption>
           <TableHeader>
             <TableRow>
@@ -175,7 +213,7 @@ function Employee() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {query?.docs?.map((data) => {
+            {query?.map((data) => {
               const created = data.data().created.toDate();
               return (
                 <TableRow key={data.id}>
@@ -203,6 +241,13 @@ function Employee() {
             })}
           </TableBody>
         </Table>
+        <div className="grid place-items-center">
+          <Button onClick={handleLoadMore} 
+          disabled={tableQuerying}
+          variant="outline">
+            Load More
+          </Button>
+        </div>
       </ScrollArea>
       <View
         open={showDialog}
@@ -360,7 +405,7 @@ const View = ({ children, employee, isQuerying, set, ...props }) => {
             <h3 className="p-1">Certificates</h3>
             <ScrollArea className="h-[200px] rounded-md border p-4 col-span-2">
               {certificatesLoading ? <>Loading </> : null}
-              {!certificatesLoading && certificates?.docs.length == 0 ? (
+              {!certificatesLoading && certificates?.docs?.length == 0 ? (
                 <>None</>
               ) : null}
               {certificates?.docs?.map((cert) => {
@@ -473,8 +518,6 @@ const NewDialog = ({ children, set, reload, ...props }) => {
           reload();
           router.push("/dashboard/employee?id=" + ref.id);
         });
-
-        ref.then((result) => console.log(result));
       } catch (error) {
         console.error(error);
         e.target.disabled = true;
