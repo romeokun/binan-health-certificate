@@ -1,7 +1,7 @@
 "use client";
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext, useEffect, useRef, useState } from "react";
 import { AuthContext } from "@/components/auth-provider";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { RotateCcw, MoreHorizontal } from "lucide-react";
 import {
   Table,
@@ -57,34 +57,44 @@ function handleQuery(array = []) {
   const x = array.filter((x) => x);
   return x;
 }
-async function loadQuery({ collectionID, order, condition, loadAfter }) {
+async function loadQuery({ collectionID, order, conditions, loadAfter }) {
   const q = query(
     collection(db, collectionID),
-    ...handleQuery([order, condition, loadAfter]),
+    ...handleQuery([order, ...conditions, loadAfter]),
     limit(PAGELIMIT)
   );
 
   return getDocs(q);
 }
 
-function employeesQuery({ setSnap, setLoading, setCallback, loadAfter }) {
+function employeesQuery({
+  setSnap,
+  setLoading,
+  setCallback,
+  loadAfter,
+  conditions = [],
+}) {
+  setLoading(true);
   loadQuery({
     collectionID: "employees",
     order: orderBy("created", "desc"),
     setSnap,
     setLoading,
     loadAfter,
-  }).then((result) =>
+    conditions,
+  }).then((result) => {
     setSnap((previous) => {
       return setCallback({ prev: previous, res: result });
-    })
-  );
+    });
+    setLoading(false);
+  });
 }
 
-function loadMoreEmployees({ setSnap, setLoading, cursor }) {
+function loadMoreEmployees({ setSnap, setLoading, cursor, conditions = [] }) {
   employeesQuery({
     setSnap,
     setLoading,
+    conditions,
     loadAfter: startAfter(cursor),
     setCallback: ({ prev, res }) => {
       return [...prev, ...res.docs];
@@ -92,10 +102,11 @@ function loadMoreEmployees({ setSnap, setLoading, cursor }) {
   });
 }
 
-function initializeEmployees({ setSnap, setLoading }) {
+function initializeEmployees({ setSnap, setLoading, conditions = [] }) {
   employeesQuery({
     setSnap,
     setLoading,
+    conditions,
     setCallback: ({ res }) => {
       return [...res.docs];
     },
@@ -108,7 +119,7 @@ function certificatesQuery({ setSnap, setLoading, employeeID }) {
   loadQuery({
     collectionID: "records",
     order: orderBy("dateIssuance", "desc"),
-    condition: where("employee", "==", employeeID),
+    conditions: [where("employee", "==", employeeID)],
   }).then((result) => setSnap(result));
   setLoading(false);
 }
@@ -137,15 +148,23 @@ function Employee() {
   const [query, setQuery] = useState([]);
   const [tableQuerying, setTableQuerying] = useState(false);
 
+  const initialized = useRef(false);
   useEffect(() => {
     if (!currentUser && !isLoading) {
       router.push("/login");
     }
 
-    try {
-      initializeEmployees({ setSnap: setQuery, setLoading: setTableQuerying });
-    } catch (error) {
-      console.error(error);
+    if (!initialized.current) {
+      try {
+        initializeEmployees({
+          setSnap: setQuery,
+          setLoading: setTableQuerying,
+        });
+      } catch (error) {
+        console.error(error);
+      }
+
+      initialized.current = true;
     }
   }, []);
 
@@ -199,7 +218,6 @@ function Employee() {
       <ScrollArea className="mt-4 h-[400px]">
         <Table>
           <TableCaption>
-            {tableQuerying ? "loading" : null}
             {/* {query?.docs && !tableQuerying && "Showing 1 of 10" } */}
             {!query && !tableQuerying && "Nothing to Show"}
           </TableCaption>
@@ -242,13 +260,17 @@ function Employee() {
           </TableBody>
         </Table>
         <div className="grid place-items-center">
-          <Button
-            onClick={handleLoadMore}
-            disabled={tableQuerying}
-            variant="outline"
-          >
-            Load More
-          </Button>
+          {tableQuerying ? (
+            "loading"
+          ) : (
+            <Button
+              onClick={handleLoadMore}
+              disabled={tableQuerying}
+              variant="outline"
+            >
+              Load More
+            </Button>
+          )}
         </div>
       </ScrollArea>
       <View
@@ -306,10 +328,7 @@ const View = ({ children, employee, isQuerying, set, ...props }) => {
   const handleCancel = () => {
     setIsEdit(false);
     setData({
-      name: employee?.data().name,
-      birthyear: employee?.data().birthyear,
-      sex: employee?.data().sex,
-      created: employee?.data().created,
+      ...employee?.data(),
     });
   };
   const handleOnOpenChange = (open) => {
@@ -318,6 +337,10 @@ const View = ({ children, employee, isQuerying, set, ...props }) => {
       handleCancel();
       router.push("/dashboard/employee");
     }
+  };
+
+  const handleSave = (e) => {
+    // setdoc
   };
 
   // loading state
@@ -356,116 +379,140 @@ const View = ({ children, employee, isQuerying, set, ...props }) => {
         <DialogHeader>
           <DialogTitle>Employee Profile</DialogTitle>
         </DialogHeader>
-        <div className="mt-4 grid gap-4 min-w-[300px]">
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label className="text-right">Employee ID</Label>
-            <Input
-              className="col-span-3 disabled:cursor-default disabled:opacity-100 disabled:bg-accent"
-              disabled
-              type="text"
-              defaultValue={employee?.id}
-            />
-          </div>
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label className="text-right">Created</Label>
-            <Input
-              className="col-span-3 disabled:cursor-default disabled:opacity-100 disabled:bg-accent"
-              disabled
-              type="text"
-              value={
-                data?.created
-                  ? format(data.created.toDate(), "PPpp")
-                  : "cannot read"
-              }
-            />
-          </div>
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label className="text-right">Name</Label>
-            <Input
-              className="col-span-3 disabled:cursor-default disabled:opacity-100 disabled:bg-accent"
-              disabled={!isEdit}
-              type="text"
-              value={data?.name}
-              onChange={(e) => {
-                setData({ ...data, name: e.target.value });
-              }}
-            />
-          </div>
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label className="text-right">Sex</Label>
-            <SelectOption
-              className="disabled:cursor-default disabled:opacity-100 disabled:bg-accent"
-              disabled={!isEdit}
-              data={[
-                { value: "male", text: "Male" },
-                { value: "female", text: "Female" },
-              ]}
-              value={data?.sex}
-              onValueChange={(value) => {
-                setData({ ...data, sex: value });
-              }}
-            />
-          </div>
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label className="text-right">Birthyear</Label>
-            <Input
-              disabled={!isEdit}
-              type="text"
-              pattern="[0-9]+"
-              className="col-span-3 disabled:cursor-default disabled:opacity-100 disabled:bg-accent"
-              value={data?.birthyear}
-              onChange={(e) => {
-                if (!e.target.value.match("[^0-9]$")) {
-                  setData({ ...data, birthyear: e.target.value });
+        <ScrollArea type="auto" className="max-h-[50vh] p-4">
+          <div className="mt-4 grid gap-4 min-w-[300px]">
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label className="text-right">Employee ID</Label>
+              <Input
+                className="col-span-3 disabled:cursor-default disabled:opacity-100 disabled:bg-accent"
+                disabled
+                type="text"
+                defaultValue={employee?.id}
+              />
+            </div>
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label className="text-right">Created</Label>
+              <Input
+                className="col-span-3 disabled:cursor-default disabled:opacity-100 disabled:bg-accent"
+                disabled
+                type="text"
+                value={
+                  data?.created
+                    ? format(data.created.toDate(), "PPpp")
+                    : "cannot read"
                 }
-              }}
-            />
+              />
+            </div>
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label className="text-right">Name</Label>
+              <Input
+                className="col-span-3 disabled:cursor-default disabled:opacity-100 disabled:bg-accent"
+                disabled={!isEdit}
+                type="text"
+                value={data?.name}
+                onChange={(e) => {
+                  setData({ ...data, name: e.target.value });
+                }}
+              />
+            </div>
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label className="text-right">Sex</Label>
+              <SelectOption
+                className="disabled:cursor-default disabled:opacity-100 disabled:bg-accent"
+                disabled={!isEdit}
+                data={[
+                  { value: "male", text: "Male" },
+                  { value: "female", text: "Female" },
+                ]}
+                value={data?.sex}
+                onValueChange={(value) => {
+                  setData({ ...data, sex: value });
+                }}
+              />
+            </div>
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label className="text-right">Birthyear</Label>
+              <Input
+                disabled={!isEdit}
+                type="text"
+                pattern="[0-9]+"
+                className="col-span-3 disabled:cursor-default disabled:opacity-100 disabled:bg-accent"
+                value={data?.birthyear}
+                onChange={(e) => {
+                  if (!e.target.value.match("[^0-9]$")) {
+                    setData({ ...data, birthyear: e.target.value });
+                  }
+                }}
+              />
+            </div>
+            <div className="grid grid-cols-2">
+              <h3 className="p-1">Certificates</h3>
+              <ScrollArea className="h-[200px] rounded-md border p-4 col-span-2">
+                {certificatesLoading ? <>Loading </> : null}
+                {!certificatesLoading && certificates?.docs?.length == 0 ? (
+                  <>None</>
+                ) : null}
+                {certificates?.docs?.map((cert) => {
+                  const dateData = cert.data().dateIssuance.toDate();
+                  return (
+                    <Link
+                      key={cert.id}
+                      href={{
+                        pathname: "/dashboard",
+                        query: { id: cert.id },
+                      }}
+                    >
+                      <div className="grid grid-cols-4 bg-accent hover:bg-slate-400 p-2 rounded">
+                        <span>{format(dateData, "yyyy")}</span>
+                        <span className="col-span-3">
+                          {cert.data().company}
+                        </span>
+                      </div>
+                    </Link>
+                  );
+                })}
+              </ScrollArea>
+            </div>
           </div>
-          <div className="grid grid-cols-2">
-            <h3 className="p-1">Certificates</h3>
-            <ScrollArea className="h-[200px] rounded-md border p-4 col-span-2">
-              {certificatesLoading ? <>Loading </> : null}
-              {!certificatesLoading && certificates?.docs?.length == 0 ? (
-                <>None</>
-              ) : null}
-              {certificates?.docs?.map((cert) => {
-                const dateData = cert.data().dateIssuance.toDate();
-                return (
-                  <Link
-                    key={cert.id}
-                    href={{
-                      pathname: "/dashboard",
-                      query: { id: cert.id },
-                    }}
-                  >
-                    <div className="grid grid-cols-4 bg-accent hover:bg-slate-400 p-2 rounded">
-                      <span>{format(dateData, "yyyy")}</span>
-                      <span className="col-span-3">{cert.data().company}</span>
-                    </div>
-                  </Link>
-                );
-              })}
-            </ScrollArea>
-          </div>
-        </div>
-        <DialogFooter>
+        </ScrollArea>
+        <div className="grid gap-4 grid-cols-[1fr_min-content] mt-4">
           {isEdit ? (
-            <>
+            <div className="col-start-2 flex flex-row gap-2">
               <Button onClick={handleCancel} type="">
                 Cancel
               </Button>
-              <Button type="">Save</Button>
-            </>
+              <Button
+                onClick={handleSave}
+                className="bg-green-400 hover:bg-green-700"
+              >
+                Save
+              </Button>
+            </div>
           ) : (
-            <>
-              <Button variant="destructive">Delete</Button>
+            <div className="col-start-2 flex flex-row gap-2">
+              <Dialog>
+                <DialogTrigger
+                  className={buttonVariants({ variant: "destructive" })}
+                >
+                  Delete
+                </DialogTrigger>
+                <DialogContent>
+                  <DialogHeader>
+                    <DialogTitle>Are you absolutely sure?</DialogTitle>
+                    <DialogDescription>
+                      This action cannot be undone. This will permanently delete
+                      the profile and its records.
+                    </DialogDescription>
+                  </DialogHeader>
+                </DialogContent>
+              </Dialog>
               <Button onClick={handleEdit} type="">
                 Edit
               </Button>
-              <Button variant="">Add</Button>
-            </>
+              <Button>Add</Button>
+            </div>
           )}
-        </DialogFooter>
+        </div>
       </DialogContent>
     </Dialog>
   );
