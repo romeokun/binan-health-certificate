@@ -62,7 +62,7 @@ function Dashboard() {
         <div></div>
         <div className="grid grid-cols-[min-content_min-content_min-content]">
           <Button className="mx-1">Filter</Button>
-          <Button className="mx-1">Renew</Button>
+          <Button className="mx-1">Print</Button>
           <Button className="mx-1" variant="outline">
             <RotateCcw />
           </Button>

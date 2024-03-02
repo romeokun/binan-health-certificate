@@ -32,7 +32,7 @@ const DashLink = ({ href, children }) => {
 
 function DashboardComponent({ children }) {
   return (
-    <div className="min-w-[300px] w-10/12 min-h-[500px] p-10 border rounded shadow bg-white">
+    <div className="min-w-[300px] h-10/12 w-10/12 min-h-[500px]  p-10 border rounded shadow bg-white">
       <h1 className="pl-4 pb-2 text-2xl font-semibold">Dashboard</h1>
       <NavigationMenu>
         <NavigationMenuList className="border p-2 rounded-sm shadow">
