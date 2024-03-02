@@ -242,9 +242,11 @@ function Employee() {
           </TableBody>
         </Table>
         <div className="grid place-items-center">
-          <Button onClick={handleLoadMore} 
-          disabled={tableQuerying}
-          variant="outline">
+          <Button
+            onClick={handleLoadMore}
+            disabled={tableQuerying}
+            variant="outline"
+          >
             Load More
           </Button>
         </div>
@@ -267,15 +269,9 @@ function Employee() {
 const View = ({ children, employee, isQuerying, set, ...props }) => {
   // use employee object to display
 
-  const router = useRouter();
-  const handleOnOpenChange = (open) => {
-    set(open);
-    if (!open) {
-      router.push("/dashboard/employee");
-    }
-  };
-
   const [isEdit, setIsEdit] = useState(false);
+  const router = useRouter();
+
   const [data, setData] = useState({
     name: "",
     birthyear: "",
@@ -301,6 +297,28 @@ const View = ({ children, employee, isQuerying, set, ...props }) => {
       });
     }
   }, [employee]);
+
+  // loading state
+
+  const handleEdit = () => {
+    setIsEdit(true);
+  };
+  const handleCancel = () => {
+    setIsEdit(false);
+    setData({
+      name: employee?.data().name,
+      birthyear: employee?.data().birthyear,
+      sex: employee?.data().sex,
+      created: employee?.data().created,
+    });
+  };
+  const handleOnOpenChange = (open) => {
+    set(open);
+    if (!open) {
+      handleCancel();
+      router.push("/dashboard/employee");
+    }
+  };
 
   // loading state
   if (isQuerying) {
@@ -331,19 +349,6 @@ const View = ({ children, employee, isQuerying, set, ...props }) => {
     );
   }
 
-  const handleEdit = () => {
-    setIsEdit(true);
-  };
-  const handleCancel = () => {
-    setIsEdit(false);
-    setData({
-      name: employee?.data().name,
-      birthyear: employee?.data().birthyear,
-      sex: employee?.data().sex,
-      created: employee?.data().created,
-    });
-  };
-
   return (
     <Dialog onOpenChange={handleOnOpenChange} {...props}>
       <DialogTrigger>{children}</DialogTrigger>
@@ -359,6 +364,19 @@ const View = ({ children, employee, isQuerying, set, ...props }) => {
               disabled
               type="text"
               defaultValue={employee?.id}
+            />
+          </div>
+          <div className="grid grid-cols-4 items-center gap-4">
+            <Label className="text-right">Created</Label>
+            <Input
+              className="col-span-3 disabled:cursor-default disabled:opacity-100 disabled:bg-accent"
+              disabled
+              type="text"
+              value={
+                data?.created
+                  ? format(data.created.toDate(), "PPpp")
+                  : "cannot read"
+              }
             />
           </div>
           <div className="grid grid-cols-4 items-center gap-4">
@@ -397,7 +415,9 @@ const View = ({ children, employee, isQuerying, set, ...props }) => {
               className="col-span-3 disabled:cursor-default disabled:opacity-100 disabled:bg-accent"
               value={data?.birthyear}
               onChange={(e) => {
-                setData({ ...data, birthyear: e.target.value });
+                if (!e.target.value.match("[^0-9]$")) {
+                  setData({ ...data, birthyear: e.target.value });
+                }
               }}
             />
           </div>
