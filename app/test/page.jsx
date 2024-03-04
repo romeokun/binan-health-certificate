@@ -1,8 +1,8 @@
 "use client";
 
 import { auth } from "@/config/firebase";
-import { useState } from "react";
-import { onAuthStateChanged } from "firebase/auth";
+import { useContext } from "react";
+import { AuthContext } from "@/components/auth-provider";
 
 async function getMessage() {
   const response = await fetch("/api/signin", { method: "GET" });
@@ -16,13 +16,33 @@ async function postMessage(id) {
   console.log(await response.json());
 }
 
+async function deleteEmployee() {
+  auth
+    .currentUser.getIdToken(true)
+    .then(function (idToken) {
+      return fetch("/api/delete-employee", {
+        method: "POST",
+        body: JSON.stringify({ token:idToken, employeeID: "B6z2kwrvsm8ZyMGtVvri" }),
+      });
+      
+    }).then(
+      (response) => {
+        console.log(response.json());
+
+      }
+    )
+    .catch(function (error) {
+      // Handle error
+      console.error(error);
+    });
+
+}
+
 export default function Home() {
-  const [uid, setUID] = useState('')
-  onAuthStateChanged(auth, (user) => {
-    if (user) {
-      setUID(user.uid)
-    } 
-  });
+  const { currentUser, isLoading } = useContext(AuthContext);
+  if (!currentUser && !isLoading) {
+    router.push("/login");
+  }
 
   return (
     <main>
@@ -31,9 +51,19 @@ export default function Home() {
         click
       </button>{" "}
       <br />
-      <button type="button" onClick={()=>{postMessage(uid)}}>
+      <button
+        type="button"
+        onClick={() => {
+          postMessage(uid);
+        }}
+      >
         post
       </button>
+      <div>
+        <button className="mt-2" onClick={deleteEmployee}>
+          delete
+        </button>
+      </div>
     </main>
   );
 }

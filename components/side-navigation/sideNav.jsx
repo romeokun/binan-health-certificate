@@ -53,7 +53,7 @@ function sideNavigation() {
       </div>
       <button
         className={
-          "h-[50px] w-[50px] rounded-full absolute flex justify-center content-center flex-wrap bottom-2 shadow-black shadow-lg z-50 " +
+          "h-[50px] w-[50px] rounded-full fixed flex justify-center content-center flex-wrap bottom-2 shadow-black shadow-lg z-50 " +
           (showNav ? "bg-white left-[250px]" : "bg-slate-400 left-2")
         }
         onClick={handleToggleNav}

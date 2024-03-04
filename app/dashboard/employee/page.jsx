@@ -49,6 +49,7 @@ import {
 import { db } from "@/config/firebase";
 import { format } from "date-fns";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { auth } from "@/config/firebase";
 
 const PAGELIMIT = 25;
 
@@ -215,7 +216,7 @@ function Employee() {
           </Button>
         </div>
       </div>
-      <ScrollArea className="mt-4 h-[400px]">
+      <ScrollArea className="mt-4 ">
         <Table>
           <TableCaption>
             {/* {query?.docs && !tableQuerying && "Showing 1 of 10" } */}
@@ -327,9 +328,11 @@ const View = ({ children, employee, isQuerying, set, ...props }) => {
   };
   const handleCancel = () => {
     setIsEdit(false);
-    setData({
-      ...employee?.data(),
-    });
+    if (employee?.data) {
+      setData({
+        ...employee?.data(),
+      });
+    }
   };
   const handleOnOpenChange = (open) => {
     set(open);
@@ -341,6 +344,29 @@ const View = ({ children, employee, isQuerying, set, ...props }) => {
 
   const handleSave = (e) => {
     // setdoc
+  };
+
+  
+
+  const handleDelete = async (e) => {
+    if (!employee) return;
+
+    auth.currentUser
+      .getIdToken(true)
+      .then(function (idToken) {
+        return fetch("/api/delete-employee", {
+          method: "POST",
+          body: JSON.stringify({ token: idToken, employeeID: employee.id }),
+        });
+      })
+      .then((response) => {
+        router.push("/dashboard/employee");
+      })
+      .catch(function (error) {
+        // Handle error
+        console.error("failed to delete");
+        console.error(error);
+      });
   };
 
   // loading state
@@ -504,15 +530,100 @@ const View = ({ children, employee, isQuerying, set, ...props }) => {
                       the profile and its records.
                     </DialogDescription>
                   </DialogHeader>
+                  <DialogFooter>
+                    <Button onClick={handleDelete} variant="destructive">
+                      Delete
+                    </Button>
+                  </DialogFooter>
                 </DialogContent>
               </Dialog>
               <Button onClick={handleEdit} type="">
                 Edit
               </Button>
-              <Button>Add</Button>
+              <AddCertificateDialog />
             </div>
           )}
         </div>
+      </DialogContent>
+    </Dialog>
+  );
+};
+
+const AddCertificateDialog = () => {
+  const [data, setData] = useState({
+    company: "",
+    dateIssuance: null,
+    dateIssued: null,
+    employee: "",
+    issuerID: "",
+    nationality: "",
+    no: "",
+    occupation: "",
+    or: "",
+    placeOfWork: "",
+  });
+
+  const handleAdd = (e) => {
+    // setdoc
+  };
+  return (
+    <Dialog>
+      <DialogTrigger className={buttonVariants({ variant: "default" })}>
+        Add
+      </DialogTrigger>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Add Certificate</DialogTitle>
+        </DialogHeader>
+        <form className="mt-4 grid gap-4">
+          <div className="grid grid-cols-4 items-center gap-4">
+            <Label className="text-right">Name</Label>
+            <Input
+              required
+              className="col-span-3 disabled:cursor-default disabled:opacity-100"
+              type="text"
+              value={data.name}
+              onChange={(e) => {
+                setData({ ...data, name: e.target.value });
+              }}
+            />
+          </div>
+          <div className="grid grid-cols-4 items-center gap-4">
+            <Label className="text-right">Sex</Label>
+            <SelectOption
+              required={true}
+              className="disabled:cursor-default disabled:opacity-100"
+              data={[
+                { value: "male", text: "Male" },
+                { value: "female", text: "Female" },
+              ]}
+              value={data.sex}
+              onValueChange={(value) => {
+                setData({ ...data, sex: value });
+              }}
+            />
+          </div>
+          <div className="grid grid-cols-4 items-center gap-4">
+            <Label className="text-right">Birthyear</Label>
+            <Input
+              required
+              type="text"
+              pattern="[0-9]+"
+              className="col-span-3 disabled:cursor-default disabled:opacity-100"
+              value={data.birthyear}
+              onChange={(e) => {
+                if (!e.target.value.match("[^0-9]$")) {
+                  setData({ ...data, birthyear: e.target.value });
+                }
+              }}
+            />
+          </div>
+          <div className="grid grid-cols-4 items-center gap-4">
+            <Button className="col-start-4" type="submit" onClick={handleAdd}>
+              Add
+            </Button>
+          </div>
+        </form>
       </DialogContent>
     </Dialog>
   );
