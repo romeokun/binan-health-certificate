@@ -48,8 +48,9 @@ import {
 } from "firebase/firestore";
 import { db } from "@/config/firebase";
 import { format } from "date-fns";
-import { ScrollArea } from "@/components/ui/scroll-area";
+import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { auth } from "@/config/firebase";
+import { nationalities, baranggays } from "@/config/local";
 
 const PAGELIMIT = 25;
 
@@ -303,6 +304,7 @@ const View = ({ children, employee, isQuerying, set, ...props }) => {
   });
   const [certificates, setCertificates] = useState(null);
   const [certificatesLoading, setCertificatesLoading] = useState(true);
+  
 
   useEffect(() => {
     if (employee) {
@@ -345,8 +347,6 @@ const View = ({ children, employee, isQuerying, set, ...props }) => {
   const handleSave = (e) => {
     // setdoc
   };
-
-  
 
   const handleDelete = async (e) => {
     if (!employee) return;
@@ -479,7 +479,6 @@ const View = ({ children, employee, isQuerying, set, ...props }) => {
                   <>None</>
                 ) : null}
                 {certificates?.docs?.map((cert) => {
-                  const dateData = cert.data().dateIssuance.toDate();
                   return (
                     <Link
                       key={cert.id}
@@ -488,8 +487,8 @@ const View = ({ children, employee, isQuerying, set, ...props }) => {
                         query: { id: cert.id },
                       }}
                     >
-                      <div className="grid grid-cols-4 bg-accent hover:bg-slate-400 p-2 rounded">
-                        <span>{format(dateData, "yyyy")}</span>
+                      <div className="grid grid-cols-4 bg-accent hover:bg-slate-400 p-2 rounded mt-2">
+                        <span>{cert.data().dateIssuance.split("-")[0]}</span>
                         <span className="col-span-3">
                           {cert.data().company}
                         </span>
@@ -540,7 +539,7 @@ const View = ({ children, employee, isQuerying, set, ...props }) => {
               <Button onClick={handleEdit} type="">
                 Edit
               </Button>
-              <AddCertificateDialog />
+              <AddCertificateDialog employee={employee} />
             </div>
           )}
         </div>
@@ -549,83 +548,165 @@ const View = ({ children, employee, isQuerying, set, ...props }) => {
   );
 };
 
-const AddCertificateDialog = () => {
-  const [data, setData] = useState({
+const AddCertificateDialog = ({ employee }) => {
+  const { currentUser } = useContext(AuthContext);
+  const currentDate = new Date();
+  const currentDateString =
+    currentDate.getFullYear().toString() +
+    "-" +
+    (currentDate.getMonth() + 1).toString().padStart(2, 0) +
+    "-" +
+    currentDate.getDate().toString().padStart(2, 0);
+
+  const dataDefault = {
     company: "",
-    dateIssuance: null,
-    dateIssued: null,
-    employee: "",
-    issuerID: "",
-    nationality: "",
+    dateIssuance: currentDateString,
+    dateIssued: currentDateString,
+    employee: employee.id,
+    issuerID: currentUser.uid,
+    nationality: "Filipino",
     no: "",
     occupation: "",
     or: "",
-    placeOfWork: "",
-  });
+    placeOfWork: "Biñan",
+  };
+
+  const [data, setData] = useState(dataDefault);
+  const router = useRouter();
+
+  const handleOnOpenChange = (open) => {
+    if (!open) {
+      setData(dataDefault);
+    }
+  };
 
   const handleAdd = (e) => {
-    // setdoc
+    e.preventDefault();
+    e.target.disabled = true;
+    if(data.dateIssued) {
+      try {
+        addToDatabase({
+          collectionID: "records",
+          data: {
+            ...data,
+            created: serverTimestamp(),
+          },
+        }).then((ref) => {
+          setData({
+            name: "",
+            birthyear: "",
+            sex: "",
+            created: "",
+          });
+          router.push("/dashboard?id=" + ref.id);
+        });
+      } catch (error) {
+        console.error(error);
+        e.target.disabled = true;
+      }
+    }
   };
   return (
-    <Dialog>
+    <Dialog onOpenChange={handleOnOpenChange}>
       <DialogTrigger className={buttonVariants({ variant: "default" })}>
         Add
       </DialogTrigger>
-      <DialogContent>
+      <DialogContent className="max-h-[500px]">
         <DialogHeader>
           <DialogTitle>Add Certificate</DialogTitle>
         </DialogHeader>
-        <form className="mt-4 grid gap-4">
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label className="text-right">Name</Label>
-            <Input
-              required
-              className="col-span-3 disabled:cursor-default disabled:opacity-100"
-              type="text"
-              value={data.name}
-              onChange={(e) => {
-                setData({ ...data, name: e.target.value });
-              }}
-            />
-          </div>
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label className="text-right">Sex</Label>
-            <SelectOption
-              required={true}
-              className="disabled:cursor-default disabled:opacity-100"
-              data={[
-                { value: "male", text: "Male" },
-                { value: "female", text: "Female" },
-              ]}
-              value={data.sex}
-              onValueChange={(value) => {
-                setData({ ...data, sex: value });
-              }}
-            />
-          </div>
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label className="text-right">Birthyear</Label>
-            <Input
-              required
-              type="text"
-              pattern="[0-9]+"
-              className="col-span-3 disabled:cursor-default disabled:opacity-100"
-              value={data.birthyear}
-              onChange={(e) => {
-                if (!e.target.value.match("[^0-9]$")) {
-                  setData({ ...data, birthyear: e.target.value });
-                }
-              }}
-            />
-          </div>
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Button className="col-start-4" type="submit" onClick={handleAdd}>
-              Add
-            </Button>
-          </div>
-        </form>
+        <ScrollArea type="auto" className="max-h-[50vh]">
+          <form className="mt-4 grid gap-4 p-4 pt-0">
+            <div className="mt-4 grid gap-4 pb-4">
+              <AddInput data={data} setData={setData} title="OR" value="or" />
+              <AddInput data={data} setData={setData} title="No" value="no" />
+              <AddInput
+                data={data}
+                setData={setData}
+                title="Occupation"
+                value="occupation"
+              />
+              <AddInput
+                data={data}
+                setData={setData}
+                title="Company Name"
+                value="company"
+              />
+              <div className="grid grid-cols-4 items-center gap-4 w-[400px] ">
+                <Label className="text-right">Place of Work</Label>
+                <SelectOption
+                  value={data.placeOfWork}
+                  className="col-span-3"
+                  data={baranggays.map((baranggay) => {
+                    return { value: baranggay, text: baranggay };
+                  })}
+                  onValueChange={(value) => {
+                    setData({ ...data, placeOfWork: value });
+                  }}
+                />
+              </div>
+              <div className="grid grid-cols-4 items-center gap-4 w-[400px] ">
+                <Label className="text-right">Nationality</Label>
+                <SelectOption
+                  value={data.nationality}
+                  className="col-span-3"
+                  data={nationalities}
+                  onValueChange={(value) => {
+                    setData({ ...data, nationality: value });
+                  }}
+                />
+              </div>
+              <div className="grid grid-cols-4 items-center gap-4 w-[400px] ">
+                <Label className="text-right">Date Issued</Label>
+                <input
+                  type="date"
+                  className="col-span-3 border px-3 py-2 rounded-md"
+                  onChange={(e) => {
+                    setData({ ...data, dateIssued: e.target.value });
+                  }}
+                  value={data.dateIssued}
+                />
+              </div>
+              <div className="grid grid-cols-4 items-center gap-4 w-[400px] ">
+                <Label className="text-right">Date Issuance</Label>
+                <input
+                  type="date"
+                  className="col-span-3 border px-3 py-2 rounded-md"
+                  onChange={(e) => {
+                    setData({ ...data, dateIssuance: e.target.value });
+                  }}
+                  value={data.dateIssuance}
+                />
+              </div>
+            </div>
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Button className="col-start-4" type="submit" onClick={handleAdd}>
+                Add
+              </Button>
+            </div>
+          </form>
+        </ScrollArea>
       </DialogContent>
     </Dialog>
+  );
+};
+
+const AddInput = ({ data, setData, title, value, className }) => {
+  return (
+    <div
+      className={"grid grid-cols-4 items-center gap-4 w-[400px] " + className}
+    >
+      <Label className="text-right">{title}</Label>
+      <Input
+        required
+        className="col-span-3 disabled:cursor-default disabled:opacity-100"
+        type="text"
+        value={data[value]}
+        onChange={(e) => {
+          setData({ ...data, [value]: e.target.value });
+        }}
+      />
+    </div>
   );
 };
 
@@ -639,8 +720,7 @@ const SelectOption = ({ title, data, className, ...props }) => {
         {data?.map((x) => {
           return (
             <SelectItem key={x.value} value={x.value}>
-              {" "}
-              {x.text}{" "}
+              {x.text}
             </SelectItem>
           );
         })}

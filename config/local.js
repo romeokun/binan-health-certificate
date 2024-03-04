@@ -192,7 +192,9 @@ export const nationalities = [
   "Yemenite",
   "Zambian",
   "Zimbabwean",
-];
+].map((nationality) => {
+  return { value: nationality, text: nationality };
+});
 export const baranggays = [
   "Biñan",
   "Bungahan",
