@@ -3,6 +3,7 @@
 import { auth } from "@/config/firebase";
 import { useContext } from "react";
 import { AuthContext } from "@/components/auth-provider";
+import Certificate from "@/components/dashboard/certificate";
 
 async function getMessage() {
   const response = await fetch("/api/signin", { method: "GET" });
@@ -64,6 +65,8 @@ export default function Home() {
           delete
         </button>
       </div>
+
+      <Certificate/>
     </main>
   );
 }
