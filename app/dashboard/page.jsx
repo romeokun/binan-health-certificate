@@ -83,7 +83,7 @@ function handleQuery(array = []) {
   const x = array.filter((x) => x);
   return x;
 }
-async function loadQuery({ collectionID, order, conditions =[], loadAfter }) {
+async function loadQuery({ collectionID, order, conditions = [], loadAfter }) {
   const q = query(
     collection(db, collectionID),
     ...handleQuery([order, ...conditions, loadAfter]),
@@ -98,8 +98,8 @@ function Records() {
   const searchParams = useSearchParams();
   const [showDialog, setShowDialog] = useState(searchParams.has("id"));
   const [tableQuery, setQuery] = useState([]);
-
   const [tableQuerying, setTableQuerying] = useState(false);
+  const [certificate, setCertificate] = useState(null)
 
   function getCertificatesQuery({ conditions = [] }) {
     setTableQuerying(true);
@@ -133,14 +133,28 @@ function Records() {
     }
   }, []);
 
+  useEffect(() => {
+    if (searchParams.has("id")) {
+      getDoc(doc(db, "records", searchParams.get("id") )).then((res)=>{
+        if (res.exists()) {
+          setCertificate(res)
+          setShowDialog(true);
+        }
+      })
+    } else {
+      setCertificate(null);
+      setShowDialog(false);
+    }
+  }, [searchParams]);
+
   const handleLoadMore = () => {
     setTableQuerying(true);
     loadQuery({
       collectionID: "records",
       order: orderBy("created", "desc"),
-      loadAfter: startAfter(tableQuery[tableQuery.length -1]),
+      loadAfter: startAfter(tableQuery[tableQuery.length - 1]),
     }).then((result) => {
-      setQuery([ ...tableQuery, ...result.docs]);
+      setQuery([...tableQuery, ...result.docs]);
       setTableQuerying(false);
     });
   };
@@ -207,12 +221,14 @@ function Records() {
           )}
         </div>
       </div>
+      <View open={showDialog} set={setShowDialog} certificate={certificate}/>
     </>
   );
 }
 
 const CertificateRow = memo(({ data, ...props }) => {
   const init = useRef(false);
+  const router = useRouter();
   useEffect(() => {
     if (!init.current) {
     }
@@ -221,8 +237,8 @@ const CertificateRow = memo(({ data, ...props }) => {
   return (
     <TableRow
       onClick={() => {
-        console.log("clicked");
-      }}
+        router.push("/dashboard?id=" + data.id);
+      }} className="hover:cursor-pointer"
     >
       <TableCell className="font-medium">{data.data().employeeName}</TableCell>
       <TableCell>{data.data().company}</TableCell>
@@ -249,6 +265,126 @@ const SelectOption = ({ title, data, className }) => {
         })}
       </SelectContent>
     </Select>
+  );
+};
+
+import Certificate from "@/components/dashboard/certificate";
+const View = ({ certificate, children, set, ...props }) => {
+  // use employee object to display
+
+  const [isEdit, setIsEdit] = useState(false);
+  const router = useRouter();
+
+  const [data, setData] = useState(null);
+
+  useEffect(() => {
+    if (certificate) {
+      setData({
+        ...certificate.data(),
+      });
+    }
+  }, [certificate]);
+
+  // loading state
+
+  const handleEdit = () => {
+    setIsEdit(true);
+  };
+  const handleCancel = () => {
+    setIsEdit(false);
+    if (certificate) {
+      setData({
+        ...certificate?.data(),
+      });
+    }
+  };
+  const handleOnOpenChange = (open) => {
+    set(open);
+    if (!open) {
+      handleCancel();
+      router.push("/dashboard");
+    }
+  };
+
+  const handleSave = (e) => {
+    // setdoc
+  };
+
+  const handleDelete = async (e) => {
+    // if (!employee) return;
+    // auth.currentUser
+    //   .getIdToken(true)
+    //   .then(function (idToken) {
+    //     return fetch("/api/delete-employee", {
+    //       method: "POST",
+    //       body: JSON.stringify({ token: idToken, employeeID: employee.id }),
+    //     });
+    //   })
+    //   .then((response) => {
+    //     router.push("/dashboard/employee");
+    //   })
+    //   .catch(function (error) {
+    //     // Handle error
+    //     console.error("failed to delete");
+    //     console.error(error);
+    //   });
+  };
+
+  return (
+    <Dialog onOpenChange={handleOnOpenChange} {...props}>
+      <DialogTrigger>{children}</DialogTrigger>
+      <DialogContent className="max-w-7xl">
+        <DialogHeader>
+          <DialogTitle>Certificate</DialogTitle>
+        </DialogHeader>
+        <ScrollArea type="auto" className="max-h-[50vh] p-4">
+          <Certificate />
+          <ScrollBar orientation="horizontal" />
+        </ScrollArea>
+        <div className="grid gap-4 grid-cols-[1fr_min-content] mt-4">
+          {isEdit ? (
+            <div className="col-start-2 flex flex-row gap-2">
+              <Button onClick={handleCancel} type="">
+                Cancel
+              </Button>
+              <Button
+                onClick={handleSave}
+                className="bg-green-400 hover:bg-green-700"
+              >
+                Save
+              </Button>
+            </div>
+          ) : (
+            <div className="col-start-2 flex flex-row gap-2">
+              <Dialog>
+                <DialogTrigger
+                  className={buttonVariants({ variant: "destructive" })}
+                >
+                  Delete
+                </DialogTrigger>
+                <DialogContent>
+                  <DialogHeader>
+                    <DialogTitle>Are you absolutely sure?</DialogTitle>
+                    <DialogDescription>
+                      This action cannot be undone. This will permanently delete
+                      the certificate record.
+                    </DialogDescription>
+                  </DialogHeader>
+                  <DialogFooter>
+                    <Button onClick={handleDelete} variant="destructive">
+                      Delete
+                    </Button>
+                  </DialogFooter>
+                </DialogContent>
+              </Dialog>
+              <Button onClick={handleEdit} type="">
+                Edit
+              </Button>
+            </div>
+          )}
+        </div>
+      </DialogContent>
+    </Dialog>
   );
 };
 

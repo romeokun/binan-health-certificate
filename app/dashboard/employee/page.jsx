@@ -121,7 +121,7 @@ function certificatesQuery({ setSnap, setLoading, employeeID }) {
   loadQuery({
     collectionID: "records",
     order: orderBy("dateIssuance", "desc"),
-    conditions: [where("employee", "==", employeeID)],
+    conditions: [where("employeeID", "==", employeeID)],
   }).then((result) => setSnap(result));
   setLoading(false);
 }
@@ -304,7 +304,6 @@ const View = ({ children, employee, isQuerying, set, ...props }) => {
   });
   const [certificates, setCertificates] = useState(null);
   const [certificatesLoading, setCertificatesLoading] = useState(true);
-  
 
   useEffect(() => {
     if (employee) {
@@ -476,7 +475,7 @@ const View = ({ children, employee, isQuerying, set, ...props }) => {
               <ScrollArea className="h-[200px] rounded-md border p-4 col-span-2">
                 {certificatesLoading ? <>Loading </> : null}
                 {!certificatesLoading && certificates?.docs?.length == 0 ? (
-                  <>None</>
+                  <>None {certificates?.docs?.length}</>
                 ) : null}
                 {certificates?.docs?.map((cert) => {
                   return (
@@ -563,6 +562,7 @@ const AddCertificateDialog = ({ employee }) => {
     dateIssuance: currentDateString,
     dateIssued: currentDateString,
     employee: doc(db, "employees", employee.id),
+    employeeID: employee.id,
     employeeName: employee.data().name,
     issuerID: currentUser.uid,
     nationality: "Filipino",
@@ -584,23 +584,29 @@ const AddCertificateDialog = ({ employee }) => {
   const handleAdd = (e) => {
     e.preventDefault();
     e.target.disabled = true;
-    if(data.dateIssued) {
+    if (data.dateIssued) {
       try {
-        addToDatabase({
-          collectionID: "records",
-          data: {
-            ...data,
-            created: serverTimestamp(),
-          },
-        }).then((ref) => {
-          setData({
-            name: "",
-            birthyear: "",
-            sex: "",
-            created: "",
+        getDoc(doc(db, "users", currentUser.uid))
+          .then((res) => {
+            return addToDatabase({
+              collectionID: "records",
+              data: {
+                ...data,
+                issuerName: res.data().name,
+                age: currentDate.getFullYear() - +employee.data().birthyear,
+                created: serverTimestamp(),
+              },
+            });
+          })
+          .then((ref) => {
+            setData({
+              name: "",
+              birthyear: "",
+              sex: "",
+              created: "",
+            });
+            router.push("/dashboard?id=" + ref.id);
           });
-          router.push("/dashboard?id=" + ref.id);
-        });
       } catch (error) {
         console.error(error);
         e.target.disabled = true;
