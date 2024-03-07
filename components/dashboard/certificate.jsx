@@ -1,6 +1,6 @@
 import React from "react";
 
-function Certificate() {
+function Certificate({data}) {
   return (
     <div className="border w-[700px] h-[500px] p-[10px] bg-slate-300 grid grid-rows-[100px_70px_1fr]">
       <div className="grid grid-cols-12 place-items-center">
@@ -30,46 +30,46 @@ function Certificate() {
               <div className="grid content-center">
                 <div className="text-sm grid grid-cols-[min-content_1fr]">
                  <div>O.R.&nbsp;No.</div>
-                 <div className="border-b-2 border-black mx-4">1234</div>
+                 <div className="border-b-2 border-black mx-4">{data?.or}</div>
                 </div>
                 <div className="text-sm grid grid-cols-[min-content_1fr]">
                  <div>No.</div>
-                 <div className="border-b-2 border-black mx-4">5678</div>
+                 <div className="border-b-2 border-black mx-4">{data?.no}</div>
                 </div>
                 <div className="text-sm grid grid-cols-[min-content_1fr]">
                  <div>Date&nbsp;Issued</div>
-                 <div className="border-b-2 border-black mx-4">03-04-2024</div>
+                 <div className="border-b-2 border-black mx-4">{data?.dateIssued}</div>
                 </div>
               </div>
             </div>
             <div className="text-sm grid grid-cols-[min-content_1fr]">
               <span className="mr-2">NAME:</span>
               <span className="border-b-2 border-black">
-                Jerome Evangelista
+              {data?.employeeName}
               </span>
             </div>
             <div className="text-sm grid grid-cols-[min-content_1fr]">
               <span className="mr-2">OCCUPATION:</span>
-              <span className=" border-b-2 border-black">Student</span>
+              <span className=" border-b-2 border-black">{data?.occupation}</span>
             </div>
 
             <div className="text-sm grid grid-cols-[min-content_4ch_min-content_4ch] gap-1">
               <span>AGE:</span>
-              <span className=" border-b-2 border-black">22</span>
+              <span className=" border-b-2 border-black">{data?.age}</span>
               <span>SEX:</span>
-              <span className=" border-b-2 border-black">M</span>
+              <span className=" border-b-2 border-black">{data?.sex}</span>
             </div>
             <div className="text-sm grid grid-cols-[min-content_1fr]">
               <span className="mr-2">NATIONALITY:</span>
-              <span className=" border-b-2 border-black">FILIPINO</span>
+              <span className=" border-b-2 border-black">{data?.nationality}</span>
             </div>
             <div className="text-sm grid grid-cols-[min-content_1fr]">
               <span className="mr-2">PLACE&nbsp;OF&nbsp;WORK:</span>
-              <span className="border-b-2 border-black">CANLALAY</span>
+              <span className="border-b-2 border-black">{data?.placeOfWork}</span>
             </div>
             <div className="text-sm grid grid-cols-[min-content_1fr]">
               <span className="mr-2">COMPANY&nbsp;NAME:</span>
-              <span className="border-b-2 border-black">UPHSL</span>
+              <span className="border-b-2 border-black">{data?.company}</span>
             </div>
           </div>
           <div className="grid grid-cols-2 gap-4">
@@ -96,11 +96,11 @@ function Certificate() {
           <div className="bg-green-500 grid grid-cols-[min-content_1fr]">
             <div className="mx-2">DATE&nbsp;ISSUANCE</div>
             <div className="border-b-2 border-black text-center">
-              03-04-2024
+            {data?.dateIssuance}
             </div>
             <div className="mx-2">DATE&nbsp;EXPIRED</div>
             <div className="border-b-2 border-black text-center">
-              12-31-2024
+              {data?.dateIssuance.slice(0,4)}-12-31
             </div>
           </div>
         </div>

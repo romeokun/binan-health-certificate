@@ -475,7 +475,7 @@ const View = ({ children, employee, isQuerying, set, ...props }) => {
               <ScrollArea className="h-[200px] rounded-md border p-4 col-span-2">
                 {certificatesLoading ? <>Loading </> : null}
                 {!certificatesLoading && certificates?.docs?.length == 0 ? (
-                  <>None {certificates?.docs?.length}</>
+                  <>None</>
                 ) : null}
                 {certificates?.docs?.map((cert) => {
                   return (
@@ -570,6 +570,7 @@ const AddCertificateDialog = ({ employee }) => {
     occupation: "",
     or: "",
     placeOfWork: "Biñan",
+    sex: employee.data().sex.charAt(0).toUpperCase(),
   };
 
   const [data, setData] = useState(dataDefault);
