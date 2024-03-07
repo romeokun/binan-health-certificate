@@ -333,11 +333,11 @@ const View = ({ certificate, children, set, ...props }) => {
   return (
     <Dialog onOpenChange={handleOnOpenChange} {...props}>
       <DialogTrigger>{children}</DialogTrigger>
-      <DialogContent className="max-w-7xl max-h-screen">
+      <DialogContent className="max-w-7xl max-h-screen bg-slate-100">
         <DialogHeader>
           <DialogTitle>Certificate</DialogTitle>
         </DialogHeader>
-        <ScrollArea type="auto" className="max-h-[70vh] p-4">
+        <ScrollArea type="auto" className="max-h-[70vh] p-4 bg-white">
           <Certificate data={data} />
           <ScrollBar orientation="horizontal" />
         </ScrollArea>
