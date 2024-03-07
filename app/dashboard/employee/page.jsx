@@ -147,7 +147,7 @@ function Employee() {
   const [showNewDialog, setShowNewDialog] = useState(false);
   const [employee, setEmployee] = useState(null);
   const [isQuerying, setIsQuerying] = useState(false);
-  const [query, setQuery] = useState([]);
+  const [tableQuery, setQuery] = useState([]);
   const [tableQuerying, setTableQuerying] = useState(false);
 
   const initialized = useRef(false);
@@ -180,7 +180,7 @@ function Employee() {
     }
   }, [searchParams]);
 
-  useEffect(() => {}, [query]);
+  useEffect(() => {}, [tableQuery]);
   const handleTableReload = () => {
     initializeEmployees({ setSnap: setQuery, setLoading: setTableQuerying });
   };
@@ -189,7 +189,7 @@ function Employee() {
     loadMoreEmployees({
       setSnap: setQuery,
       setLoading: setTableQuerying,
-      cursor: query.at(query.length - 1),
+      cursor: tableQuery.at(tableQuery.length - 1),
     });
   };
 
@@ -221,7 +221,7 @@ function Employee() {
         <Table>
           <TableCaption>
             {/* {query?.docs && !tableQuerying && "Showing 1 of 10" } */}
-            {!query && !tableQuerying && "Nothing to Show"}
+            {!tableQuery && !tableQuerying && "Nothing to Show"}
           </TableCaption>
           <TableHeader>
             <TableRow>
@@ -233,7 +233,7 @@ function Employee() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {query?.map((data) => {
+            {tableQuery?.map((data) => {
               const created = data.data().created.toDate();
               return (
                 <TableRow key={data.id}>
@@ -562,7 +562,8 @@ const AddCertificateDialog = ({ employee }) => {
     company: "",
     dateIssuance: currentDateString,
     dateIssued: currentDateString,
-    employee: employee.id,
+    employee: doc(db, "employees", employee.id),
+    employeeName: employee.data().name,
     issuerID: currentUser.uid,
     nationality: "Filipino",
     no: "",

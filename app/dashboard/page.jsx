@@ -1,8 +1,7 @@
 "use client";
-import React, { useContext, useEffect } from "react";
+import React, { useContext, useEffect, useRef, useState, memo } from "react";
 import { AuthContext } from "@/components/auth-provider";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { RotateCcw, MoreHorizontal } from "lucide-react";
 import {
   Table,
@@ -13,7 +12,17 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
 import {
   Select,
   SelectContent,
@@ -21,6 +30,26 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import Link from "next/link";
+import { useSearchParams, useRouter } from "next/navigation";
+import {
+  collection,
+  getDocs,
+  doc,
+  getDoc,
+  query,
+  orderBy,
+  where,
+  addDoc,
+  Timestamp,
+  serverTimestamp,
+  limit,
+  startAfter,
+} from "firebase/firestore";
+import { db } from "@/config/firebase";
+import { format } from "date-fns";
+import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
+import { auth } from "@/config/firebase";
 
 const months = [
   { text: "Select Month", value: 0 },
@@ -48,13 +77,73 @@ while (tmp <= currentYear) {
 years.push({ value: 0, text: "Year" });
 const reversedYears = years.reverse();
 
-function Dashboard() {
+const PAGELIMIT = 25;
+function handleQuery(array = []) {
+  // return array.filter(x => x !== null)
+  const x = array.filter((x) => x);
+  return x;
+}
+async function loadQuery({ collectionID, order, conditions =[], loadAfter }) {
+  const q = query(
+    collection(db, collectionID),
+    ...handleQuery([order, ...conditions, loadAfter]),
+    limit(PAGELIMIT)
+  );
+
+  return getDocs(q);
+}
+
+function Records() {
   const { currentUser } = useContext(AuthContext);
+  const searchParams = useSearchParams();
+  const [showDialog, setShowDialog] = useState(searchParams.has("id"));
+  const [tableQuery, setQuery] = useState([]);
+
+  const [tableQuerying, setTableQuerying] = useState(false);
+
+  function getCertificatesQuery({ conditions = [] }) {
+    setTableQuerying(true);
+    loadQuery({
+      collectionID: "records",
+      order: orderBy("created", "desc"),
+      conditions,
+    }).then((result) => {
+      setQuery(result.docs);
+      setTableQuerying(false);
+    });
+  }
+
+  const initialized = useRef(false);
   useEffect(() => {
     if (!currentUser && !isLoading) {
       router.push("/login");
     }
+
+    if (!initialized.current) {
+      try {
+        getCertificatesQuery({
+          setSnap: setQuery,
+          setLoading: setTableQuerying,
+        });
+      } catch (error) {
+        console.error(error);
+      }
+
+      initialized.current = true;
+    }
   }, []);
+
+  const handleLoadMore = () => {
+    setTableQuerying(true);
+    loadQuery({
+      collectionID: "records",
+      order: orderBy("created", "desc"),
+      loadAfter: startAfter(tableQuery[tableQuery.length -1]),
+    }).then((result) => {
+      setQuery([ ...tableQuery, ...result.docs]);
+      setTableQuerying(false);
+    });
+  };
 
   return (
     <>
@@ -86,36 +175,62 @@ function Dashboard() {
       </div> */}
       <div className="mt-4">
         <Table>
-          <TableCaption>Nothing to Show / Page 1 of 100</TableCaption>
+          <TableCaption>
+            {!tableQuery && !tableQuerying && "Nothing to Show"}
+          </TableCaption>
           <TableHeader>
             <TableRow>
               <TableHead className="w-[200px]">Name</TableHead>
               <TableHead className="w-[200px]">Place of Work</TableHead>
               <TableHead className="">Occupation</TableHead>
               <TableHead className="text-center">Date Issued</TableHead>
-              <TableHead className="w-[100px]"></TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
-            <TableRow
-              onClick={() => {
-                console.log("clicked");
-              }}
-            >
-              <TableCell>Jerome Evangelista</TableCell>
-              <TableCell className="">UPHSL</TableCell>
-              <TableCell className="">Student</TableCell>
-              <TableCell className="text-center">02-29-24</TableCell>
-              <TableCell className="grid place-items-center">
-                <MoreHorizontal />
-              </TableCell>
-            </TableRow>
+            {!tableQuerying &&
+              tableQuery?.map((data) => {
+                return <CertificateRow key={data.id} data={data} />;
+              })}
           </TableBody>
         </Table>
+        <div className="grid place-items-center">
+          {tableQuerying ? (
+            "loading"
+          ) : (
+            <Button
+              onClick={handleLoadMore}
+              disabled={tableQuerying}
+              variant="outline"
+            >
+              Load More
+            </Button>
+          )}
+        </div>
       </div>
     </>
   );
 }
+
+const CertificateRow = memo(({ data, ...props }) => {
+  const init = useRef(false);
+  useEffect(() => {
+    if (!init.current) {
+    }
+    init.current = true;
+  }, []);
+  return (
+    <TableRow
+      onClick={() => {
+        console.log("clicked");
+      }}
+    >
+      <TableCell className="font-medium">{data.data().employeeName}</TableCell>
+      <TableCell>{data.data().company}</TableCell>
+      <TableCell className="">{data.data().occupation}</TableCell>
+      <TableCell className="text-center">{data.data().dateIssued}</TableCell>
+    </TableRow>
+  );
+});
 
 const SelectOption = ({ title, data, className }) => {
   return (
@@ -137,4 +252,4 @@ const SelectOption = ({ title, data, className }) => {
   );
 };
 
-export default Dashboard;
+export default Records;
