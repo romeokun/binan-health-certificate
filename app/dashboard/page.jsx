@@ -96,7 +96,7 @@ async function loadQuery({ collectionID, order, conditions = [], loadAfter }) {
 function Records() {
   const { currentUser } = useContext(AuthContext);
   const searchParams = useSearchParams();
-  const [showDialog, setShowDialog] = useState(searchParams.has("id"));
+  const [showDialog, setShowDialog] = useState(false);
   const [tableQuery, setQuery] = useState([]);
   const [tableQuerying, setTableQuerying] = useState(false);
   const [certificate, setCertificate] = useState(null);
@@ -335,19 +335,16 @@ const View = ({ certificate, children, set, ...props }) => {
   return (
     <Dialog onOpenChange={handleOnOpenChange} {...props}>
       <DialogTrigger>{children}</DialogTrigger>
-      <DialogContent className="max-w-7xl max-h-screen bg-slate-100">
+      <DialogContent className="max-w-7xl h-[90vh] bg-slate-100">
         <DialogHeader>
           <DialogTitle>Certificate</DialogTitle>
         </DialogHeader>
-        <ScrollArea
-          type="auto"
-          className="max-h-[70vh] p-4 bg-white grid grid-cols-1 place-content-center"
-        >
-          <div className="h-full w-full grid place-content-center">
-            <Certificate data={data} />
+        <div className="p-4 bg-white place-content-center overflow-auto">
+          <div className="w-[700px] m-auto">
+            {!isEdit? <Certificate data={data}/>: <EditCertificate/>}
+
           </div>
-          <ScrollBar orientation="horizontal" />
-        </ScrollArea>
+        </div>
         <div className="grid gap-4 grid-cols-[1fr_min-content] mt-4">
           {isEdit ? (
             <div className="col-start-2 flex flex-row gap-2">
@@ -394,5 +391,11 @@ const View = ({ certificate, children, set, ...props }) => {
     </Dialog>
   );
 };
+
+const EditCertificate = () => {
+  return (
+    <div>editing</div>
+  )
+}
 
 export default Records;

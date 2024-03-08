@@ -45,6 +45,7 @@ import {
   serverTimestamp,
   limit,
   startAfter,
+  runTransaction,
 } from "firebase/firestore";
 import { db } from "@/config/firebase";
 import { format } from "date-fns";
@@ -598,6 +599,50 @@ const AddCertificateDialog = ({ employee }) => {
                 created: serverTimestamp(),
               },
             });
+          })
+          .then(async (res) => {
+            await runTransaction(db, async (transaction) => {
+              const ref = doc(
+                db,
+                "analytics",
+                currentDate.getFullYear().toString()
+              );
+              const analytics = await transaction.get(ref);
+              if (!analytics.exists()) {
+                throw "Document does not exist!";
+              }
+
+              const certificateCount = analytics.data().numberOfCertificates;
+              const newCertificates = certificateCount
+                ? certificateCount
+                : 0 + 1;
+
+              const certificateCountByMonth =
+                analytics.data().byMonth?.[
+                  (currentDate.getMonth() + 1).toString()
+                ];
+              const newCertificateCountByMonth = certificateCountByMonth
+                ? certificateCountByMonth
+                : 0 + 1;
+
+              const baranggayCount =
+                analytics.data().baranggay?.[data.placeOfWork];
+              const updateCount = baranggayCount ? baranggayCount : 0 + 1;
+
+              const nationalityCount =
+                analytics.data().nationality?.[data.nationality];
+              const updateNationalityCount = nationalityCount ? nationalityCount : 0 + 1;
+
+              transaction.update(ref, {
+                numberOfCertificates: newCertificates,
+                ["baranggay." + data.placeOfWork]: updateCount,
+                ["byMonth." + (currentDate.getMonth() + 1).toString()]:
+                  newCertificateCountByMonth,
+                ["nationality." + data.nationality]:
+                  updateNationalityCount,
+              });
+            });
+            return res;
           })
           .then((ref) => {
             setData({

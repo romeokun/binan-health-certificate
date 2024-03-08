@@ -3,6 +3,7 @@ import QRCode from "qrcode";
 
 function Certificate({ data }) {
   useEffect(() => {
+    console.log(data.id);
     const canvas = document.getElementById("canvas");
 
     QRCode.toCanvas(canvas, "binancert-" + data?.id, {width: 220}, function (error) {
