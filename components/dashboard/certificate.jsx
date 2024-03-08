@@ -1,6 +1,15 @@
-import React from "react";
+import React, {useEffect} from "react";
+import QRCode from "qrcode";
 
-function Certificate({data}) {
+function Certificate({ data }) {
+  useEffect(() => {
+    const canvas = document.getElementById("canvas");
+
+    QRCode.toCanvas(canvas, "binancert-" + data?.id, {width: 220}, function (error) {
+      if (error) console.error(error);
+    });
+  }, []);
+
   return (
     <div className="border w-[700px] h-[500px] p-[10px] bg-slate-300 grid grid-rows-[100px_70px_1fr]">
       <div className="grid grid-cols-12 place-items-center">
@@ -29,28 +38,32 @@ function Certificate({data}) {
               </div>
               <div className="grid content-center">
                 <div className="text-sm grid grid-cols-[min-content_1fr]">
-                 <div>O.R.&nbsp;No.</div>
-                 <div className="border-b-2 border-black mx-4">{data?.or}</div>
+                  <div>O.R.&nbsp;No.</div>
+                  <div className="border-b-2 border-black mx-4">{data?.or}</div>
                 </div>
                 <div className="text-sm grid grid-cols-[min-content_1fr]">
-                 <div>No.</div>
-                 <div className="border-b-2 border-black mx-4">{data?.no}</div>
+                  <div>No.</div>
+                  <div className="border-b-2 border-black mx-4">{data?.no}</div>
                 </div>
                 <div className="text-sm grid grid-cols-[min-content_1fr]">
-                 <div>Date&nbsp;Issued</div>
-                 <div className="border-b-2 border-black mx-4">{data?.dateIssued}</div>
+                  <div>Date&nbsp;Issued</div>
+                  <div className="border-b-2 border-black mx-4">
+                    {data?.dateIssued}
+                  </div>
                 </div>
               </div>
             </div>
             <div className="text-sm grid grid-cols-[min-content_1fr]">
               <span className="mr-2">NAME:</span>
               <span className="border-b-2 border-black">
-              {data?.employeeName}
+                {data?.employeeName}
               </span>
             </div>
             <div className="text-sm grid grid-cols-[min-content_1fr]">
               <span className="mr-2">OCCUPATION:</span>
-              <span className=" border-b-2 border-black">{data?.occupation}</span>
+              <span className=" border-b-2 border-black">
+                {data?.occupation}
+              </span>
             </div>
 
             <div className="text-sm grid grid-cols-[min-content_4ch_min-content_4ch] gap-1">
@@ -61,11 +74,15 @@ function Certificate({data}) {
             </div>
             <div className="text-sm grid grid-cols-[min-content_1fr]">
               <span className="mr-2">NATIONALITY:</span>
-              <span className=" border-b-2 border-black">{data?.nationality}</span>
+              <span className=" border-b-2 border-black">
+                {data?.nationality}
+              </span>
             </div>
             <div className="text-sm grid grid-cols-[min-content_1fr]">
               <span className="mr-2">PLACE&nbsp;OF&nbsp;WORK:</span>
-              <span className="border-b-2 border-black">{data?.placeOfWork}</span>
+              <span className="border-b-2 border-black">
+                {data?.placeOfWork}
+              </span>
             </div>
             <div className="text-sm grid grid-cols-[min-content_1fr]">
               <span className="mr-2">COMPANY&nbsp;NAME:</span>
@@ -81,7 +98,7 @@ function Certificate({data}) {
             </div>
             <div className="text-xs grid grid-rows-[1fr_min-content]">
               <span className="text-center text-[.6rem] self-end">
-                Health Officer 1 Health Officer 1 Health Officer 1
+                {data?.issuerName}
               </span>
               <span className="border-t-2 border-black text-center">
                 CITY&nbsp;HEALTH&nbsp;OFFICER
@@ -91,16 +108,16 @@ function Certificate({data}) {
         </div>
         <div className="bg-blue-400 h-full grid grid-rows-[1fr_50px]">
           <div className="bg-black border place-self-center w-[220px] h-[220px]">
-            image
+            <canvas id="canvas" className="w-full"></canvas>
           </div>
           <div className="bg-green-500 grid grid-cols-[min-content_1fr]">
             <div className="mx-2">DATE&nbsp;ISSUANCE</div>
             <div className="border-b-2 border-black text-center">
-            {data?.dateIssuance}
+              {data?.dateIssuance}
             </div>
             <div className="mx-2">DATE&nbsp;EXPIRED</div>
             <div className="border-b-2 border-black text-center">
-              {data?.dateIssuance.slice(0,4)}-12-31
+              {data?.dateIssuance.slice(0, 4)}-12-31
             </div>
           </div>
         </div>

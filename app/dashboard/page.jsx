@@ -99,7 +99,7 @@ function Records() {
   const [showDialog, setShowDialog] = useState(searchParams.has("id"));
   const [tableQuery, setQuery] = useState([]);
   const [tableQuerying, setTableQuerying] = useState(false);
-  const [certificate, setCertificate] = useState(null)
+  const [certificate, setCertificate] = useState(null);
 
   function getCertificatesQuery({ conditions = [] }) {
     setTableQuerying(true);
@@ -135,12 +135,12 @@ function Records() {
 
   useEffect(() => {
     if (searchParams.has("id")) {
-      getDoc(doc(db, "records", searchParams.get("id") )).then((res)=>{
+      getDoc(doc(db, "records", searchParams.get("id"))).then((res) => {
         if (res.exists()) {
-          setCertificate(res)
+          setCertificate(res);
           setShowDialog(true);
         }
-      })
+      });
     } else {
       setCertificate(null);
       setShowDialog(false);
@@ -221,7 +221,7 @@ function Records() {
           )}
         </div>
       </div>
-      <View open={showDialog} set={setShowDialog} certificate={certificate}/>
+      <View open={showDialog} set={setShowDialog} certificate={certificate} />
     </>
   );
 }
@@ -238,7 +238,8 @@ const CertificateRow = memo(({ data, ...props }) => {
     <TableRow
       onClick={() => {
         router.push("/dashboard?id=" + data.id);
-      }} className="hover:cursor-pointer"
+      }}
+      className="hover:cursor-pointer"
     >
       <TableCell className="font-medium">{data.data().employeeName}</TableCell>
       <TableCell>{data.data().company}</TableCell>
@@ -281,6 +282,7 @@ const View = ({ certificate, children, set, ...props }) => {
     if (certificate) {
       setData({
         ...certificate.data(),
+        id: certificate.id,
       });
     }
   }, [certificate]);
@@ -337,8 +339,13 @@ const View = ({ certificate, children, set, ...props }) => {
         <DialogHeader>
           <DialogTitle>Certificate</DialogTitle>
         </DialogHeader>
-        <ScrollArea type="auto" className="max-h-[70vh] p-4 bg-white">
-          <Certificate data={data} />
+        <ScrollArea
+          type="auto"
+          className="max-h-[70vh] p-4 bg-white grid grid-cols-1 place-content-center"
+        >
+          <div className="h-full w-full grid place-content-center">
+            <Certificate data={data} />
+          </div>
           <ScrollBar orientation="horizontal" />
         </ScrollArea>
         <div className="grid gap-4 grid-cols-[1fr_min-content] mt-4">
