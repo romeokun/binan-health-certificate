@@ -244,7 +244,7 @@ const CertificateRow = memo(({ data, ...props }) => {
       <TableCell className="font-medium">{data.data().employeeName}</TableCell>
       <TableCell>{data.data().company}</TableCell>
       <TableCell className="">{data.data().occupation}</TableCell>
-      <TableCell className="text-center">{data.data().dateIssued}</TableCell>
+      <TableCell className="text-center">{data.data().dateIssued.year}</TableCell>
     </TableRow>
   );
 });

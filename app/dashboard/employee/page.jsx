@@ -46,6 +46,7 @@ import {
   limit,
   startAfter,
   runTransaction,
+  setDoc,
 } from "firebase/firestore";
 import { db } from "@/config/firebase";
 import { format } from "date-fns";
@@ -305,6 +306,7 @@ const View = ({ children, employee, isQuerying, set, ...props }) => {
   });
   const [certificates, setCertificates] = useState(null);
   const [certificatesLoading, setCertificatesLoading] = useState(true);
+  const { currentUser } = useContext(AuthContext);
 
   useEffect(() => {
     if (employee) {
@@ -345,7 +347,19 @@ const View = ({ children, employee, isQuerying, set, ...props }) => {
   };
 
   const handleSave = (e) => {
-    // setdoc
+    
+    setDoc(doc(db, "employees", employee.id), data)
+      .then((res) => {
+        addDoc(collection(db, "logs"), {
+          created: serverTimestamp(),
+          action: "edited an employee info",
+          target: employee.id,
+          userUID: currentUser.uid,
+        });
+      })
+      .then(() => {
+        setIsEdit(false);
+      });
   };
 
   const handleDelete = async (e) => {
@@ -488,7 +502,7 @@ const View = ({ children, employee, isQuerying, set, ...props }) => {
                       }}
                     >
                       <div className="grid grid-cols-4 bg-accent hover:bg-slate-400 p-2 rounded mt-2">
-                        <span>{cert.data().dateIssuance.split("-")[0]}</span>
+                        <span>{cert.data().dateIssued.year}</span>
                         <span className="col-span-3">
                           {cert.data().company}
                         </span>
@@ -558,10 +572,19 @@ const AddCertificateDialog = ({ employee }) => {
     "-" +
     currentDate.getDate().toString().padStart(2, 0);
 
+  const toDateIssued = (date = "0000-00-00") => {
+    return {
+      full: date,
+      year: date.slice(0, 4),
+      month: date.slice(5, 7),
+      day: date.slice(8, 10),
+    };
+  };
+
   const dataDefault = {
     company: "",
     dateIssuance: currentDateString,
-    dateIssued: currentDateString,
+    dateIssued: toDateIssued(currentDateString),
     employee: doc(db, "employees", employee.id),
     employeeID: employee.id,
     employeeName: employee.data().name,
@@ -609,39 +632,52 @@ const AddCertificateDialog = ({ employee }) => {
               );
               const analytics = await transaction.get(ref);
               if (!analytics.exists()) {
-                throw "Document does not exist!";
+                await setDoc(
+                  doc(db, "analytics", currentDate.getFullYear().toString()),
+                  {
+                    numberOfCertificates: 0,
+                    baranggay: { [data.placeOfWork]: 0 },
+                    byMonth: { [(currentDate.getMonth() + 1).toString()]: 0 },
+                    nationality: { [data.nationality]: 0 },
+                  }
+                );
+              } else {
+                const certificateCount = analytics.data().numberOfCertificates;
+                const newCertificates =
+                  (certificateCount ? certificateCount : 0) + 1;
+
+                const certificateCountByMonth =
+                  analytics.data().byMonth?.[
+                    (currentDate.getMonth() + 1).toString()
+                  ];
+                const newCertificateCountByMonth =
+                  (certificateCountByMonth ? certificateCountByMonth : 0) + 1;
+
+                const baranggayCount =
+                  analytics.data().baranggay?.[data.placeOfWork];
+                const updateCount = (baranggayCount ? baranggayCount : 0) + 1;
+
+                const nationalityCount =
+                  analytics.data().nationality?.[data.nationality];
+                const updateNationalityCount =
+                  (nationalityCount ? nationalityCount : 0) + 1;
+                transaction.update(ref, {
+                  numberOfCertificates: newCertificates,
+                  ["baranggay." + data.placeOfWork]: updateCount,
+                  ["byMonth." + (currentDate.getMonth() + 1).toString()]:
+                    newCertificateCountByMonth,
+                  ["nationality." + data.nationality]: updateNationalityCount,
+                });
               }
-
-              const certificateCount = analytics.data().numberOfCertificates;
-              const newCertificates = certificateCount
-                ? certificateCount
-                : 0 + 1;
-
-              const certificateCountByMonth =
-                analytics.data().byMonth?.[
-                  (currentDate.getMonth() + 1).toString()
-                ];
-              const newCertificateCountByMonth = certificateCountByMonth
-                ? certificateCountByMonth
-                : 0 + 1;
-
-              const baranggayCount =
-                analytics.data().baranggay?.[data.placeOfWork];
-              const updateCount = baranggayCount ? baranggayCount : 0 + 1;
-
-              const nationalityCount =
-                analytics.data().nationality?.[data.nationality];
-              const updateNationalityCount = nationalityCount ? nationalityCount : 0 + 1;
-
-              transaction.update(ref, {
-                numberOfCertificates: newCertificates,
-                ["baranggay." + data.placeOfWork]: updateCount,
-                ["byMonth." + (currentDate.getMonth() + 1).toString()]:
-                  newCertificateCountByMonth,
-                ["nationality." + data.nationality]:
-                  updateNationalityCount,
-              });
             });
+
+            await addDoc(collection(db, "logs"), {
+              created: serverTimestamp(),
+              action: "added a certificate",
+              target: res.id,
+              userUID: currentUser.uid,
+            });
+
             return res;
           })
           .then((ref) => {
@@ -715,9 +751,12 @@ const AddCertificateDialog = ({ employee }) => {
                   type="date"
                   className="col-span-3 border px-3 py-2 rounded-md"
                   onChange={(e) => {
-                    setData({ ...data, dateIssued: e.target.value });
+                    setData({
+                      ...data,
+                      dateIssued: toDateIssued(e.target.value),
+                    });
                   }}
-                  value={data.dateIssued}
+                  value={data.dateIssued?.full}
                 />
               </div>
               <div className="grid grid-cols-4 items-center gap-4 w-[400px] ">

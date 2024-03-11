@@ -49,7 +49,7 @@ function Certificate({ data }) {
                 <div className="text-sm grid grid-cols-[min-content_1fr]">
                   <div>Date&nbsp;Issued</div>
                   <div className="border-b-2 border-black mx-4">
-                    {data?.dateIssued}
+                    {data?.dateIssued.full}
                   </div>
                 </div>
               </div>

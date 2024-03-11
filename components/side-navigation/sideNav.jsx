@@ -18,6 +18,7 @@ function sideNavigation() {
   const pathname = usePathname();
   const navigations = [
     { link: "/dashboard", text: "Dashboard" },
+    { link: "/scan", text: "Scan QR" },
     { link: "/analytics", text: "Analytics" },
     { link: "/manage", text: "Manage" },
   ];
