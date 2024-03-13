@@ -52,7 +52,6 @@ import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { auth } from "@/config/firebase";
 
 const months = [
-  { text: "Select Month", value: 0 },
   { text: "January", value: 1 },
   { text: "February", value: 2 },
   { text: "March", value: 3 },
@@ -74,7 +73,6 @@ while (tmp <= currentYear) {
   years.push({ value: tmp, text: tmp });
   tmp++;
 }
-years.push({ value: 0, text: "Year" });
 const reversedYears = years.reverse();
 
 const PAGELIMIT = 25;
@@ -171,22 +169,7 @@ function Records() {
           </Button>
         </div>
       </div>
-      {/* <div className="grid mt-2 grid-cols-[min-content_min-content_min-content_1fr]">
-        <SelectOption
-          className="w-[150px] mx-1"
-          title="Select Month"
-          data={months}
-        />
-        <SelectOption
-          className="w-[80px] mx-1"
-          title="Year"
-          data={reversedYears}
-        />
-        <Input className="w-[40ch]" type="text" placeholder="Company Name" />
-        <div className="grid place-items-center">
-          <Button>Search</Button>
-        </div>
-      </div> */}
+      <Filter searchParams={searchParams} />
       <div className="mt-4">
         <Table>
           <TableCaption>
@@ -244,14 +227,16 @@ const CertificateRow = memo(({ data, ...props }) => {
       <TableCell className="font-medium">{data.data().employeeName}</TableCell>
       <TableCell>{data.data().company}</TableCell>
       <TableCell className="">{data.data().occupation}</TableCell>
-      <TableCell className="text-center">{data.data().dateIssued.year}</TableCell>
+      <TableCell className="text-center">
+        {data.data().dateIssued.year}
+      </TableCell>
     </TableRow>
   );
 });
 
-const SelectOption = ({ title, data, className }) => {
+const SelectOption = ({ title, data, className, onValueChange, value }) => {
   return (
-    <Select>
+    <Select onValueChange={onValueChange} value={value}>
       <SelectTrigger className={className}>
         <SelectValue placeholder={title} />
       </SelectTrigger>
@@ -341,8 +326,7 @@ const View = ({ certificate, children, set, ...props }) => {
         </DialogHeader>
         <div className="p-4 bg-white place-content-center overflow-auto">
           <div className="w-[700px] m-auto">
-            {!isEdit? <Certificate data={data}/>: <EditCertificate/>}
-
+            {!isEdit ? <Certificate data={data} /> : <EditCertificate />}
           </div>
         </div>
         <div className="grid gap-4 grid-cols-[1fr_min-content] mt-4">
@@ -393,9 +377,130 @@ const View = ({ certificate, children, set, ...props }) => {
 };
 
 const EditCertificate = () => {
+  return <div>editing</div>;
+};
+
+const Filter = ({ searchParams }) => {
+  const defaultFilter = (() => {
+    switch (searchParams.get("filter")) {
+      case "month":
+        return "byMonth";
+      case "year":
+        return "byYear";
+      case "company":
+        return "byCompany";
+
+      default:
+        return "none";
+    }
+  })();
+
+  const filterDataDefault = {
+    month: searchParams.has("month") ? searchParams.get("month") : "",
+    year: searchParams.has("year") ? searchParams.get("year") : "",
+    company: searchParams.has("company") ? searchParams.get("company") : "",
+  };
+
+  const [filter, setFilter] = useState(defaultFilter);
+  const [filterData, setFilterData] = useState(filterDataDefault);
+  const router = useRouter();
+
+  const handleSearch = () => {
+    let search = "";
+    switch (filter) {
+      case "byMonth":
+        if (filterData.month != "" && filterData.year != "") {
+          search =
+            "filter=month&month=" +
+            filterData.month +
+            "&year=" +
+            filterData.year;
+        }
+      case "byYear":
+        if (filterData.year != "") {
+          search = "filter=year&year=" + filterData.year;
+        }
+
+      case "byCompany":
+        if (filterData.company != "") {
+          search = "filter=company&company=" + filterData.company;
+        }
+
+      default:
+        router.push("/dashboard?" + search);
+        break;
+    }
+  };
+
   return (
-    <div>editing</div>
-  )
-}
+    <div className="grid mt-2 grid-cols-[1fr_2fr_1fr] gap-2 bg-slate-400 p-2 rounded-md">
+      <SelectOption
+        title={"Choose Filter"}
+        data={[
+          { value: "none", text: "No filter" },
+          { value: "byMonth", text: "By Month" },
+          { value: "byYear", text: "By Year" },
+          { value: "byCompany", text: "By Company" },
+        ]}
+        value={filter}
+        onValueChange={(value) => {
+          setFilter(value);
+          setFilterData(filterDataDefault);
+        }}
+      />
+      <div className="grid grid-cols-2 gap-2">
+        {filter == "byMonth" && (
+          <>
+            <SelectOption
+              className="w-full mx-1"
+              title="Select Month"
+              data={months}
+              value={filterData.month}
+              onValueChange={(value) => {
+                setFilterData({ ...filterData, month: value });
+              }}
+            />
+            <SelectOption
+              className="w-full mx-1"
+              title="Year"
+              data={reversedYears}
+              value={filterData.year}
+              onValueChange={(value) => {
+                setFilterData({ ...filterData, year: value });
+              }}
+            />
+          </>
+        )}
+        {filter == "byYear" && (
+          <>
+            <SelectOption
+              className="w-full mx-1"
+              title="Select Year"
+              data={reversedYears}
+              value={filterData.year}
+              onValueChange={(value) => {
+                setFilterData({ ...filterData, year: value });
+              }}
+            />
+          </>
+        )}
+        {filter == "byCompany" && (
+          <Input
+            className="col-span-2"
+            type="text"
+            placeholder="Company Name"
+            value={filterData.company}
+            onChange={(e) => {
+              setFilterData({ ...filterData, company: e.target.value });
+            }}
+          />
+        )}
+      </div>
+      <div className="grid place-items-end">
+        <Button onClick={handleSearch}>Search</Button>
+      </div>
+    </div>
+  );
+};
 
 export default Records;
