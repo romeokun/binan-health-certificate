@@ -52,25 +52,25 @@ import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { auth } from "@/config/firebase";
 
 const months = [
-  { text: "January", value: 1 },
-  { text: "February", value: 2 },
-  { text: "March", value: 3 },
-  { text: "April", value: 4 },
-  { text: "May", value: 5 },
-  { text: "June", value: 6 },
-  { text: "July", value: 7 },
-  { text: "August", value: 8 },
-  { text: "September", value: 9 },
-  { text: "October", value: 10 },
-  { text: "November", value: 11 },
-  { text: "December", value: 12 },
+  { text: "January", value: "01" },
+  { text: "February", value: "02" },
+  { text: "March", value: "03" },
+  { text: "April", value: "04" },
+  { text: "May", value: "05" },
+  { text: "June", value: "06" },
+  { text: "July", value: "07" },
+  { text: "August", value: "08" },
+  { text: "September", value: "09" },
+  { text: "October", value: "10" },
+  { text: "November", value: "11" },
+  { text: "December", value: "12" },
 ];
 const currentDate = new Date();
 const currentYear = currentDate.getFullYear();
 const years = [];
 let tmp = 2020;
 while (tmp <= currentYear) {
-  years.push({ value: tmp, text: tmp });
+  years.push({ value: tmp.toString(), text: tmp.toString() });
   tmp++;
 }
 const reversedYears = years.reverse();
@@ -97,41 +97,48 @@ function Records() {
   const [showDialog, setShowDialog] = useState(false);
   const [tableQuery, setQuery] = useState([]);
   const [tableQuerying, setTableQuerying] = useState(false);
+  const endOfQuery = useRef(false);
   const [certificate, setCertificate] = useState(null);
 
-  function getCertificatesQuery({ conditions = [] }) {
+  const filter = (() => {
+    switch (searchParams.get("filter")) {
+      case "month":
+        return [
+          where("dateIssued.month", "==", searchParams.get("month")),
+          where("dateIssued.year", "==", searchParams.get("year")),
+        ];
+      case "year":
+        return [where("dateIssued.year", "==", searchParams.get("year"))];
+      case "company":
+        return [where("company", "==", searchParams.get("company"))];
+
+      default:
+        return [];
+    }
+  })();
+
+  function getCertificatesQuery() {
     setTableQuerying(true);
     loadQuery({
       collectionID: "records",
       order: orderBy("created", "desc"),
-      conditions,
+      conditions: filter,
     }).then((result) => {
       setQuery(result.docs);
       setTableQuerying(false);
     });
   }
 
-  const initialized = useRef(false);
   useEffect(() => {
     if (!currentUser && !isLoading) {
       router.push("/login");
     }
-
-    if (!initialized.current) {
-      try {
-        getCertificatesQuery({
-          setSnap: setQuery,
-          setLoading: setTableQuerying,
-        });
-      } catch (error) {
-        console.error(error);
-      }
-
-      initialized.current = true;
-    }
   }, []);
 
   useEffect(() => {
+    endOfQuery.current = false;
+    getCertificatesQuery();
+    if (tableQuery.length < PAGELIMIT) endOfQuery.current = true;
     if (searchParams.has("id")) {
       getDoc(doc(db, "records", searchParams.get("id"))).then((res) => {
         if (res.exists()) {
@@ -139,6 +146,7 @@ function Records() {
           setShowDialog(true);
         }
       });
+    } else if (searchParams.has("filter")) {
     } else {
       setCertificate(null);
       setShowDialog(false);
@@ -154,6 +162,9 @@ function Records() {
     }).then((result) => {
       setQuery([...tableQuery, ...result.docs]);
       setTableQuerying(false);
+      if (result.docs.length <= 0) {
+        endOfQuery.current = true;
+      }
     });
   };
 
@@ -196,7 +207,7 @@ function Records() {
           ) : (
             <Button
               onClick={handleLoadMore}
-              disabled={tableQuerying}
+              disabled={tableQuerying || endOfQuery.current}
               variant="outline"
             >
               Load More
@@ -412,24 +423,23 @@ const Filter = ({ searchParams }) => {
         if (filterData.month != "" && filterData.year != "") {
           search =
             "filter=month&month=" +
-            filterData.month +
+            filterData.month.toString().padStart(2, 0) +
             "&year=" +
             filterData.year;
         }
+        break;
       case "byYear":
         if (filterData.year != "") {
           search = "filter=year&year=" + filterData.year;
         }
-
+        break;
       case "byCompany":
         if (filterData.company != "") {
           search = "filter=company&company=" + filterData.company;
         }
-
-      default:
-        router.push("/dashboard?" + search);
         break;
     }
+    router.push("/dashboard?" + search);
   };
 
   return (

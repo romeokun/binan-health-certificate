@@ -21,6 +21,7 @@ function sideNavigation() {
     { link: "/scan", text: "Scan QR" },
     { link: "/analytics", text: "Analytics" },
     { link: "/manage", text: "Manage" },
+    { link: "/settings", text: "Settings" },
   ];
 
   const defaultStyle =
