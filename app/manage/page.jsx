@@ -14,7 +14,9 @@ function Manage() {
   }, []);
 
   return (
-    <>manage</>
+    <>manage
+    <br /> [edit users] [Logs] 
+    </>
   );
 }
 
