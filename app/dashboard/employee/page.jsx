@@ -71,52 +71,6 @@ async function loadQuery({ collectionID, order, conditions, loadAfter }) {
   return getDocs(q);
 }
 
-function employeesQuery({
-  setSnap,
-  setLoading,
-  setCallback,
-  loadAfter,
-  conditions = [],
-}) {
-  setLoading(true);
-  loadQuery({
-    collectionID: "employees",
-    order: orderBy("created", "desc"),
-    setSnap,
-    setLoading,
-    loadAfter,
-    conditions,
-  }).then((result) => {
-    setSnap((previous) => {
-      return setCallback({ prev: previous, res: result });
-    });
-    setLoading(false);
-  });
-}
-
-function loadMoreEmployees({ setSnap, setLoading, cursor, conditions = [] }) {
-  employeesQuery({
-    setSnap,
-    setLoading,
-    conditions,
-    loadAfter: startAfter(cursor),
-    setCallback: ({ prev, res }) => {
-      return [...prev, ...res.docs];
-    },
-  });
-}
-
-function initializeEmployees({ setSnap, setLoading, conditions = [] }) {
-  employeesQuery({
-    setSnap,
-    setLoading,
-    conditions,
-    setCallback: ({ res }) => {
-      return [...res.docs];
-    },
-  });
-}
-
 function certificatesQuery({ setSnap, setLoading, employeeID }) {
   setSnap("");
   setLoading(true);
@@ -151,29 +105,42 @@ function Employee() {
   const [isQuerying, setIsQuerying] = useState(false);
   const [tableQuery, setQuery] = useState([]);
   const [tableQuerying, setTableQuerying] = useState(false);
+  const endOfQuery = useRef(false);
   const [showFilter, setShowFilter] = useState(searchParams.has("filter"));
 
-  const initialized = useRef(false);
+  const filter = (() => {
+    switch (searchParams.get("filter")) {
+      case "name":
+        return [where("name", "==", searchParams.get("name"))];
+
+      default:
+        return [];
+    }
+  })();
+
+  function initializeEmployees() {
+    setTableQuerying(true);
+    loadQuery({
+      collectionID: "employees",
+      order: orderBy("created", "desc"),
+      conditions: filter,
+    }).then((result) => {
+      setQuery(result.docs);
+      setTableQuerying(false);
+    });
+  }
+
   useEffect(() => {
     if (!currentUser && !isLoading) {
       router.push("/login");
     }
-
-    if (!initialized.current) {
-      try {
-        initializeEmployees({
-          setSnap: setQuery,
-          setLoading: setTableQuerying,
-        });
-      } catch (error) {
-        console.error(error);
-      }
-
-      initialized.current = true;
-    }
   }, []);
 
   useEffect(() => {
+    endOfQuery.current = false;
+    setShowFilter(searchParams.has("filter"));
+    initializeEmployees();
+    if (tableQuery.length < PAGELIMIT) endOfQuery.current = true;
     if (searchParams.has("id")) {
       loadDoc(searchParams.get("id"), setEmployee, setIsQuerying);
       setShowDialog(true);
@@ -185,14 +152,21 @@ function Employee() {
 
   useEffect(() => {}, [tableQuery]);
   const handleTableReload = () => {
-    initializeEmployees({ setSnap: setQuery, setLoading: setTableQuerying });
+    initializeEmployees();
   };
 
   const handleLoadMore = (e) => {
-    loadMoreEmployees({
-      setSnap: setQuery,
-      setLoading: setTableQuerying,
-      cursor: tableQuery.at(tableQuery.length - 1),
+    setTableQuerying(true);
+    loadQuery({
+      collectionID: "employees",
+      order: orderBy("created", "desc"),
+      loadAfter: startAfter(tableQuery[tableQuery.length - 1]),
+    }).then((result) => {
+      setQuery([...tableQuery, ...result.docs]);
+      setTableQuerying(false);
+      if (result.docs.length <= 0) {
+        endOfQuery.current = true;
+      }
     });
   };
 
@@ -279,7 +253,7 @@ function Employee() {
           ) : (
             <Button
               onClick={handleLoadMore}
-              disabled={tableQuerying}
+              disabled={tableQuerying || endOfQuery.current}
               variant="outline"
             >
               Load More
@@ -962,13 +936,13 @@ const Filter = ({ searchParams, hidden }) => {
     }
   })();
 
-  const filterDataDefault = {
+  const [filterDataDefault, setDataDefault] = useState({
     name: searchParams.has("name") ? searchParams.get("name") : "",
     id: searchParams.has("employeeID") ? searchParams.get("employeeID") : "",
-  };
+  });
 
   const [filter, setFilter] = useState(defaultFilter);
-  const [filterData, setFilterData] = useState(filterDataDefault);
+  const [filterData, setFilterData] = useState(filterDataDefault.cur);
   const router = useRouter();
 
   const handleSearch = () => {
@@ -981,18 +955,25 @@ const Filter = ({ searchParams, hidden }) => {
         break;
       case "byID":
         if (filterData.id != "") {
-          search = "filter=employeeID&employeeID=" + filterData.id;
+          search = "id=" + filterData.id;
         }
         break;
     }
     router.push("/dashboard/employee?" + search);
   };
 
+  useEffect(() => {
+    setDataDefault({
+      name: searchParams.has("name") ? searchParams.get("name") : "",
+      id: searchParams.has("employeeID") ? searchParams.get("employeeID") : "",
+    });
+  }, searchParams);
+
   return (
     <div
       className={
         "grid mt-2 grid-cols-[1fr_2fr_1fr] gap-2 bg-slate-400 p-2 rounded-md " +
-        (hidden ? "hidden " : "")
+        (!hidden ? "hidden " : "")
       }
     >
       <SelectOption

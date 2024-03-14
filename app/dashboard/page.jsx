@@ -138,6 +138,7 @@ function Records() {
 
   useEffect(() => {
     endOfQuery.current = false;
+    setShowFilter(searchParams.has("filter"));
     getCertificatesQuery();
     if (tableQuery.length < PAGELIMIT) endOfQuery.current = true;
     if (searchParams.has("id")) {
@@ -147,7 +148,6 @@ function Records() {
           setShowDialog(true);
         }
       });
-    } else if (searchParams.has("filter")) {
     } else {
       setCertificate(null);
       setShowDialog(false);
@@ -174,9 +174,20 @@ function Records() {
       <div className="grid mt-2 grid-cols-[1fr_min-content]">
         <div></div>
         <div className="grid grid-cols-[min-content_min-content_min-content]">
-          <Button className="mx-1" onClick={()=>{setShowFilter(!showFilter)}}>Filter</Button>
+          <Button
+            className="mx-1"
+            onClick={() => {
+              setShowFilter(!showFilter);
+            }}
+          >
+            Filter
+          </Button>
           <Button className="mx-1">Print</Button>
-          <Button className="mx-1" variant="outline">
+          <Button
+            className="mx-1"
+            variant="outline"
+            onClick={getCertificatesQuery}
+          >
             <RotateCcw />
           </Button>
         </div>
@@ -445,7 +456,10 @@ const Filter = ({ searchParams, hidden }) => {
 
   return (
     <div
-      className={"grid mt-2 grid-cols-[1fr_2fr_1fr] gap-2 bg-slate-400 p-2 rounded-md " + (hidden?"hidden ":"")}
+      className={
+        "grid mt-2 grid-cols-[1fr_2fr_1fr] gap-2 bg-slate-400 p-2 rounded-md " +
+        (!hidden ? "hidden " : "")
+      }
     >
       <SelectOption
         title={"Choose Filter"}
