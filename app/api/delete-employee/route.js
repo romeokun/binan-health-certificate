@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { defaultAdmin } from "@/config/adminFirebase";
 import { auth, firestore } from "firebase-admin";
 
 export async function POST(request) {

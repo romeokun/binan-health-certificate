@@ -4,6 +4,7 @@ const serviceAccount = require("./binan-health-certificate-firebase-adminsdk-1y2
 
 try {
   admin.initializeApp({ credential: admin.credential.cert(serviceAccount) });
-} catch (error) {}
+} catch (error) {
+}
 
 export const defaultAdmin = admin;

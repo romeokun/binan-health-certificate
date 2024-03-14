@@ -335,7 +335,7 @@ const View = ({ children, employee, isQuerying, set, ...props }) => {
       .then((res) => {
         addDoc(collection(db, "logs"), {
           created: serverTimestamp(),
-          action: "edited an employee info",
+          action: {value: "employee_edit", text: "edited an employee info"},
           target: employee.id,
           userUID: currentUser.uid,
         });
@@ -356,7 +356,14 @@ const View = ({ children, employee, isQuerying, set, ...props }) => {
           body: JSON.stringify({ token: idToken, employeeID: employee.id }),
         });
       })
-      .then((response) => {
+      .then(async (response) => {
+        addDoc(collection(db, "logs"), {
+          created: serverTimestamp(),
+          action: {value: "employee_delete", text: "deleted an employee"},
+          target: employee.id,
+          userUID: currentUser.uid,
+        });
+
         router.push("/dashboard/employee");
       })
       .catch(function (error) {
@@ -656,7 +663,7 @@ const AddCertificateDialog = ({ employee }) => {
 
             await addDoc(collection(db, "logs"), {
               created: serverTimestamp(),
-              action: "added a certificate",
+              action: {value:"record_add", text: "added a certificate"},
               target: res.id,
               userUID: currentUser.uid,
             });
@@ -809,6 +816,7 @@ async function addToDatabase({ collectionID, data }) {
 }
 
 const NewDialog = ({ children, set, reload, ...props }) => {
+  const { currentUser } = useContext(AuthContext);
   const [data, setData] = useState({
     name: "",
     birthyear: "",
@@ -831,6 +839,7 @@ const NewDialog = ({ children, set, reload, ...props }) => {
   const handleSubmit = (e) => {
     e.preventDefault();
     e.target.disabled = true;
+    const currentDate = new Date();
 
     if (data.name != "" && data.birthyear != "" && data.sex != "") {
       try {
@@ -840,7 +849,38 @@ const NewDialog = ({ children, set, reload, ...props }) => {
             ...data,
             created: serverTimestamp(),
           },
-        }).then((ref) => {
+        }).then(async (res) => {
+          await runTransaction(db, async (transaction) => {
+            const ref = doc(
+              db,
+              "analytics",
+              currentDate.getFullYear().toString()
+            );
+            const analytics = await transaction.get(ref);
+            if (!analytics.exists()) {
+              await setDoc(
+                doc(db, "analytics", currentDate.getFullYear().toString()),
+                {
+                  numberOfNewEmployee: 0,
+                }
+              );
+            } else {
+              const employeeCount = analytics.data().numberOfNewEmployee;
+              const newCount = (employeeCount ? employeeCount : 0) + 1;
+
+              transaction.update(ref, {
+                numberOfNewEmployee: newCount,
+              });
+            }
+          });
+
+          await addDoc(collection(db, "logs"), {
+            created: serverTimestamp(),
+            action: {value:"employee_add", text: "added an employee"},
+            target: res.id,
+            userUID: currentUser.uid,
+          });
+
           set(false);
           setData({
             name: "",
@@ -849,7 +889,7 @@ const NewDialog = ({ children, set, reload, ...props }) => {
             created: "",
           });
           reload();
-          router.push("/dashboard/employee?id=" + ref.id);
+          router.push("/dashboard/employee?id=" + res.id);
         });
       } catch (error) {
         console.error(error);
