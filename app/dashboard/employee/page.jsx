@@ -942,7 +942,7 @@ const Filter = ({ searchParams, hidden }) => {
   });
 
   const [filter, setFilter] = useState(defaultFilter);
-  const [filterData, setFilterData] = useState(filterDataDefault.cur);
+  const [filterData, setFilterData] = useState(filterDataDefault);
   const router = useRouter();
 
   const handleSearch = () => {
