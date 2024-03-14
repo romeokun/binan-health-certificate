@@ -99,6 +99,7 @@ function Records() {
   const [tableQuerying, setTableQuerying] = useState(false);
   const endOfQuery = useRef(false);
   const [certificate, setCertificate] = useState(null);
+  const [showFilter, setShowFilter] = useState(searchParams.has("filter"));
 
   const filter = (() => {
     switch (searchParams.get("filter")) {
@@ -173,14 +174,14 @@ function Records() {
       <div className="grid mt-2 grid-cols-[1fr_min-content]">
         <div></div>
         <div className="grid grid-cols-[min-content_min-content_min-content]">
-          <Button className="mx-1">Filter</Button>
+          <Button className="mx-1" onClick={()=>{setShowFilter(!showFilter)}}>Filter</Button>
           <Button className="mx-1">Print</Button>
           <Button className="mx-1" variant="outline">
             <RotateCcw />
           </Button>
         </div>
       </div>
-      <Filter searchParams={searchParams} />
+      <Filter hidden={showFilter} searchParams={searchParams} />
       <div className="mt-4">
         <Table>
           <TableCaption>
@@ -309,23 +310,23 @@ const View = ({ certificate, children, set, ...props }) => {
   };
 
   const handleDelete = async (e) => {
-    // if (!employee) return;
-    // auth.currentUser
-    //   .getIdToken(true)
-    //   .then(function (idToken) {
-    //     return fetch("/api/delete-employee", {
-    //       method: "POST",
-    //       body: JSON.stringify({ token: idToken, employeeID: employee.id }),
-    //     });
-    //   })
-    //   .then((response) => {
-    //     router.push("/dashboard/employee");
-    //   })
-    //   .catch(function (error) {
-    //     // Handle error
-    //     console.error("failed to delete");
-    //     console.error(error);
-    //   });
+    if (!employee) return;
+    auth.currentUser
+      .getIdToken(true)
+      .then(function (idToken) {
+        return fetch("/api/delete-employee", {
+          method: "POST",
+          body: JSON.stringify({ token: idToken, employeeID: employee.id }),
+        });
+      })
+      .then((response) => {
+        router.push("/dashboard/employee");
+      })
+      .catch(function (error) {
+        // Handle error
+        console.error("failed to delete");
+        console.error(error);
+      });
   };
 
   return (
@@ -391,7 +392,7 @@ const EditCertificate = () => {
   return <div>editing</div>;
 };
 
-const Filter = ({ searchParams }) => {
+const Filter = ({ searchParams, hidden }) => {
   const defaultFilter = (() => {
     switch (searchParams.get("filter")) {
       case "month":
@@ -443,7 +444,9 @@ const Filter = ({ searchParams }) => {
   };
 
   return (
-    <div className="grid mt-2 grid-cols-[1fr_2fr_1fr] gap-2 bg-slate-400 p-2 rounded-md">
+    <div
+      className={"grid mt-2 grid-cols-[1fr_2fr_1fr] gap-2 bg-slate-400 p-2 rounded-md " + (hidden?"hidden ":"")}
+    >
       <SelectOption
         title={"Choose Filter"}
         data={[

@@ -151,6 +151,7 @@ function Employee() {
   const [isQuerying, setIsQuerying] = useState(false);
   const [tableQuery, setQuery] = useState([]);
   const [tableQuerying, setTableQuerying] = useState(false);
+  const [showFilter, setShowFilter] = useState(searchParams.has("filter"));
 
   const initialized = useRef(false);
   useEffect(() => {
@@ -199,8 +200,16 @@ function Employee() {
     <>
       <div className="grid mt-2 grid-cols-[1fr_min-content]">
         <div></div>
+
         <div className="grid grid-cols-[min-content_min-content_min-content]">
-          <Button className="mx-1">Filter</Button>
+          <Button
+            className="mx-1"
+            onClick={() => {
+              setShowFilter(!showFilter);
+            }}
+          >
+            Filter
+          </Button>
           <Button
             className="mx-1"
             onClick={() => {
@@ -219,6 +228,7 @@ function Employee() {
           </Button>
         </div>
       </div>
+      <Filter hidden={showFilter} searchParams={searchParams} />
       <ScrollArea className="mt-4 ">
         <Table>
           <TableCaption>
@@ -347,7 +357,6 @@ const View = ({ children, employee, isQuerying, set, ...props }) => {
   };
 
   const handleSave = (e) => {
-    
     setDoc(doc(db, "employees", employee.id), data)
       .then((res) => {
         addDoc(collection(db, "logs"), {
@@ -937,6 +946,96 @@ const NewDialog = ({ children, set, reload, ...props }) => {
         </form>
       </DialogContent>
     </Dialog>
+  );
+};
+
+const Filter = ({ searchParams, hidden }) => {
+  const defaultFilter = (() => {
+    switch (searchParams.get("filter")) {
+      case "name":
+        return "byName";
+      case "employeeID":
+        return "byID";
+
+      default:
+        return "none";
+    }
+  })();
+
+  const filterDataDefault = {
+    name: searchParams.has("name") ? searchParams.get("name") : "",
+    id: searchParams.has("employeeID") ? searchParams.get("employeeID") : "",
+  };
+
+  const [filter, setFilter] = useState(defaultFilter);
+  const [filterData, setFilterData] = useState(filterDataDefault);
+  const router = useRouter();
+
+  const handleSearch = () => {
+    let search = "";
+    switch (filter) {
+      case "byName":
+        if (filterData.name != "") {
+          search = "filter=name&name=" + filterData.name;
+        }
+        break;
+      case "byID":
+        if (filterData.id != "") {
+          search = "filter=employeeID&employeeID=" + filterData.id;
+        }
+        break;
+    }
+    router.push("/dashboard/employee?" + search);
+  };
+
+  return (
+    <div
+      className={
+        "grid mt-2 grid-cols-[1fr_2fr_1fr] gap-2 bg-slate-400 p-2 rounded-md " +
+        (hidden ? "hidden " : "")
+      }
+    >
+      <SelectOption
+        title={"Choose Filter"}
+        data={[
+          { value: "none", text: "No filter" },
+          { value: "byName", text: "By Name" },
+          { value: "byID", text: "By ID" },
+        ]}
+        value={filter}
+        onValueChange={(value) => {
+          setFilter(value);
+          setFilterData(filterDataDefault);
+        }}
+      />
+      <div className="grid grid-cols-2 gap-2">
+        {filter == "byName" && (
+          <Input
+            className="col-span-2"
+            type="text"
+            placeholder="Employee Name"
+            value={filterData.name}
+            onChange={(e) => {
+              setFilterData({ ...filterData, name: e.target.value });
+            }}
+          />
+        )}
+        {filter == "byID" && (
+          <Input
+            className="col-span-2"
+            type="text"
+            placeholder="Employee ID"
+            value={filterData.id}
+            onChange={(e) => {
+              setFilterData({ ...filterData, id: e.target.value });
+            }}
+          />
+        )}
+      </div>
+      <div className="grid place-items-end">
+        <Button onClick={handleSearch}>Search</Button>
+      </div>
+    </div>
   );
 };
 
