@@ -19,15 +19,41 @@ export async function POST(request) {
 
   firestore()
     .collection("records")
-    .where("employee", "==", profileID)
+    .where("employeeID", "==", profileID)
     .get()
     .then((snap) => {
-      snap.forEach((record) => {
-        record.ref.delete()
+      snap.forEach(async (record) => {
+        const docRef = record.ref;
+        const data = record.data();
+        const analyticsRef = firestore().doc(
+          "analytics/" + data.dateIssued.year
+        );
+
+        await firestore().runTransaction((transaction) => {
+          return transaction.get(analyticsRef).then((doc) => {
+            if (doc.exists) {
+              transaction.update(analyticsRef, {
+                numberOfCertificates: doc.get("numberOfCertificates") - 1,
+                ["baranggay." + data.placeOfWork]:
+                  doc.get("baranggay." + data.placeOfWork) - 1,
+                ["byMonth." +
+                data.dateIssued.month.padStart(2, 0)]:
+                  doc.get(
+                    "byMonth." +
+                    data.dateIssued.month.toString().padStart(2, 0)
+                  ) - 1,
+                ["nationality." + data.nationality]:
+                  doc.get("nationality." + data.nationality) - 1,
+              });
+            }
+          });
+        });
+
+        docRef.delete();
       });
     });
 
-   await firestore().collection("employees").doc(profileID).delete()
+  await firestore().collection("employees").doc(profileID).delete();
 
   return NextResponse.json(response, { status: 200 });
 }

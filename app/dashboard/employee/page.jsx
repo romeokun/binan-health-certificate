@@ -360,7 +360,7 @@ const View = ({ children, employee, isQuerying, set, ...props }) => {
         addDoc(collection(db, "logs"), {
           created: serverTimestamp(),
           action: {value: "employee_delete", text: "deleted an employee"},
-          target: employee.id,
+          target: {id: employee.id, name: employee.data().name},
           userUID: currentUser.uid,
         });
 
@@ -618,7 +618,7 @@ const AddCertificateDialog = ({ employee }) => {
               const ref = doc(
                 db,
                 "analytics",
-                currentDate.getFullYear().toString()
+                data.dateIssued.year.toString()
               );
               const analytics = await transaction.get(ref);
               if (!analytics.exists()) {
@@ -627,7 +627,7 @@ const AddCertificateDialog = ({ employee }) => {
                   {
                     numberOfCertificates: 0,
                     baranggay: { [data.placeOfWork]: 0 },
-                    byMonth: { [(currentDate.getMonth() + 1).toString()]: 0 },
+                    byMonth: { [data.dateIssued.month.toString().padStart(2, 0)]: 0 },
                     nationality: { [data.nationality]: 0 },
                   }
                 );
@@ -638,7 +638,7 @@ const AddCertificateDialog = ({ employee }) => {
 
                 const certificateCountByMonth =
                   analytics.data().byMonth?.[
-                    (currentDate.getMonth() + 1).toString()
+                    (data.dateIssued.month).toString().padStart(2, 0)
                   ];
                 const newCertificateCountByMonth =
                   (certificateCountByMonth ? certificateCountByMonth : 0) + 1;
@@ -654,7 +654,7 @@ const AddCertificateDialog = ({ employee }) => {
                 transaction.update(ref, {
                   numberOfCertificates: newCertificates,
                   ["baranggay." + data.placeOfWork]: updateCount,
-                  ["byMonth." + (currentDate.getMonth() + 1).toString()]:
+                  ["byMonth." + (currentDate.getMonth() + 1).toString().padStart(2, 0)]:
                     newCertificateCountByMonth,
                   ["nationality." + data.nationality]: updateNationalityCount,
                 });

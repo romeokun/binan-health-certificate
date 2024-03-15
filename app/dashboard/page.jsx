@@ -330,16 +330,16 @@ const View = ({ certificate, children, set, ...props }) => {
       const ref = doc(
         db,
         "analytics",
-        currentDate.getFullYear().toString()
+        data.dateIssued.year
       );
       const analytics = await transaction.get(ref);
       if (!analytics.exists()) {
         await setDoc(
-          doc(db, "analytics", currentDate.getFullYear().toString()),
+          doc(db, "analytics", data.dateIssued.year),
           {
             numberOfCertificates: 0,
             baranggay: { [data.placeOfWork]: 0 },
-            byMonth: { [(currentDate.getMonth() + 1).toString()]: 0 },
+            byMonth: { [data.dateIssued.month.toString().padStart(2, 0)]: 0 },
             nationality: { [data.nationality]: 0 },
           }
         );
@@ -350,7 +350,7 @@ const View = ({ certificate, children, set, ...props }) => {
 
         const certificateCountByMonth =
           analytics.data().byMonth?.[
-            (currentDate.getMonth() + 1).toString()
+            (data.dateIssued.month).toString().padStart(2, 0)
           ];
         const newCertificateCountByMonth =
           (certificateCountByMonth ? certificateCountByMonth : 0) - 1;
