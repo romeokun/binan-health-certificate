@@ -45,6 +45,9 @@ import {
   serverTimestamp,
   limit,
   startAfter,
+  setDoc,
+  deleteDoc,
+  runTransaction,
 } from "firebase/firestore";
 import { db } from "@/config/firebase";
 import { format } from "date-fns";
@@ -281,8 +284,10 @@ import Certificate from "@/components/dashboard/certificate";
 const View = ({ certificate, children, set, ...props }) => {
   // use employee object to display
 
+  const { currentUser } = useContext(AuthContext);
   const [isEdit, setIsEdit] = useState(false);
   const router = useRouter();
+  const currentDate = new Date();
 
   const [data, setData] = useState(null);
 
@@ -321,23 +326,63 @@ const View = ({ certificate, children, set, ...props }) => {
   };
 
   const handleDelete = async (e) => {
-    if (!employee) return;
-    auth.currentUser
-      .getIdToken(true)
-      .then(function (idToken) {
-        return fetch("/api/delete-employee", {
-          method: "POST",
-          body: JSON.stringify({ token: idToken, employeeID: employee.id }),
+    await runTransaction(db, async (transaction) => {
+      const ref = doc(
+        db,
+        "analytics",
+        currentDate.getFullYear().toString()
+      );
+      const analytics = await transaction.get(ref);
+      if (!analytics.exists()) {
+        await setDoc(
+          doc(db, "analytics", currentDate.getFullYear().toString()),
+          {
+            numberOfCertificates: 0,
+            baranggay: { [data.placeOfWork]: 0 },
+            byMonth: { [(currentDate.getMonth() + 1).toString()]: 0 },
+            nationality: { [data.nationality]: 0 },
+          }
+        );
+      } else {
+        const certificateCount = analytics.data().numberOfCertificates;
+        const newCertificates =
+          (certificateCount ? certificateCount : 0) - 1;
+
+        const certificateCountByMonth =
+          analytics.data().byMonth?.[
+            (currentDate.getMonth() + 1).toString()
+          ];
+        const newCertificateCountByMonth =
+          (certificateCountByMonth ? certificateCountByMonth : 0) - 1;
+
+        const baranggayCount =
+          analytics.data().baranggay?.[data.placeOfWork];
+        const updateCount = (baranggayCount ? baranggayCount : 0) - 1;
+
+        const nationalityCount =
+          analytics.data().nationality?.[data.nationality];
+        const updateNationalityCount =
+          (nationalityCount ? nationalityCount : 0) - 1;
+        transaction.update(ref, {
+          numberOfCertificates: newCertificates,
+          ["baranggay." + data.placeOfWork]: updateCount,
+          ["byMonth." + (currentDate.getMonth() + 1).toString()]:
+            newCertificateCountByMonth,
+          ["nationality." + data.nationality]: updateNationalityCount,
         });
-      })
-      .then((response) => {
-        router.push("/dashboard/employee");
-      })
-      .catch(function (error) {
-        // Handle error
-        console.error("failed to delete");
-        console.error(error);
-      });
+      }
+    });
+
+    await addDoc(collection(db, "logs"), {
+      created: serverTimestamp(),
+      action: {value:"record_delete", text: "deleted a certificate"},
+      target: data.id,
+      userUID: currentUser.uid,
+    });
+
+    await deleteDoc(doc(db, "records", data.id))
+
+    router.push("/dashboard")
   };
 
   return (
@@ -347,7 +392,7 @@ const View = ({ certificate, children, set, ...props }) => {
         <DialogHeader>
           <DialogTitle>Certificate</DialogTitle>
         </DialogHeader>
-        <div className="p-4 bg-white place-content-center overflow-auto">
+        <div className="p-4 place-content-center overflow-auto">
           <div className="w-[700px] m-auto">
             {!isEdit ? <Certificate data={data} /> : <EditCertificate />}
           </div>
@@ -400,7 +445,16 @@ const View = ({ certificate, children, set, ...props }) => {
 };
 
 const EditCertificate = () => {
-  return <div>editing</div>;
+  return <div>editing
+    <br /> or
+    <br /> no
+    <br /> data issued
+    <br /> occupation
+    <br /> nationality
+    <br /> place of work
+    <br /> company
+    <br /> date issuance
+  </div>;
 };
 
 const Filter = ({ searchParams, hidden }) => {
