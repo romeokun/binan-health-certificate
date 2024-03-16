@@ -36,11 +36,9 @@ export async function POST(request) {
                 numberOfCertificates: doc.get("numberOfCertificates") - 1,
                 ["baranggay." + data.placeOfWork]:
                   doc.get("baranggay." + data.placeOfWork) - 1,
-                ["byMonth." +
-                data.dateIssued.month.padStart(2, 0)]:
+                ["byMonth." + data.dateIssued.month.padStart(2, 0)]:
                   doc.get(
-                    "byMonth." +
-                    data.dateIssued.month.toString().padStart(2, 0)
+                    "byMonth." + data.dateIssued.month.toString().padStart(2, 0)
                   ) - 1,
                 ["nationality." + data.nationality]:
                   doc.get("nationality." + data.nationality) - 1,
@@ -53,7 +51,29 @@ export async function POST(request) {
       });
     });
 
-  await firestore().collection("employees").doc(profileID).delete();
+  const employeeRef = firestore().collection("employees").doc(profileID);
+  employeeRef
+    .get()
+    .then((documentSnap) => {
+      if (documentSnap.exists) {
+        const data = documentSnap.data();
+        return firestore().doc(
+          "analytics/" + data.created.toDate().getFullYear()
+        );
+      }
+    })
+    .then(async (analyticsRef) => {
+      await employeeRef.delete();
+      await firestore().runTransaction(async (transaction) => {
+        return transaction.get(analyticsRef).then((doc) => {
+          if (doc.exists) {
+            transaction.update(analyticsRef, {
+              numberOfNewEmployee: doc.get("numberOfNewEmployee") - 1,
+            });
+          }
+        });
+      });
+    });
 
   return NextResponse.json(response, { status: 200 });
 }
