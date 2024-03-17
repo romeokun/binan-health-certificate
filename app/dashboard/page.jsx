@@ -172,6 +172,14 @@ function Records() {
     });
   };
 
+  const reloadCertificate = () => {
+    getDoc(doc(db, "records", searchParams.get("id"))).then((res) => {
+      if (res.exists()) {
+        setCertificate(res);
+      }
+    });
+  };
+
   return (
     <>
       <div className="grid mt-2 grid-cols-[1fr_min-content]">
@@ -230,7 +238,12 @@ function Records() {
           )}
         </div>
       </div>
-      <View open={showDialog} set={setShowDialog} certificate={certificate} />
+      <View
+        open={showDialog}
+        set={setShowDialog}
+        certificate={certificate}
+        reloadCertificate={reloadCertificate}
+      />
     </>
   );
 }
@@ -281,13 +294,21 @@ const SelectOption = ({ title, data, className, onValueChange, value }) => {
 };
 
 import Certificate from "@/components/dashboard/certificate";
-const View = ({ certificate, children, set, ...props }) => {
+const View = ({ certificate, children, set, reloadCertificate, ...props }) => {
   // use employee object to display
 
   const { currentUser } = useContext(AuthContext);
   const [isEdit, setIsEdit] = useState(false);
   const router = useRouter();
   const currentDate = new Date();
+  const toDateIssued = (date = "0000-00-00") => {
+    return {
+      full: date,
+      year: date.slice(0, 4),
+      month: date.slice(5, 7),
+      day: date.slice(8, 10),
+    };
+  };
 
   const [data, setData] = useState(null);
 
@@ -330,21 +351,59 @@ const View = ({ certificate, children, set, ...props }) => {
         id: certificate.id,
       })
     ) {
-      setIsEdit(false)
+      setIsEdit(false);
     } else {
-
-
-      const {id, ...updateRecord} = data
+      const { id, ...updateRecord } = data;
       setDoc(doc(db, "records", certificate.id), {
-        ...updateRecord
-      }).then(setIsEdit(false))
+        ...updateRecord,
+      })
+        .then(async (res) => {
+          setIsEdit(false);
+          return runTransaction(db, async (transaction) => {
+            const ref = doc(db, "analytics", data.dateIssued.year.toString());
+            const analytics = await transaction.get(ref);
 
-      addDoc(collection(db, "logs"), {
-        created: serverTimestamp(),
-        action: { value: "record_edit", text: "edited a certificate" },
-        target: data.id,
-        userUID: currentUser.uid,
-      });
+            const dataUpdate = {};
+
+            if (updateRecord.placeOfWork != certificate.data().placeOfWork) {
+              dataUpdate["baranggay." + certificate.data().placeOfWork] =
+                analytics.data().baranggay[certificate.data().placeOfWork]
+                  ? analytics.data().baranggay[certificate.data().placeOfWork] -
+                    1
+                  : 0;
+
+              dataUpdate["baranggay." + updateRecord.placeOfWork] =
+                analytics.data().baranggay[updateRecord.placeOfWork]
+                  ? analytics.data().baranggay[updateRecord.placeOfWork] + 1
+                  : 1;
+            }
+
+            if (updateRecord.nationality != certificate.data().nationality) {
+              dataUpdate["nationality." + certificate.data().nationality] =
+                analytics.data().nationality[certificate.data().nationality]
+                  ? analytics.data().nationality[
+                      certificate.data().nationality
+                    ] - 1
+                  : 0;
+
+              dataUpdate["nationality." + updateRecord.nationality] =
+                analytics.data().nationality[updateRecord.nationality]
+                  ? analytics.data().nationality[updateRecord.nationality] + 1
+                  : 1;
+            }
+
+            transaction.update(ref, dataUpdate);
+          });
+        })
+        .then(async (res) => {
+          await addDoc(collection(db, "logs"), {
+            created: serverTimestamp(),
+            action: { value: "record_edit", text: "edited a certificate" },
+            target: data.id,
+            userUID: currentUser.uid,
+          });
+          reloadCertificate();
+        });
     }
   };
 
@@ -543,31 +602,6 @@ const EditCertificate = ({ data, setData }) => {
             onValueChange={(value) => {
               setData({ ...data, nationality: value });
             }}
-          />
-        </div>
-        <div className="grid grid-cols-4 items-center gap-4 ">
-          <Label className="text-right">Date Issued</Label>
-          <input
-            type="date"
-            className="col-span-3 border px-3 py-2 rounded-md"
-            onChange={(e) => {
-              setData({
-                ...data,
-                dateIssued: toDateIssued(e.target.value),
-              });
-            }}
-            value={data.dateIssued?.full}
-          />
-        </div>
-        <div className="grid grid-cols-4 items-center gap-4 ">
-          <Label className="text-right">Date Issuance</Label>
-          <input
-            type="date"
-            className="col-span-3 border px-3 py-2 rounded-md"
-            onChange={(e) => {
-              setData({ ...data, dateIssuance: e.target.value });
-            }}
-            value={data.dateIssuance}
           />
         </div>
       </div>

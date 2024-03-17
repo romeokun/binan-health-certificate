@@ -854,7 +854,7 @@ const NewDialog = ({ children, set, reload, ...props }) => {
             const ref = doc(
               db,
               "analytics",
-              currentDate.getFullYear().toString()
+              data.dateIssued.year.toString()
             );
             const analytics = await transaction.get(ref);
             if (!analytics.exists()) {
@@ -1007,7 +1007,7 @@ const Filter = ({ searchParams, hidden }) => {
       name: searchParams.has("name") ? searchParams.get("name") : "",
       id: searchParams.has("employeeID") ? searchParams.get("employeeID") : "",
     });
-  }, searchParams);
+  }, [searchParams]);
 
   return (
     <div
