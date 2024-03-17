@@ -1,14 +1,16 @@
 'use client'
-import React, { useState,  } from "react";
+import React, { useState, useContext } from "react";
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Toggle } from "@/components/ui/toggle";
 import { Separator } from "@/components/ui/separator";
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import { AuthContext } from "../auth-provider";
 
 function sideNavigation() {
 
+  const { currentUser } = useContext(AuthContext);
 
   const [showNav, setShowNav] = useState(true);
   const handleToggleNav = () => {
@@ -37,6 +39,11 @@ function sideNavigation() {
           <div>
             <span className="block text-center text-white">
               Binan Health Certificate
+            </span>
+          </div>
+          <div>
+            <span className="block text-center text-white">
+              Name: {currentUser.displayName}
             </span>
           </div>
           <ul className="bg-slate-600">

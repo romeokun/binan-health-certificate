@@ -310,6 +310,7 @@ const View = ({ certificate, children, set, ...props }) => {
     if (certificate) {
       setData({
         ...certificate?.data(),
+        id: certificate.id,
       });
     }
   };
@@ -322,41 +323,54 @@ const View = ({ certificate, children, set, ...props }) => {
   };
 
   const handleSave = (e) => {
-    // setdoc
+    if (
+      JSON.stringify(data) ==
+      JSON.stringify({
+        ...certificate?.data(),
+        id: certificate.id,
+      })
+    ) {
+      setIsEdit(false)
+    } else {
+
+
+      const {id, ...updateRecord} = data
+      setDoc(doc(db, "records", certificate.id), {
+        ...updateRecord
+      }).then(setIsEdit(false))
+
+      addDoc(collection(db, "logs"), {
+        created: serverTimestamp(),
+        action: { value: "record_edit", text: "edited a certificate" },
+        target: data.id,
+        userUID: currentUser.uid,
+      });
+    }
   };
 
   const handleDelete = async (e) => {
     await runTransaction(db, async (transaction) => {
-      const ref = doc(
-        db,
-        "analytics",
-        data.dateIssued.year
-      );
+      const ref = doc(db, "analytics", data.dateIssued.year);
       const analytics = await transaction.get(ref);
       if (!analytics.exists()) {
-        await setDoc(
-          doc(db, "analytics", data.dateIssued.year),
-          {
-            numberOfCertificates: 0,
-            baranggay: { [data.placeOfWork]: 0 },
-            byMonth: { [data.dateIssued.month.toString().padStart(2, 0)]: 0 },
-            nationality: { [data.nationality]: 0 },
-          }
-        );
+        await setDoc(doc(db, "analytics", data.dateIssued.year), {
+          numberOfCertificates: 0,
+          baranggay: { [data.placeOfWork]: 0 },
+          byMonth: { [data.dateIssued.month.toString().padStart(2, 0)]: 0 },
+          nationality: { [data.nationality]: 0 },
+        });
       } else {
         const certificateCount = analytics.data().numberOfCertificates;
-        const newCertificates =
-          (certificateCount ? certificateCount : 0) - 1;
+        const newCertificates = (certificateCount ? certificateCount : 0) - 1;
 
         const certificateCountByMonth =
           analytics.data().byMonth?.[
-            (data.dateIssued.month).toString().padStart(2, 0)
+            data.dateIssued.month.toString().padStart(2, 0)
           ];
         const newCertificateCountByMonth =
           (certificateCountByMonth ? certificateCountByMonth : 0) - 1;
 
-        const baranggayCount =
-          analytics.data().baranggay?.[data.placeOfWork];
+        const baranggayCount = analytics.data().baranggay?.[data.placeOfWork];
         const updateCount = (baranggayCount ? baranggayCount : 0) - 1;
 
         const nationalityCount =
@@ -375,26 +389,30 @@ const View = ({ certificate, children, set, ...props }) => {
 
     await addDoc(collection(db, "logs"), {
       created: serverTimestamp(),
-      action: {value:"record_delete", text: "deleted a certificate"},
+      action: { value: "record_delete", text: "deleted a certificate" },
       target: data.id,
       userUID: currentUser.uid,
     });
 
-    await deleteDoc(doc(db, "records", data.id))
+    await deleteDoc(doc(db, "records", data.id));
 
-    router.push("/dashboard")
+    router.push("/dashboard");
   };
 
   return (
     <Dialog onOpenChange={handleOnOpenChange} {...props}>
       <DialogTrigger>{children}</DialogTrigger>
-      <DialogContent className="max-w-7xl h-[90vh] bg-slate-100">
+      <DialogContent className="max-w-7xl h-[90vh] bg-slate-100 grid-rows-[min-content_1fr_min-content]">
         <DialogHeader>
           <DialogTitle>Certificate</DialogTitle>
         </DialogHeader>
         <div className="p-4 place-content-center overflow-auto">
           <div className="w-[700px] m-auto">
-            {!isEdit ? <Certificate data={data} /> : <EditCertificate />}
+            {!isEdit ? (
+              <Certificate data={data} />
+            ) : (
+              <EditCertificate data={data} setData={setData} />
+            )}
           </div>
         </div>
         <div className="grid gap-4 grid-cols-[1fr_min-content] mt-4">
@@ -444,17 +462,117 @@ const View = ({ certificate, children, set, ...props }) => {
   );
 };
 
-const EditCertificate = () => {
-  return <div>editing
-    <br /> or
-    <br /> no
-    <br /> data issued
-    <br /> occupation
-    <br /> nationality
-    <br /> place of work
-    <br /> company
-    <br /> date issuance
-  </div>;
+import { nationalities, baranggays } from "@/config/local";
+const EditCertificate = ({ data, setData }) => {
+  return (
+    <div className="shadow-md border p-4 min-h-full">
+      Edit Certificate
+      <div className="mt-4 grid gap-4 min-w-[300px]">
+        <div className="grid grid-cols-4 items-center gap-4">
+          <Label className="text-right">Name</Label>
+          <Input
+            className="col-span-3 disabled:cursor-default disabled:opacity-100 disabled:bg-accent"
+            type="text"
+            value={data.employeeName}
+            disabled
+          />
+        </div>
+        <div className="grid grid-cols-4 items-center gap-4">
+          <Label className="text-right">OR No</Label>
+          <Input
+            className="col-span-3 disabled:cursor-default disabled:opacity-100 disabled:bg-accent"
+            type="text"
+            value={data.or}
+            onChange={(e) => {
+              setData({ ...data, or: e.target.value });
+            }}
+          />
+        </div>
+        <div className="grid grid-cols-4 items-center gap-4">
+          <Label className="text-right">No</Label>
+          <Input
+            className="col-span-3 disabled:cursor-default disabled:opacity-100 disabled:bg-accent"
+            type="text"
+            value={data.no}
+            onChange={(e) => {
+              setData({ ...data, no: e.target.value });
+            }}
+          />
+        </div>
+        <div className="grid grid-cols-4 items-center gap-4">
+          <Label className="text-right">Occupation</Label>
+          <Input
+            className="col-span-3 disabled:cursor-default disabled:opacity-100 disabled:bg-accent"
+            type="text"
+            value={data.occupation}
+            onChange={(e) => {
+              setData({ ...data, occupation: e.target.value });
+            }}
+          />
+        </div>
+        <div className="grid grid-cols-4 items-center gap-4">
+          <Label className="text-right">Company Name</Label>
+          <Input
+            className="col-span-3 disabled:cursor-default disabled:opacity-100 disabled:bg-accent"
+            type="text"
+            value={data.company}
+            onChange={(e) => {
+              setData({ ...data, company: e.target.value });
+            }}
+          />
+        </div>
+        <div className="grid grid-cols-4 items-center gap-4 ">
+          <Label className="text-right">Place of Work</Label>
+          <SelectOption
+            value={data.placeOfWork}
+            className="col-span-3"
+            data={baranggays.map((baranggay) => {
+              return { value: baranggay, text: baranggay };
+            })}
+            onValueChange={(value) => {
+              setData({ ...data, placeOfWork: value });
+            }}
+          />
+        </div>
+        <div className="grid grid-cols-4 items-center gap-4 ">
+          <Label className="text-right">Nationality</Label>
+          <SelectOption
+            value={data.nationality}
+            className="col-span-3"
+            data={nationalities}
+            onValueChange={(value) => {
+              setData({ ...data, nationality: value });
+            }}
+          />
+        </div>
+        <div className="grid grid-cols-4 items-center gap-4 ">
+          <Label className="text-right">Date Issued</Label>
+          <input
+            type="date"
+            className="col-span-3 border px-3 py-2 rounded-md"
+            onChange={(e) => {
+              setData({
+                ...data,
+                dateIssued: toDateIssued(e.target.value),
+              });
+            }}
+            value={data.dateIssued?.full}
+          />
+        </div>
+        <div className="grid grid-cols-4 items-center gap-4 ">
+          <Label className="text-right">Date Issuance</Label>
+          <input
+            type="date"
+            className="col-span-3 border px-3 py-2 rounded-md"
+            onChange={(e) => {
+              setData({ ...data, dateIssuance: e.target.value });
+            }}
+            value={data.dateIssuance}
+          />
+        </div>
+      </div>
+    </div>
+  );
 };
 
 const Filter = ({ searchParams, hidden }) => {
