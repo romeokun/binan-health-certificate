@@ -8,7 +8,7 @@ function layout({ children }) {
       <SideNavigation />
 
       <div className="grid place-items-center min-h-screen ">
-        <div className="bg-white h-3/4 w-3/4 rounded shadow">
+        <div className="bg-white h-3/4 w-3/4 rounded shadow p-5">
           {children}
         </div>
       </div>

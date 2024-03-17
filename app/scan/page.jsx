@@ -20,7 +20,7 @@ function Page() {
   }
 
   useEffect(() => {
-      console.log(pathname);
+    try {
       if (pathname == "/scan") {
         html5QrcodeScanner.current = new Html5QrcodeScanner(
           cameraDivID,
@@ -29,12 +29,13 @@ function Page() {
         );
         setTimeout(() => {
           const container = document.getElementById(cameraDivID);
-          if (html5QrcodeScanner && container?.innerHTML == "") {
+          if (html5QrcodeScanner.current && container?.innerHTML == "") {
             html5QrcodeScanner.current.render(onScanSuccess);
           }
         }, 0);
-      } 
-    
+      }
+    } catch (error) {}
+
     return () => {
       try {
         html5QrcodeScanner.current.clear();
