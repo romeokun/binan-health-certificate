@@ -854,7 +854,7 @@ const NewDialog = ({ children, set, reload, ...props }) => {
             const ref = doc(
               db,
               "analytics",
-              data.dateIssued.year.toString()
+              currentDate.getFullYear().toString()
             );
             const analytics = await transaction.get(ref);
             if (!analytics.exists()) {
