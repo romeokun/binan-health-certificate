@@ -1,7 +1,7 @@
 import React, {useEffect} from "react";
 import QRCode from "qrcode";
 
-function Certificate({ data }) {
+export const Certificate = React.forwardRef(({ data },ref) => {
   useEffect(() => {
     const canvas = document.getElementById("canvas");
 
@@ -11,7 +11,7 @@ function Certificate({ data }) {
   }, []);
 
   return (
-    <div className="border w-[700px] h-[500px] p-[10px] bg-slate-300 grid grid-rows-[100px_70px_1fr]">
+    <div ref={ref} className="border w-[700px] h-[500px] p-[10px] bg-slate-300 grid grid-rows-[100px_70px_1fr]">
       <div className="grid grid-cols-12 place-items-center">
         <div className="bg-red-500 col-span-2 w-[100px] h-[100px] border"></div>
         <div className="bg-blue-500 col-span-8 w-full h-[100px] text-center text-2xl font-bold tracking-tighter leading-none">
@@ -124,6 +124,5 @@ function Certificate({ data }) {
       </div>
     </div>
   );
-}
+})
 
-export default Certificate;

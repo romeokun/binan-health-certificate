@@ -293,7 +293,8 @@ const SelectOption = ({ title, data, className, onValueChange, value }) => {
   );
 };
 
-import Certificate from "@/components/dashboard/certificate";
+import {Certificate} from "@/components/dashboard/certificate";
+import { useReactToPrint } from 'react-to-print';
 const View = ({ certificate, children, set, reloadCertificate, ...props }) => {
   // use employee object to display
 
@@ -301,6 +302,7 @@ const View = ({ certificate, children, set, reloadCertificate, ...props }) => {
   const [isEdit, setIsEdit] = useState(false);
   const router = useRouter();
   const currentDate = new Date();
+  const componentToPrint = useRef()
   const toDateIssued = (date = "0000-00-00") => {
     return {
       full: date,
@@ -458,6 +460,11 @@ const View = ({ certificate, children, set, reloadCertificate, ...props }) => {
     router.push("/dashboard");
   };
 
+  const handlePrint = useReactToPrint({
+      content: () => componentToPrint.current,
+    })
+  
+
   return (
     <Dialog onOpenChange={handleOnOpenChange} {...props}>
       <DialogTrigger>{children}</DialogTrigger>
@@ -468,7 +475,7 @@ const View = ({ certificate, children, set, reloadCertificate, ...props }) => {
         <div className="p-4 place-content-center overflow-auto">
           <div className="w-[700px] m-auto">
             {!isEdit ? (
-              <Certificate data={data} />
+              <Certificate ref={componentToPrint} data={data} />
             ) : (
               <EditCertificate data={data} setData={setData} />
             )}
@@ -510,6 +517,9 @@ const View = ({ certificate, children, set, reloadCertificate, ...props }) => {
                   </DialogFooter>
                 </DialogContent>
               </Dialog>
+              <Button onClick={handlePrint} type="">
+                Print
+              </Button>
               <Button onClick={handleEdit} type="">
                 Edit
               </Button>
