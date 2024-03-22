@@ -98,6 +98,7 @@ async function loadDoc(id, setEmployee, setIsQuerying) {
 
 function Employee() {
   const { currentUser, isLoading } = useContext(AuthContext);
+  const router = useRouter();
   const searchParams = useSearchParams();
   const [showDialog, setShowDialog] = useState(searchParams.has("id"));
   const [showNewDialog, setShowNewDialog] = useState(false);

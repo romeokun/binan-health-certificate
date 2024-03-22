@@ -11,21 +11,82 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Button, buttonVariants } from "@/components/ui/button";
+import {
+  collection,
+  getDocs,
+  doc,
+  getDoc,
+  query,
+  orderBy,
+  where,
+  addDoc,
+  Timestamp,
+  serverTimestamp,
+  limit,
+  startAfter,
+  runTransaction,
+  setDoc,
+} from "firebase/firestore";
+import { db } from "@/config/firebase";
+import { useRouter } from "next/navigation";
 
 // todo: for admin, manage users such as add and change role
 // 3 role: admin, normal, disabled
 // admin must not able to change another admin
+
+const PAGELIMIT = 25;
+
+function handleQuery(array = []) {
+  // return array.filter(x => x !== null)
+  const x = array.filter((x) => x);
+  return x;
+}
+async function loadQuery({ collectionID, order, conditions, loadAfter }) {
+  const q = query(
+    collection(db, collectionID),
+    ...handleQuery([order, ...conditions, loadAfter]),
+    limit(PAGELIMIT)
+  );
+
+  return getDocs(q);
+}
+
 function Manage() {
-  const { currentUser } = useContext(AuthContext);
+  const { currentUser, isLoading } = useContext(AuthContext);
+  const [table, setTable] = useState([]);
+  const [error, setError] = useState({ isError: false, message: "" });
+  const [tableQuerying, setTableQuerying] = useState(false);
+  const endOfQuery = useRef(false);
+  const router = useRouter();
+
+  const initialize = () => {
+    setTableQuerying(true);
+    loadQuery({
+      collectionID: "logs",
+      order: orderBy("created", "desc"),
+      conditions: [],
+    })
+      .then((result) => {
+        setTable(result.docs);
+        setTableQuerying(false);
+      })
+      .catch((error) => {
+        setError({ isError: true, message: error.message });
+        setTableQuerying(false);
+      });
+  };
+
+  const runOnce = useRef(true);
   useEffect(() => {
     if (!currentUser && !isLoading) {
       router.push("/login");
     }
-  }, []);
 
-  const [table, setTable] = useState([]);
-  const [tableQuerying, setTableQuerying] = useState(false);
-  const endOfQuery = useRef(false);
+    if (runOnce) {
+      initialize();
+      runOnce.current = false;
+    }
+  }, []);
 
   const handleLoadMore = () => {};
 
@@ -52,8 +113,12 @@ function Manage() {
         </TableBody>
       </Table>
       <div className="grid place-items-center mt-2">
-        {tableQuerying ? (
-          "loading"
+        {tableQuerying || error.isError ? (
+          tableQuerying ? (
+            "loading"
+          ) : (
+            error.message
+          )
         ) : (
           <Button
             onClick={handleLoadMore}

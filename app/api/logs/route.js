@@ -18,5 +18,10 @@ export async function POST(request) {
       return NextResponse.json(response, { status: 403 });
     });
 
+    firestore()
+    .collection("logs")
+    .where("employeeID", "==", profileID)
+    .get()
+
   return NextResponse.json(response, { status: 200 });
 }

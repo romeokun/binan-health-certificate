@@ -86,6 +86,7 @@ function Records() {
   const endOfQuery = useRef(false);
   const [certificate, setCertificate] = useState(null);
   const [showFilter, setShowFilter] = useState(searchParams.has("filter"));
+  const router = useRouter();
 
   const filter = (() => {
     switch (searchParams.get("filter")) {

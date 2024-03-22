@@ -43,7 +43,7 @@ function sideNavigation() {
           </div>
           <div>
             <span className="block text-center text-white">
-              Name: {currentUser.displayName}
+              Name: {currentUser?.displayName}
             </span>
           </div>
           <ul className="bg-slate-600">
