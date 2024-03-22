@@ -42,7 +42,7 @@ function handleQuery(array = []) {
   const x = array.filter((x) => x);
   return x;
 }
-async function loadQuery({ collectionID, order, conditions, loadAfter }) {
+async function loadQuery({ collectionID, order, conditions = [], loadAfter }) {
   const q = query(
     collection(db, collectionID),
     ...handleQuery([order, ...conditions, loadAfter]),
@@ -92,6 +92,18 @@ function Manage() {
   }, []);
 
   const handleLoadMore = () => {
+    setTableQuerying(true);
+    loadQuery({
+      collectionID: "logs",
+      order: orderBy("created", "desc"),
+      loadAfter: startAfter(table[table.length - 1]),
+    }).then((result) => {
+      setTable([...table, ...result.docs]);
+      setTableQuerying(false);
+      if (result.docs.length <= 0) {
+        endOfQuery.current = true;
+      }
+    });
   };
 
   return (
@@ -99,7 +111,7 @@ function Manage() {
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead className="w-[200px]">Time</TableHead>
+            <TableHead className="w-[250px]">Time</TableHead>
             <TableHead className="w-[150px]">User</TableHead>
             <TableHead className="w-[150px]">Target</TableHead>
             <TableHead className="">Action</TableHead>
@@ -119,7 +131,7 @@ function Manage() {
             return (
               <TableRow key={element.id}>
                 <TableCell>
-                  {format(element.data().created.toDate(), "PP")}
+                  {format(element.data().created.toDate(), "Pp")}
                 </TableCell>
                 <TableCell>{userNames[element.data().userUID]}</TableCell>
                 <TableCell>
