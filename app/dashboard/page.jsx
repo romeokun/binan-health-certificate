@@ -30,7 +30,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import Link from "next/link";
 import { useSearchParams, useRouter } from "next/navigation";
 import {
   collection,
@@ -50,9 +49,6 @@ import {
   runTransaction,
 } from "firebase/firestore";
 import { db } from "@/config/firebase";
-import { format } from "date-fns";
-import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
-import { auth } from "@/config/firebase";
 
 import { months } from "@/config/local";
 const currentDate = new Date();

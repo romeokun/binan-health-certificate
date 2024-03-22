@@ -1,5 +1,4 @@
 import SideNavigation from "@/components/side-navigation/sideNav";
-import DashboardComponent from "@/components/dashboard/dashboard";
 
 function layout({ children }) {
 
