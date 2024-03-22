@@ -28,6 +28,7 @@ function Analytics() {
   const [analyticsYear, setAnalyticsYear] = useState(currentYear.toString());
   const { currentUser } = useContext(AuthContext);
 
+  const [dataAvailable, setDataAvailable] = useState(false);
   const [totalsData, setTotalsData] = useState({
     certificates: 0,
     employees: 0,
@@ -36,6 +37,55 @@ function Analytics() {
   const [monthlyData, setMonthlyData] = useState({});
   const [natinalitiesData, setNationalitiesData] = useState({});
 
+  const getData = () => {
+    getDoc(doc(db, "analytics", analyticsYear))
+      .then((res) => {
+        if (!res.exists()) {
+          throw new Error("does not exist");
+        } else {
+          setTotalsData({
+            certificates: res.data().numberOfCertificates,
+            employees: res.data().numberOfNewEmployee,
+          });
+
+          setMonthlyData([
+            ["Months", "Certificates"],
+            ...months.map((x) => {
+              const count = res.data().byMonth[x.value]
+                ? res.data().byMonth[x.value]
+                : 0;
+              return [x.text, count];
+            }),
+          ]);
+
+          setBaranggayData([
+            ["Baranggays", "Employees"],
+            ...baranggays.map((x) => {
+              const count = res.data().baranggay[x]
+                ? res.data().baranggay[x]
+                : 0;
+              return [x, count];
+            }),
+          ]);
+
+          setNationalitiesData([
+            ["Nationalities", "count"],
+            ...nationalities.map((x) => {
+              const count = res.data().nationality[x.value]
+                ? res.data().nationality[x.value]
+                : 0;
+              return [x.value, count];
+            }),
+          ]);
+
+          setDataAvailable(true);
+        }
+      })
+      .catch((e) => {
+        console.error(e);
+        setDataAvailable(false);
+      });
+  };
   const initialized = useRef(false);
   useEffect(() => {
     if (!currentUser && !isLoading) {
@@ -43,54 +93,15 @@ function Analytics() {
     }
 
     if (!initialized.current) {
-      getDoc(doc(db, "analytics", analyticsYear))
-        .then((res) => {
-          if (!res.exists()) {
-            throw new Error("does not exist");
-          } else {
-            setTotalsData({
-              certificates: res.data().numberOfCertificates,
-              employees: res.data().numberOfNewEmployee,
-            });
 
-            setMonthlyData([
-              ["Months", "Certificates"],
-              ...months.map((x) => {
-                const count = res.data().byMonth[x.value]
-                ? res.data().byMonth[x.value]
-                  : 0;
-                return [x.text, count];
-              }),
-            ]);
-
-            setBaranggayData([
-              ["Baranggays", "Employees"],
-              ...baranggays.map((x) => {
-                const count = res.data().baranggay[x]
-                ? res.data().baranggay[x]
-                  : 0;
-                return [x, count];
-              }),
-            ]);
-
-            setNationalitiesData([
-              ["Nationalities", "count"],
-              ...nationalities.map((x) => {
-                const count = res.data().nationality[x.value]
-                  ? res.data().nationality[x.value]
-                  : 0;
-                return [x.value, count];
-              }),
-            ]);
-          }
-        })
-        .catch((e) => {
-          console.error(e);
-        });
 
       initialized.current = true;
     }
   }, []);
+
+  useEffect(()=>{
+    getData();
+  },[analyticsYear])
 
   return (
     <div className=" p-4">
@@ -102,54 +113,61 @@ function Analytics() {
         value={analyticsYear}
         onValueChange={(value) => {
           setAnalyticsYear(value);
+          getData();
         }}
       />{" "}
       <br />
-      <div className="grid gap-2 grid-cols-[repeat(auto-fit,minmax(300px,1fr))] place-items-center">
-        <div className="shadow w-full text-lg p-4 border text-center bg-accent">
-          <span className="text-2xl font-bold text-blue-950">
-            {totalsData.certificates}
-          </span>
+      {dataAvailable ? (
+        <>
+          <div className="grid gap-2 grid-cols-[repeat(auto-fit,minmax(300px,1fr))] place-items-center">
+            <div className="shadow w-full text-lg p-4 border text-center bg-accent">
+              <span className="text-2xl font-bold text-blue-950">
+                {totalsData.certificates}
+              </span>
+              <br />
+              <span className="">TOTAL 2024 CERTIFICATE</span>
+            </div>
+            <div className="shadow w-full text-lg p-4 border text-center bg-accent">
+              <span className="text-2xl font-bold text-blue-950">
+                {totalsData.employees}
+              </span>
+              <br />
+              <span className="">NEW 2024 EMPLOYEE</span>
+            </div>
+          </div>
           <br />
-          <span className="">TOTAL 2024 CERTIFICATE</span>
-        </div>
-        <div className="shadow w-full text-lg p-4 border text-center bg-accent">
-          <span className="text-2xl font-bold text-blue-950">
-            {totalsData.employees}
-          </span>
-          <br />
-          <span className="">NEW 2024 EMPLOYEE</span>
-        </div>
-      </div>
-      <br />
-      <div className="w-full border bg-accent p-4 my-8 overflow-x-auto">
-        <div className="text-xl font-semibold pb-2">Baranggays</div>
-        <Chart
-          chartType="ColumnChart"
-          data={baranggayData}
-          height="400px"
-          // width="1000px"
-        />
-      </div>
-      <div className="w-full border bg-accent p-4 my-8 overflow-x-auto">
-        <div className="text-xl font-semibold pb-2">Monthly chart</div>
-        <Chart
-          chartType="ColumnChart"
-          data={monthlyData}
-          height="400px"
-          // width="1000px"
-        />
-      </div>
-      <div className="w-full border bg-accent p-4 my-8 overflow-x-auto">
-        <div className="text-xl font-semibold pb-2">Nationalities</div>
-        <Chart
-          chartType="PieChart"
-          data={natinalitiesData}
-          options={{ sliceVisibilityThreshold: 1 / 196 }}
-          height="400px"
-          // width="1000px"
-        />
-      </div>
+          <div className="w-full border bg-accent p-4 mb-8 overflow-x-auto">
+            <div className="text-xl font-semibold pb-2">Baranggays</div>
+            <Chart
+              chartType="ColumnChart"
+              data={baranggayData}
+              height="400px"
+              // width="1000px"
+            />
+          </div>
+          <div className="w-full border bg-accent p-4 my-8 overflow-x-auto">
+            <div className="text-xl font-semibold pb-2">Monthly chart</div>
+            <Chart
+              chartType="ColumnChart"
+              data={monthlyData}
+              height="400px"
+              // width="1000px"
+            />
+          </div>
+          <div className="w-full border bg-accent p-4 my-8 overflow-x-auto">
+            <div className="text-xl font-semibold pb-2">Nationalities</div>
+            <Chart
+              chartType="PieChart"
+              data={natinalitiesData}
+              options={{ sliceVisibilityThreshold: 1 / 196 }}
+              height="400px"
+              // width="1000px"
+            />
+          </div>
+        </>
+      ) : (
+        <>not available</>
+      )}
     </div>
   );
 }
