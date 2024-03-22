@@ -78,7 +78,7 @@ async function loadQuery({ collectionID, order, conditions = [], loadAfter }) {
 }
 
 function Records() {
-  const { currentUser } = useContext(AuthContext);
+  const { currentUser, isLoading } = useContext(AuthContext);
   const searchParams = useSearchParams();
   const [showDialog, setShowDialog] = useState(false);
   const [tableQuery, setQuery] = useState([]);
