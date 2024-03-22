@@ -22,7 +22,7 @@ export default function LoginPage() {
   if(!initialized) {
     return <Loading />
   } else if(loggedIn) {
-    redirect('/')
+    redirect('/dashboard')
   }
 
   return (
