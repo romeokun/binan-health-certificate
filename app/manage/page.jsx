@@ -1,5 +1,5 @@
 "use client";
-import React, { useContext, useEffect } from "react";
+import { useContext, useEffect, useState, useRef } from "react";
 import { AuthContext } from "@/components/auth-provider";
 import {
   Table,
@@ -10,6 +10,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { Button, buttonVariants } from "@/components/ui/button";
 
 // todo: for admin, manage users such as add and change role
 // 3 role: admin, normal, disabled
@@ -22,20 +23,47 @@ function Manage() {
     }
   }, []);
 
+  const [table, setTable] = useState([]);
+  const [tableQuerying, setTableQuerying] = useState(false);
+  const endOfQuery = useRef(false);
+
+  const handleLoadMore = () => {};
+
   return (
     <>
       <Table>
-        <TableCaption>Logs</TableCaption>
         <TableHeader>
           <TableRow>
-            <TableHead className="w-[200px]">Name</TableHead>
-            <TableHead className="w-[200px]">Place of Work</TableHead>
-            <TableHead className="">Occupation</TableHead>
-            <TableHead className="text-center">Date Issued</TableHead>
+            <TableHead className="w-[200px]">Time</TableHead>
+            <TableHead className="w-[150px]">User</TableHead>
+            <TableHead className="w-[150px]">Target</TableHead>
+            <TableHead className="">Action</TableHead>
           </TableRow>
         </TableHeader>
-        <TableBody></TableBody>
+        <TableBody>
+          {table.map((element) => {
+            <TableRow key={element.id}>
+              <TableCell>test</TableCell>
+              <TableCell>test</TableCell>
+              <TableCell>test</TableCell>
+              <TableCell>test</TableCell>
+            </TableRow>;
+          })}
+        </TableBody>
       </Table>
+      <div className="grid place-items-center mt-2">
+        {tableQuerying ? (
+          "loading"
+        ) : (
+          <Button
+            onClick={handleLoadMore}
+            disabled={tableQuerying || endOfQuery.current}
+            variant="outline"
+          >
+            Load More
+          </Button>
+        )}
+      </div>
     </>
   );
 }

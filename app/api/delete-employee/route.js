@@ -14,7 +14,8 @@ export async function POST(request) {
       uid = user.uid;
     })
     .catch((error) => {
-      console.log("Error fetching user data:", error);
+      console.log("Error fetching user data:", error);      
+      return NextResponse.json(response, { status: 403 });
     });
 
   firestore()
