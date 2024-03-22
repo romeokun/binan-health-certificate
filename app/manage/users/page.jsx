@@ -31,6 +31,24 @@ import { db } from "@/config/firebase";
 import { useRouter } from "next/navigation";
 import { format } from "date-fns";
 import { auth } from "@/config/firebase";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 // todo: for admin, manage users such as add and change role
 // 3 role: admin, normal, disabled
@@ -62,6 +80,7 @@ function Manage() {
   const nextPageToken = useRef(null);
   const [userNames, setUserNames] = useState({});
   const namesQuery = useRef([]);
+  const [showNewDialog, setShowNewDialog] = useState(false);
 
   const initialize = () => {
     auth.currentUser
@@ -126,7 +145,14 @@ function Manage() {
         >
           Filter
         </Button>
-        <Button className="mx-1">New</Button>
+        <Button
+          className="mx-1"
+          onClick={() => {
+            setShowNewDialog(true);
+          }}
+        >
+          New
+        </Button>
       </div>
       <Table>
         <TableHeader>
@@ -146,7 +172,6 @@ function Manage() {
                   ...prev,
                   [element.uid]: res.data(),
                 }));
-
               });
             }
             return (
@@ -177,8 +202,133 @@ function Manage() {
           </Button>
         )}
       </div>
+      <NewDialog
+        open={showNewDialog}
+        set={setShowNewDialog}
+        reload={initialize}
+      ></NewDialog>
     </>
   );
 }
+
+const NewDialog = ({ children, set, reload, ...props }) => {
+  const { currentUser } = useContext(AuthContext);
+  const [data, setData] = useState({
+    email: "",
+    name: "",
+    password: "",
+    role: "default",
+  });
+
+  const router = useRouter();
+  const handleOnOpenChange = (open) => {
+    set(open);
+    if (!open) {
+      setData({
+        email: "",
+        name: "",
+        role: "default",
+      });
+    }
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    e.target.disabled = true;
+
+    if (data.name != "" && data.email != "" && data.password.length >= 6) {
+      try {
+        auth.currentUser.getIdToken(true).then(function (idToken) {
+          return fetch("/api/create-user", {
+            method: "POST",
+            body: JSON.stringify({
+              token: idToken,
+              email: data.email,
+              name: data.name,
+              role: data.role,
+              password: data.password,
+            }),
+          });
+        });
+      } catch (error) {
+        console.error(error);
+        e.target.disabled = true;
+      }
+    }
+  };
+
+  return (
+    <Dialog onOpenChange={handleOnOpenChange} {...props}>
+      <DialogTrigger>{children}</DialogTrigger>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>New User</DialogTitle>
+        </DialogHeader>
+        <form className="mt-4 grid gap-4">
+          <div className="grid grid-cols-4 items-center gap-4">
+            <Label className="text-right">Email</Label>
+            <Input
+              required
+              className="col-span-3 disabled:cursor-default disabled:opacity-100"
+              type="text"
+              value={data.email}
+              onChange={(e) => {
+                setData({ ...data, email: e.target.value });
+              }}
+            />
+          </div>
+          <div className="grid grid-cols-4 items-center gap-4">
+            <Label className="text-right">Name</Label>
+            <Input
+              required
+              className="col-span-3 disabled:cursor-default disabled:opacity-100"
+              type="text"
+              value={data.name}
+              onChange={(e) => {
+                setData({ ...data, name: e.target.value });
+              }}
+            />
+          </div>
+          <div className="grid grid-cols-4 items-center gap-4">
+            <Label className="text-right">Password</Label>
+            <Input
+              required
+              className="col-span-3 disabled:cursor-default disabled:opacity-100"
+              type="password"
+              value={data.password}
+              onChange={(e) => {
+                setData({ ...data, password: e.target.value });
+              }}
+            />
+          </div>
+          <div className="grid grid-cols-4 items-center gap-4">
+            <Label className="text-right">Role</Label>
+            <select
+              name=""
+              id=""
+              value={data.role}
+              onChange={(e) => {
+                setData({ ...data, role: e.target.value });
+              }}
+            >
+              <option value="default">Default</option>
+              <option value="admin">Admin</option>
+            </select>
+          </div>
+
+          <div className="grid grid-cols-4 items-center gap-4">
+            <Button
+              className="col-start-4"
+              type="submit"
+              onClick={handleSubmit}
+            >
+              Submit
+            </Button>
+          </div>
+        </form>
+      </DialogContent>
+    </Dialog>
+  );
+};
 
 export default Manage;
