@@ -59,6 +59,8 @@ function Manage() {
   const [tableQuerying, setTableQuerying] = useState(false);
   const endOfQuery = useRef(false);
   const router = useRouter();
+  const [userNames, setUserNames] = useState({});
+  const namesQuery = useRef([]);
 
   const initialize = () => {
     setTableQuerying(true);
@@ -89,7 +91,8 @@ function Manage() {
     }
   }, []);
 
-  const handleLoadMore = () => {};
+  const handleLoadMore = () => {
+  };
 
   return (
     <>
@@ -104,12 +107,27 @@ function Manage() {
         </TableHeader>
         <TableBody>
           {table.map((element) => {
+            if (!namesQuery.current.includes(element.data().userUID)) {
+              namesQuery.current.push(element.data().userUID);
+              getDoc(doc(db, "users", element.data().userUID)).then((res) => {
+                setUserNames((prev) => ({
+                  ...prev,
+                  [element.data().userUID]: res.data().name,
+                }));
+              });
+            }
             return (
               <TableRow key={element.id}>
-                <TableCell>{format(element.data().created.toDate(), "PP")}</TableCell>
-                <TableCell>test</TableCell>
-                <TableCell>test</TableCell>
-                <TableCell>test</TableCell>
+                <TableCell>
+                  {format(element.data().created.toDate(), "PP")}
+                </TableCell>
+                <TableCell>{userNames[element.data().userUID]}</TableCell>
+                <TableCell>
+                  {typeof element.data().target == "object"
+                    ? element.data().target.id
+                    : element.data().target}
+                </TableCell>
+                <TableCell>{element.data().action.text}</TableCell>
               </TableRow>
             );
           })}
