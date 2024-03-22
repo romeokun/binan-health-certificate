@@ -29,6 +29,7 @@ import {
 } from "firebase/firestore";
 import { db } from "@/config/firebase";
 import { useRouter } from "next/navigation";
+import { format } from "date-fns";
 
 // todo: for admin, manage users such as add and change role
 // 3 role: admin, normal, disabled
@@ -103,12 +104,14 @@ function Manage() {
         </TableHeader>
         <TableBody>
           {table.map((element) => {
-            <TableRow key={element.id}>
-              <TableCell>test</TableCell>
-              <TableCell>test</TableCell>
-              <TableCell>test</TableCell>
-              <TableCell>test</TableCell>
-            </TableRow>;
+            return (
+              <TableRow key={element.id}>
+                <TableCell>{format(element.data().created.toDate(), "PP")}</TableCell>
+                <TableCell>test</TableCell>
+                <TableCell>test</TableCell>
+                <TableCell>test</TableCell>
+              </TableRow>
+            );
           })}
         </TableBody>
       </Table>
