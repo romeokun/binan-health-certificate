@@ -31,10 +31,6 @@ import { db } from "@/config/firebase";
 import { useRouter } from "next/navigation";
 import { format } from "date-fns";
 
-// todo: for admin, manage users such as add and change role
-// 3 role: admin, normal, disabled
-// admin must not able to change another admin
-
 const PAGELIMIT = 25;
 
 function handleQuery(array = []) {
