@@ -83,7 +83,12 @@ function Manage() {
   const namesQuery = useRef([]);
   const [showNewDialog, setShowNewDialog] = useState(false);
 
+  const [status, setStatus] = useState("loading");
+
   const initialize = () => {
+    setStatus("loading");
+    setTable([]);
+    namesQuery.current = [];
     auth.currentUser
       .getIdToken(true)
       .then(function (idToken) {
@@ -97,6 +102,7 @@ function Manage() {
       })
       .then((res) => {
         setTable(res.users);
+        setStatus("ok");
         nextPageToken.current = res.nextPageToken;
       });
   };
@@ -193,13 +199,8 @@ function Manage() {
         </TableBody>
       </Table>
       <div className="grid place-items-center mt-2">
-        {tableQuerying || error.isError ? (
-          tableQuerying ? (
-            "loading"
-          ) : (
-            error.message
-          )
-        ) : (
+        {status == "loading" && <>Loading</>}
+        {status == "ok" && (
           <Button
             onClick={handleLoadMore}
             disabled={tableQuerying || !nextPageToken.current}
@@ -214,7 +215,7 @@ function Manage() {
         set={setShowNewDialog}
         reload={initialize}
       ></NewDialog>
-      <View />
+      <View refresh={initialize} />
     </>
   );
 }
@@ -339,7 +340,7 @@ const NewDialog = ({ children, set, reload, ...props }) => {
   );
 };
 
-const View = ({ children, set, reloadCertificate, ...props }) => {
+const View = ({ children, set, reloadCertificate, refresh, ...props }) => {
   // use employee object to display
 
   const { currentUser } = useContext(AuthContext);
@@ -399,10 +400,11 @@ const View = ({ children, set, reloadCertificate, ...props }) => {
   };
   const handleCancel = () => {
     setIsEdit(false);
+    setEditPass(false);
   };
   const handleOnOpenChange = (open) => {
     setShowDialog(open);
-    setStatus("loading")
+    setStatus("loading");
     if (!open) {
       handleCancel();
       setData({
@@ -415,7 +417,28 @@ const View = ({ children, set, reloadCertificate, ...props }) => {
     }
   };
 
-  const handleSave = (e) => {};
+  const handleSave = (e) => {
+    if (!isEdit) return;
+    if (!editPass) {
+      auth.currentUser
+        .getIdToken(true)
+        .then(function (idToken) {
+          return fetch("/api/update-user", {
+            method: "POST",
+            body: JSON.stringify({
+              token: idToken,
+              id: search.get("id"),
+              name: data.displayName,
+              role: data.role,
+            }),
+          });
+        })
+        .then(() => {
+          refresh();
+          setIsEdit(false);
+        });
+    }
+  };
 
   const handleDelete = async (e) => {};
 
@@ -449,6 +472,9 @@ const View = ({ children, set, reloadCertificate, ...props }) => {
                       className="col-span-3 rounded p-2 border border-slate-400"
                       disabled={!isEdit}
                       value={data.displayName}
+                      onChange={(e) => {
+                        setData({ ...data, displayName: e.target.value });
+                      }}
                     />
                   </div>
                   <div className="grid grid-cols-4 gap-2 items-center my-2">
@@ -467,7 +493,6 @@ const View = ({ children, set, reloadCertificate, ...props }) => {
                   </div>
                 </div>
               ))}
-
             {status == "loading" && <>Loading</>}
             {status == "error" && <>User Not Found</>}
           </div>
@@ -507,6 +532,15 @@ const View = ({ children, set, reloadCertificate, ...props }) => {
                   </DialogFooter>
                 </DialogContent>
               </Dialog>
+              <Button
+                onClick={() => {
+                  handleEdit();
+                  setEditPass(!editPass);
+                }}
+                type=""
+              >
+                New Password
+              </Button>
               <Button onClick={handleEdit} type="">
                 Edit
               </Button>
