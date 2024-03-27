@@ -228,6 +228,7 @@ const NewDialog = ({ children, set, reload, ...props }) => {
     password: "",
     role: "default",
   });
+  const [message, setMessage] = useState("");
 
   const router = useRouter();
   const handleOnOpenChange = (open) => {
@@ -238,27 +239,48 @@ const NewDialog = ({ children, set, reload, ...props }) => {
         name: "",
         role: "default",
       });
+      setMessage("");
     }
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    e.target.disabled = true;
 
     if (data.name != "" && data.email != "" && data.password.length >= 6) {
+      e.target.disabled = true;
       try {
-        auth.currentUser.getIdToken(true).then(function (idToken) {
-          return fetch("/api/create-user", {
-            method: "POST",
-            body: JSON.stringify({
-              token: idToken,
-              email: data.email,
-              name: data.name,
-              role: data.role,
-              password: data.password,
-            }),
+        auth.currentUser
+          .getIdToken(true)
+          .then(function (idToken) {
+            return fetch("/api/create-user", {
+              method: "POST",
+              body: JSON.stringify({
+                token: idToken,
+                email: data.email,
+                name: data.name,
+                role: data.role,
+                password: data.password,
+              }),
+            });
+          })
+          .then(async (res) => {
+            const data = await res.json();
+            return { status: res.status, ...data };
+          })
+          .then((res) => {
+            console.log(res);
+            if (res.status == 200) {
+              set(false);
+              reload();
+              router.push("/manage/users?id=" + res.uid);
+            } else {
+              setMessage(res.error.message);
+              e.target.disabled = false;
+            }
+          })
+          .catch((error) => {
+            console.log(error);
           });
-        });
       } catch (error) {
         console.error(error);
         e.target.disabled = true;
@@ -325,6 +347,7 @@ const NewDialog = ({ children, set, reload, ...props }) => {
             </select>
           </div>
 
+          <div className="text-red-500">{message}</div>
           <div className="grid grid-cols-4 items-center gap-4">
             <Button
               className="col-start-4"
@@ -392,6 +415,8 @@ const View = ({ children, set, reloadCertificate, refresh, ...props }) => {
           console.error(error);
         });
     } else {
+      setShowDialog(false);
+      setStatus("loading");
     }
   }, [search]);
 
@@ -440,7 +465,23 @@ const View = ({ children, set, reloadCertificate, refresh, ...props }) => {
     }
   };
 
-  const handleDelete = async (e) => {};
+  const handleDelete = async (e) => {
+    auth.currentUser
+      .getIdToken(true)
+      .then(function (idToken) {
+        return fetch("/api/delete-user", {
+          method: "POST",
+          body: JSON.stringify({
+            token: idToken,
+            id: search.get("id"),
+          }),
+        });
+      })
+      .then(() => {
+        refresh();
+        router.push("/manage/users");
+      });
+  };
 
   return (
     <Dialog onOpenChange={handleOnOpenChange} open={showDialog} {...props}>
@@ -528,7 +569,9 @@ const View = ({ children, set, reloadCertificate, refresh, ...props }) => {
                     </DialogDescription>
                   </DialogHeader>
                   <DialogFooter>
-                    <Button variant="destructive">Delete</Button>
+                    <Button variant="destructive" onClick={handleDelete}>
+                      Delete
+                    </Button>
                   </DialogFooter>
                 </DialogContent>
               </Dialog>

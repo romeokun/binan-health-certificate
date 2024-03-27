@@ -25,30 +25,24 @@ export async function POST(request) {
 
   let status = 200;
   await auth()
-    .createUser({
-      email: res.email,
-      displayName: res.name,
-      password: res.password,
+    .deleteUser(res.id)
+    .then(() => {
+      return firestore().collection("users").doc(res.id).get();
     })
-    .then(async (newUser) => {
-      response.uid = newUser.uid;
-      await firestore()
-        .collection("users")
-        .doc(newUser.uid)
-        .set({ name: res.name, role: res.role });
-
-      await firestore()
+    .then((data) => {
+      return firestore()
         .collection("logs")
         .add({
           created: firestore.Timestamp.now(),
-          action: { text: "created a new user", value: "user_add" },
-          target: newUser.uid,
+          action: { text: "deleted a user", value: "user_delete" },
+          data: data.data(),
+          target: res.id,
           userUID: uid,
         });
     })
     .catch((error) => {
-      status = 400;
-      response.error = error;
+      status = 403;
+      console.log(error);
     });
   return NextResponse.json(response, { status: status });
 }
