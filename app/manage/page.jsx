@@ -81,9 +81,9 @@ function Manage() {
       router.push("/login");
     }
 
-    if (runOnce) {
-      initialize();
+    if (runOnce.current) {
       runOnce.current = false;
+      initialize();
     }
   }, []);
 
