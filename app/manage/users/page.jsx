@@ -28,7 +28,7 @@ import {
   setDoc,
 } from "firebase/firestore";
 import { db } from "@/config/firebase";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { format } from "date-fns";
 import { auth } from "@/config/firebase";
 import {
@@ -49,6 +49,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Pencil, Save } from "lucide-react";
 
 // todo: for admin, manage users such as add and change role
 // 3 role: admin, normal, disabled
@@ -175,7 +176,13 @@ function Manage() {
               });
             }
             return (
-              <TableRow key={element.uid}>
+              <TableRow
+                key={element.uid}
+                onClick={() => {
+                  router.push("/manage/users?id=" + element.uid);
+                }}
+                className="hover:cursor-pointer"
+              >
                 <TableCell>{element.created}</TableCell>
                 <TableCell>{element.uid}</TableCell>
                 <TableCell>{userNames[element.uid]?.name}</TableCell>
@@ -207,6 +214,7 @@ function Manage() {
         set={setShowNewDialog}
         reload={initialize}
       ></NewDialog>
+      <View />
     </>
   );
 }
@@ -326,6 +334,185 @@ const NewDialog = ({ children, set, reload, ...props }) => {
             </Button>
           </div>
         </form>
+      </DialogContent>
+    </Dialog>
+  );
+};
+
+const View = ({ children, set, reloadCertificate, ...props }) => {
+  // use employee object to display
+
+  const { currentUser } = useContext(AuthContext);
+  const search = useSearchParams();
+  const [isEdit, setIsEdit] = useState(false);
+  const router = useRouter();
+  const [data, setData] = useState({
+    email: "",
+    displayName: "",
+    password: "",
+    role: "default",
+  });
+  const [showDialog, setShowDialog] = useState(false);
+  const [editPass, setEditPass] = useState(false);
+
+  const [status, setStatus] = useState("loading");
+  useEffect(() => {
+    if (search.has("id")) {
+      setShowDialog(true);
+      setStatus("loading");
+
+      auth.currentUser
+        .getIdToken(true)
+        .then(function (idToken) {
+          return fetch("/api/get-user", {
+            method: "POST",
+            body: JSON.stringify({ token: idToken, id: search.get("id") }),
+          });
+        })
+        .then((res) => {
+          if (res.status == 200) {
+            return res.json();
+          } else {
+            throw new Error("Not found");
+          }
+        })
+        .then((res) => {
+          setData(res.user);
+        })
+        .then((res) => {
+          return getDoc(doc(db, "users", search.get("id")));
+        })
+        .then((res) => {
+          setData((prev) => ({ ...prev, role: res.data().role }));
+          setStatus("ok");
+        })
+        .catch((error) => {
+          setStatus("error");
+          console.error(error);
+        });
+    } else {
+    }
+  }, [search]);
+
+  const handleEdit = () => {
+    setIsEdit(true);
+  };
+  const handleCancel = () => {
+    setIsEdit(false);
+  };
+  const handleOnOpenChange = (open) => {
+    setShowDialog(open);
+    setStatus("loading")
+    if (!open) {
+      handleCancel();
+      setData({
+        email: "",
+        name: "",
+        password: "",
+        role: "default",
+      });
+      router.push("/manage/users");
+    }
+  };
+
+  const handleSave = (e) => {};
+
+  const handleDelete = async (e) => {};
+
+  return (
+    <Dialog onOpenChange={handleOnOpenChange} open={showDialog} {...props}>
+      <DialogTrigger>{children}</DialogTrigger>
+      <DialogContent className=" bg-slate-100 grid-rows-[min-content_1fr_min-content]">
+        <DialogHeader>
+          <DialogTitle>User</DialogTitle>
+        </DialogHeader>
+        <div className="p-4 place-content-center overflow-auto">
+          <div className="m-auto">
+            {status == "ok" &&
+              (editPass ? (
+                <>Edit Password</>
+              ) : (
+                <div>
+                  <div className="grid grid-cols-4 gap-2 items-center my-2">
+                    <span className="text-right">Email</span>
+                    <input
+                      type="text"
+                      className="col-span-3 rounded p-2 border border-slate-400"
+                      disabled={true}
+                      value={data.email}
+                    />
+                  </div>
+                  <div className="grid grid-cols-4 gap-2 items-center my-2">
+                    <span className="text-right">Name</span>
+                    <input
+                      type="text"
+                      className="col-span-3 rounded p-2 border border-slate-400"
+                      disabled={!isEdit}
+                      value={data.displayName}
+                    />
+                  </div>
+                  <div className="grid grid-cols-4 gap-2 items-center my-2">
+                    <span className="text-right">Role</span>
+                    <select
+                      className="p-2"
+                      disabled={!isEdit}
+                      value={data.role}
+                      onChange={(e) => {
+                        setData({ ...data, role: e.target.value });
+                      }}
+                    >
+                      <option value="default">Default</option>
+                      <option value="admin">Admin</option>
+                    </select>
+                  </div>
+                </div>
+              ))}
+
+            {status == "loading" && <>Loading</>}
+            {status == "error" && <>User Not Found</>}
+          </div>
+        </div>
+        <div className="grid gap-4 grid-cols-[1fr_min-content] mt-4">
+          {status == "ok" && isEdit && (
+            <div className="col-start-2 flex flex-row gap-2">
+              <Button onClick={handleCancel} type="">
+                Cancel
+              </Button>
+              <Button
+                onClick={handleSave}
+                className="bg-green-400 hover:bg-green-700"
+              >
+                Save
+              </Button>
+            </div>
+          )}
+          {status == "ok" && !isEdit && (
+            <div className="col-start-2 flex flex-row gap-2">
+              <Dialog>
+                <DialogTrigger
+                  className={buttonVariants({ variant: "destructive" })}
+                >
+                  Delete
+                </DialogTrigger>
+                <DialogContent>
+                  <DialogHeader>
+                    <DialogTitle>Are you absolutely sure?</DialogTitle>
+                    <DialogDescription>
+                      This action cannot be undone. This will permanently delete
+                      the user account.
+                    </DialogDescription>
+                  </DialogHeader>
+                  <DialogFooter>
+                    <Button variant="destructive">Delete</Button>
+                  </DialogFooter>
+                </DialogContent>
+              </Dialog>
+              <Button onClick={handleEdit} type="">
+                Edit
+              </Button>
+            </div>
+          )}
+        </div>
       </DialogContent>
     </Dialog>
   );
