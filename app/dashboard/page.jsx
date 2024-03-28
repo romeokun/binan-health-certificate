@@ -598,6 +598,17 @@ const EditCertificate = ({ data, setData }) => {
             }}
           />
         </div>
+        <div className="grid grid-cols-4 items-center gap-4">
+          <Label className="text-right">Issuer Name</Label>
+          <Input
+            className="col-span-3 disabled:cursor-default disabled:opacity-100 disabled:bg-accent"
+            type="text"
+            value={data.issuerName}
+            onChange={(e) => {
+              setData({ ...data, issuerName: e.target.value });
+            }}
+          />
+        </div>
       </div>
     </div>
   );
