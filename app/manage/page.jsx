@@ -79,11 +79,11 @@ function Manage() {
   useEffect(() => {
     if (!currentUser && !isLoading) {
       router.push("/login");
-    }
-
-    if (runOnce.current) {
-      runOnce.current = false;
-      initialize();
+    } else {
+      if (runOnce) {
+        initialize();
+        runOnce.current = false;
+      }
     }
   }, []);
 
@@ -144,7 +144,7 @@ function Manage() {
       <div className="grid place-items-center mt-2">
         {tableQuerying || error.isError ? (
           tableQuerying ? (
-            "loading"
+            "Loading"
           ) : (
             error.message
           )

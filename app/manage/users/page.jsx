@@ -111,11 +111,11 @@ function Manage() {
   useEffect(() => {
     if (!currentUser && !isLoading) {
       router.push("/login");
-    }
-
-    if (runOnce) {
-      initialize();
-      runOnce.current = false;
+    } else {
+      if (runOnce) {
+        initialize();
+        runOnce.current = false;
+      }
     }
   }, []);
 
@@ -237,6 +237,7 @@ const NewDialog = ({ children, set, reload, ...props }) => {
       setData({
         email: "",
         name: "",
+        password: "",
         role: "default",
       });
       setMessage("");
@@ -272,6 +273,7 @@ const NewDialog = ({ children, set, reload, ...props }) => {
             if (res.status == 200) {
               set(false);
               reload();
+              setMessage("");
               router.push("/manage/users?id=" + res.uid);
             } else {
               setMessage(res.error.message);
@@ -285,6 +287,8 @@ const NewDialog = ({ children, set, reload, ...props }) => {
         console.error(error);
         e.target.disabled = true;
       }
+    } else {
+      setMessage("Missing Parameter or Password is not 6 character long");
     }
   };
 
@@ -376,6 +380,7 @@ const View = ({ children, set, reloadCertificate, refresh, ...props }) => {
     password: "",
     role: "default",
   });
+  const currentInfo = useRef(null);
   const [showDialog, setShowDialog] = useState(false);
   const [editPass, setEditPass] = useState(false);
 
@@ -401,7 +406,8 @@ const View = ({ children, set, reloadCertificate, refresh, ...props }) => {
           }
         })
         .then((res) => {
-          setData(res.user);
+          currentInfo.current = res.user;
+          setData({ ...data, ...res.user });
         })
         .then((res) => {
           return getDoc(doc(db, "users", search.get("id")));
@@ -424,6 +430,7 @@ const View = ({ children, set, reloadCertificate, refresh, ...props }) => {
     setIsEdit(true);
   };
   const handleCancel = () => {
+    setData({ password: "", ...currentInfo.current });
     setIsEdit(false);
     setEditPass(false);
   };
@@ -462,6 +469,24 @@ const View = ({ children, set, reloadCertificate, refresh, ...props }) => {
           refresh();
           setIsEdit(false);
         });
+    } else {
+      if (data.password.length >= 6)
+        auth.currentUser
+          .getIdToken(true)
+          .then(function (idToken) {
+            return fetch("/api/setpass-user", {
+              method: "POST",
+              body: JSON.stringify({
+                token: idToken,
+                id: search.get("id"),
+                password: data.password,
+              }),
+            });
+          })
+          .then(() => {
+            setIsEdit(false);
+            setEditPass(false);
+          });
     }
   };
 
@@ -494,7 +519,20 @@ const View = ({ children, set, reloadCertificate, refresh, ...props }) => {
           <div className="m-auto">
             {status == "ok" &&
               (editPass ? (
-                <>Edit Password</>
+                <div>
+                  <div className="grid grid-cols-[min-content_1fr] gap-2 items-center my-2">
+                    <span className="text-right">New&nbsp;Password</span>
+                    <input
+                      type="text"
+                      className="rounded p-2 border border-slate-400"
+                      disabled={!isEdit}
+                      value={data.password}
+                      onChange={(e) => {
+                        setData({ ...data, password: e.target.value });
+                      }}
+                    />
+                  </div>
+                </div>
               ) : (
                 <div>
                   <div className="grid grid-cols-4 gap-2 items-center my-2">
