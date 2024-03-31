@@ -167,7 +167,21 @@ function Records() {
   return (
     <>
       <div className="grid mt-2 grid-cols-[1fr_min-content]">
-        <div></div>
+        <div className="grid content-center">
+          <span>
+            Showing {!searchParams.has("filter") && "All"}
+            {searchParams.has("filter") &&
+              searchParams.has("month") &&
+              months.find((x) => x.value == searchParams.get("month"))?.text +
+                " "}
+            {searchParams.has("filter") &&
+              searchParams.has("year") &&
+              searchParams.get("year") + " "}
+            {searchParams.has("filter") &&
+              searchParams.has("company") &&
+              "Company: " + searchParams.get("company") + " "}
+          </span>
+        </div>
         <div className="grid grid-cols-[min-content_min-content_min-content]">
           <Button
             className="mx-1"
@@ -277,8 +291,8 @@ const SelectOption = ({ title, data, className, onValueChange, value }) => {
   );
 };
 
-import {Certificate} from "@/components/dashboard/certificate";
-import { useReactToPrint } from 'react-to-print';
+import { Certificate } from "@/components/dashboard/certificate";
+import { useReactToPrint } from "react-to-print";
 const View = ({ certificate, children, set, reloadCertificate, ...props }) => {
   // use employee object to display
 
@@ -286,7 +300,7 @@ const View = ({ certificate, children, set, reloadCertificate, ...props }) => {
   const [isEdit, setIsEdit] = useState(false);
   const router = useRouter();
   const currentDate = new Date();
-  const componentToPrint = useRef()
+  const componentToPrint = useRef();
   const toDateIssued = (date = "0000-00-00") => {
     return {
       full: date,
@@ -445,9 +459,8 @@ const View = ({ certificate, children, set, reloadCertificate, ...props }) => {
   };
 
   const handlePrint = useReactToPrint({
-      content: () => componentToPrint.current,
-    })
-  
+    content: () => componentToPrint.current,
+  });
 
   return (
     <Dialog onOpenChange={handleOnOpenChange} {...props}>

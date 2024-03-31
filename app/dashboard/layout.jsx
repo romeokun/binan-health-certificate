@@ -7,7 +7,7 @@ function layout({ children }) {
     <main className={"grid grid-cols-[min-content_1fr] bg-slate-100"}>
       <SideNavigation />
 
-      <div className="grid place-items-center min-h-screen ">
+      <div className="grid place-items-center min-h-screen min-w-[500px]">
         <DashboardComponent>{children}</DashboardComponent>
       </div>
     </main>

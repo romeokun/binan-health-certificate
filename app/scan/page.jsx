@@ -44,8 +44,8 @@ function Page() {
   }, [pathname]);
 
   return (
-    <div className="shadow-md w-full h-full md:w-4/5 md:h-4/5 rounded bg-white">
-      <div className="overflow-auto h-full">
+    <div className="shadow-md w-full h-full md:w-[720px] md:min-h-[80%] rounded bg-white">
+      <div className="">
         <div className="" id={cameraDivID}></div>
       </div>
     </div>

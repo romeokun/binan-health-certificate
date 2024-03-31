@@ -174,7 +174,14 @@ function Employee() {
   return (
     <>
       <div className="grid mt-2 grid-cols-[1fr_min-content]">
-        <div></div>
+        <div className="grid content-center">
+          <span>
+            Showing {!searchParams.has("filter") && "All"}
+            {searchParams.has("filter") &&
+              searchParams.has("name") &&
+              searchParams.get("name") + " "}
+          </span>
+        </div>
 
         <div className="grid grid-cols-[min-content_min-content_min-content]">
           <Button
@@ -336,7 +343,7 @@ const View = ({ children, employee, isQuerying, set, ...props }) => {
       .then((res) => {
         addDoc(collection(db, "logs"), {
           created: serverTimestamp(),
-          action: {value: "employee_edit", text: "edited an employee info"},
+          action: { value: "employee_edit", text: "edited an employee info" },
           target: employee.id,
           userUID: currentUser.uid,
         });
@@ -360,8 +367,8 @@ const View = ({ children, employee, isQuerying, set, ...props }) => {
       .then(async (response) => {
         addDoc(collection(db, "logs"), {
           created: serverTimestamp(),
-          action: {value: "employee_delete", text: "deleted an employee"},
-          target: {id: employee.id, name: employee.data().name},
+          action: { value: "employee_delete", text: "deleted an employee" },
+          target: { id: employee.id, name: employee.data().name },
           userUID: currentUser.uid,
         });
 
@@ -616,11 +623,7 @@ const AddCertificateDialog = ({ employee }) => {
           })
           .then(async (res) => {
             await runTransaction(db, async (transaction) => {
-              const ref = doc(
-                db,
-                "analytics",
-                data.dateIssued.year.toString()
-              );
+              const ref = doc(db, "analytics", data.dateIssued.year.toString());
               const analytics = await transaction.get(ref);
               if (!analytics.exists()) {
                 await setDoc(
@@ -628,7 +631,9 @@ const AddCertificateDialog = ({ employee }) => {
                   {
                     numberOfCertificates: 0,
                     baranggay: { [data.placeOfWork]: 0 },
-                    byMonth: { [data.dateIssued.month.toString().padStart(2, 0)]: 0 },
+                    byMonth: {
+                      [data.dateIssued.month.toString().padStart(2, 0)]: 0,
+                    },
                     nationality: { [data.nationality]: 0 },
                   }
                 );
@@ -639,7 +644,7 @@ const AddCertificateDialog = ({ employee }) => {
 
                 const certificateCountByMonth =
                   analytics.data().byMonth?.[
-                    (data.dateIssued.month).toString().padStart(2, 0)
+                    data.dateIssued.month.toString().padStart(2, 0)
                   ];
                 const newCertificateCountByMonth =
                   (certificateCountByMonth ? certificateCountByMonth : 0) + 1;
@@ -655,7 +660,8 @@ const AddCertificateDialog = ({ employee }) => {
                 transaction.update(ref, {
                   numberOfCertificates: newCertificates,
                   ["baranggay." + data.placeOfWork]: updateCount,
-                  ["byMonth." + (currentDate.getMonth() + 1).toString().padStart(2, 0)]:
+                  ["byMonth." +
+                  (currentDate.getMonth() + 1).toString().padStart(2, 0)]:
                     newCertificateCountByMonth,
                   ["nationality." + data.nationality]: updateNationalityCount,
                 });
@@ -664,7 +670,7 @@ const AddCertificateDialog = ({ employee }) => {
 
             await addDoc(collection(db, "logs"), {
               created: serverTimestamp(),
-              action: {value:"record_add", text: "added a certificate"},
+              action: { value: "record_add", text: "added a certificate" },
               target: res.id,
               userUID: currentUser.uid,
             });
@@ -877,7 +883,7 @@ const NewDialog = ({ children, set, reload, ...props }) => {
 
           await addDoc(collection(db, "logs"), {
             created: serverTimestamp(),
-            action: {value:"employee_add", text: "added an employee"},
+            action: { value: "employee_add", text: "added an employee" },
             target: res.id,
             userUID: currentUser.uid,
           });
