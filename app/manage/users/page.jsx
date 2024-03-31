@@ -192,7 +192,10 @@ function Manage() {
                 <TableCell>{element.created}</TableCell>
                 <TableCell>{element.uid}</TableCell>
                 <TableCell>{userNames[element.uid]?.name}</TableCell>
-                <TableCell>{userNames[element.uid]?.role}</TableCell>
+                <TableCell>
+                  {userNames[element.uid]?.role.charAt(0).toUpperCase() +
+                    userNames[element.uid]?.role.slice(1)}
+                </TableCell>
               </TableRow>
             );
           })}

@@ -22,8 +22,10 @@ export function AuthUser({ children }) {
         setCurrentUser(null);
         setIsAdmin(false);
       }
-
       setIsLoading(false);
+      if(!user) {
+        router.push("/login")
+      }
     });
   }, []);
 

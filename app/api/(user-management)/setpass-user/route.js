@@ -27,7 +27,7 @@ export async function POST(request) {
   let oldData = null;
   await auth()
     .updateUser(res.id, {
-      displayName: res.password,
+      password: res.password,
     }).then(()=> {
      auth().revokeRefreshTokens(res.id)
     })
