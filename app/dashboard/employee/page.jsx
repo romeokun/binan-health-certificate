@@ -590,8 +590,10 @@ const AddCertificateDialog = ({ employee }) => {
     nationality: "Filipino",
     no: "",
     occupation: "",
+    category: "food",
     or: "",
-    placeOfWork: "Biñan",
+    placeOfWork: "",
+    barangay: "Biñan",
     sex: employee.data().sex.charAt(0).toUpperCase(),
   };
 
@@ -630,7 +632,8 @@ const AddCertificateDialog = ({ employee }) => {
                   doc(db, "analytics", currentDate.getFullYear().toString()),
                   {
                     numberOfCertificates: 0,
-                    baranggay: { [data.placeOfWork]: 0 },
+                    baranggay: { [data.barangay]: 0 },
+                    category: { [data.category]: 0 },
                     byMonth: {
                       [data.dateIssued.month.toString().padStart(2, 0)]: 0,
                     },
@@ -650,8 +653,12 @@ const AddCertificateDialog = ({ employee }) => {
                   (certificateCountByMonth ? certificateCountByMonth : 0) + 1;
 
                 const baranggayCount =
-                  analytics.data().baranggay?.[data.placeOfWork];
+                  analytics.data().baranggay?.[data.barangay];
                 const updateCount = (baranggayCount ? baranggayCount : 0) + 1;
+
+                const categoryCount =
+                  analytics.data().category?.[data.barangay];
+                const updatecategoryCount = (categoryCount ? categoryCount : 0) + 1;
 
                 const nationalityCount =
                   analytics.data().nationality?.[data.nationality];
@@ -659,11 +666,12 @@ const AddCertificateDialog = ({ employee }) => {
                   (nationalityCount ? nationalityCount : 0) + 1;
                 transaction.update(ref, {
                   numberOfCertificates: newCertificates,
-                  ["baranggay." + data.placeOfWork]: updateCount,
+                  ["baranggay." + data.barangay]: updateCount,
                   ["byMonth." +
                   (currentDate.getMonth() + 1).toString().padStart(2, 0)]:
                     newCertificateCountByMonth,
                   ["nationality." + data.nationality]: updateNationalityCount,
+                  ["category." + data.category]: updatecategoryCount,
                 });
               }
             });
@@ -706,6 +714,17 @@ const AddCertificateDialog = ({ employee }) => {
             <div className="mt-4 grid gap-4 pb-4">
               <AddInput data={data} setData={setData} title="OR" value="or" />
               <AddInput data={data} setData={setData} title="No" value="no" />
+              <div className="grid grid-cols-4 items-center gap-4 w-[400px] ">
+                <Label className="text-right">Category</Label>
+                <SelectOption
+                  value={data.category}
+                  className="col-span-3"
+                  data={[{value: "food", text: "Food"}, {value: "nonfood", text: "Non Food"}]}
+                  onValueChange={(value) => {
+                    setData({ ...data, category: value });
+                  }}
+                />
+              </div>
               <AddInput
                 data={data}
                 setData={setData}
@@ -715,19 +734,19 @@ const AddCertificateDialog = ({ employee }) => {
               <AddInput
                 data={data}
                 setData={setData}
-                title="Company Name"
-                value="company"
+                title="Place of Work"
+                value="placeOfWork"
               />
               <div className="grid grid-cols-4 items-center gap-4 w-[400px] ">
-                <Label className="text-right">Place of Work</Label>
+                <Label className="text-right">Barangay</Label>
                 <SelectOption
-                  value={data.placeOfWork}
+                  value={data.barangay}
                   className="col-span-3"
                   data={baranggays.map((baranggay) => {
                     return { value: baranggay, text: baranggay };
                   })}
                   onValueChange={(value) => {
-                    setData({ ...data, placeOfWork: value });
+                    setData({ ...data, barangay: value });
                   }}
                 />
               </div>

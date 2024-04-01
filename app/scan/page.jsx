@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useId, useRef } from "react";
+import { useEffect, useId, useRef, useContext } from "react";
 import { Html5QrcodeScanner } from "html5-qrcode";
 import { useRouter, usePathname } from "next/navigation";
 import { AuthContext } from "@/components/auth-provider";

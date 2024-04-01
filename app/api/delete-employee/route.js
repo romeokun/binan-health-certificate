@@ -35,8 +35,10 @@ export async function POST(request) {
             if (doc.exists) {
               transaction.update(analyticsRef, {
                 numberOfCertificates: doc.get("numberOfCertificates") - 1,
-                ["baranggay." + data.placeOfWork]:
-                  doc.get("baranggay." + data.placeOfWork) - 1,
+                ["baranggay." + data.barangay]:
+                  doc.get("baranggay." + data.barangay) - 1,
+                ["category." + data.category]:
+                  doc.get("category." + data.category) - 1,
                 ["byMonth." + data.dateIssued.month.padStart(2, 0)]:
                   doc.get(
                     "byMonth." + data.dateIssued.month.toString().padStart(2, 0)

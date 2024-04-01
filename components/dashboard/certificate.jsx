@@ -1,39 +1,46 @@
-import React, {useEffect} from "react";
+import React, { useEffect } from "react";
 import QRCode from "qrcode";
 
-export const Certificate = React.forwardRef(({ data },ref) => {
+export const Certificate = React.forwardRef(({ data }, ref) => {
   useEffect(() => {
     const canvas = document.getElementById("canvas");
 
-    QRCode.toCanvas(canvas, "binancert-" + data?.id, {width: 220}, function (error) {
-      if (error) console.error(error);
-    });
+    QRCode.toCanvas(
+      canvas,
+      "binancert-" + data?.id,
+      { width: 220 },
+      function (error) {
+        if (error) console.error(error);
+      }
+    );
   }, []);
 
   return (
-    <div ref={ref} className="border w-[700px] h-[500px] p-[10px] bg-slate-300 grid grid-rows-[100px_70px_1fr]">
+    <div
+      ref={ref}
+      className="border w-[700px] h-[500px] p-[10px] bg-slate-300 grid grid-rows-[100px_70px_1fr]"
+    >
       <div className="grid grid-cols-12 place-items-center">
-        <div className="bg-red-500 col-span-2 w-[100px] h-[100px] border"></div>
-        <div className="bg-blue-500 col-span-8 w-full h-[100px] text-center text-2xl font-bold tracking-tighter leading-none">
+        <div className=" col-span-2 w-[100px] h-[100px] border">Logo</div>
+        <div className=" col-span-8 w-full h-[100px] text-center text-2xl font-bold tracking-tighter leading-none">
           Republic&nbsp;of&nbsp;the&nbsp;Philippines <br />{" "}
           City&nbsp;of&nbsp;Biñan <br /> Province&nbsp;of&nbsp;Laguna
         </div>
       </div>
-      <div className="bg-green-500 grid place-content-center text-center leading-none">
+      <div className=" grid place-content-center text-center leading-none">
         <div className="font-semibold text-lg">Health Certificate</div>
         <div className="text-sm w-[60ch]">
           Pursuant to the provisions of P.D. 856 of sanitation code of the
           Philppines and City Ordinance
         </div>
       </div>
-      <div className="grid grid-cols-[60fr_40fr] bg-red-500 h-full">
+      <div className="grid grid-cols-[60fr_40fr]  h-full">
         <div className="grid grid-rows-[min-content_1fr]">
           <div>
             <div className="grid grid-cols-[min-content_1fr]">
               <div className="grid place-content-center">
-                <div className="bg-black border h-[100px] w-[100px] mx-2">
-                  {" "}
-                  1 x 1
+                <div className=" border h-[100px] w-[100px] mx-2 grid place-content-center">
+                  <span>1 x 1</span>
                 </div>
               </div>
               <div className="grid content-center">
@@ -79,14 +86,21 @@ export const Certificate = React.forwardRef(({ data },ref) => {
               </span>
             </div>
             <div className="text-sm grid grid-cols-[min-content_1fr]">
+              <span className="mr-2">Category:</span>
+              <span className="border-b-2 border-black">
+                {data?.category.charAt(0).toUpperCase() +
+                  data?.category.slice(1)}
+              </span>
+            </div>
+            <div className="text-sm grid grid-cols-[min-content_1fr]">
               <span className="mr-2">PLACE&nbsp;OF&nbsp;WORK:</span>
               <span className="border-b-2 border-black">
                 {data?.placeOfWork}
               </span>
             </div>
             <div className="text-sm grid grid-cols-[min-content_1fr]">
-              <span className="mr-2">COMPANY&nbsp;NAME:</span>
-              <span className="border-b-2 border-black">{data?.company}</span>
+              <span className="mr-2">BARANGAY:</span>
+              <span className="border-b-2 border-black">{data?.barangay}</span>
             </div>
           </div>
           <div className="grid grid-cols-2 gap-4">
@@ -106,11 +120,11 @@ export const Certificate = React.forwardRef(({ data },ref) => {
             </div>
           </div>
         </div>
-        <div className="bg-blue-400 h-full grid grid-rows-[1fr_50px]">
+        <div className=" h-full grid grid-rows-[1fr_50px]">
           <div className="bg-black border place-self-center w-[220px] h-[220px]">
             <canvas id="canvas" className="w-full"></canvas>
           </div>
-          <div className="bg-green-500 grid grid-cols-[min-content_1fr]">
+          <div className=" grid grid-cols-[min-content_1fr]">
             <div className="mx-2">DATE&nbsp;ISSUANCE</div>
             <div className="border-b-2 border-black text-center">
               {data?.dateIssuance}
@@ -124,5 +138,4 @@ export const Certificate = React.forwardRef(({ data },ref) => {
       </div>
     </div>
   );
-})
-
+});

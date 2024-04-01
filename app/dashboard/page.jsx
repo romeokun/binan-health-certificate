@@ -365,17 +365,28 @@ const View = ({ certificate, children, set, reloadCertificate, ...props }) => {
 
             const dataUpdate = {};
 
-            if (updateRecord.placeOfWork != certificate.data().placeOfWork) {
-              dataUpdate["baranggay." + certificate.data().placeOfWork] =
-                analytics.data().baranggay[certificate.data().placeOfWork]
-                  ? analytics.data().baranggay[certificate.data().placeOfWork] -
-                    1
+            if (updateRecord.barangay != certificate.data().barangay) {
+              dataUpdate["baranggay." + certificate.data().barangay] =
+                analytics.data().baranggay[certificate.data().barangay]
+                  ? analytics.data().baranggay[certificate.data().barangay] - 1
                   : 0;
 
-              dataUpdate["baranggay." + updateRecord.placeOfWork] =
-                analytics.data().baranggay[updateRecord.placeOfWork]
-                  ? analytics.data().baranggay[updateRecord.placeOfWork] + 1
+              dataUpdate["baranggay." + updateRecord.barangay] =
+                analytics.data().baranggay[updateRecord.barangay]
+                  ? analytics.data().baranggay[updateRecord.barangay] + 1
                   : 1;
+            }
+
+            if (updateRecord.category != certificate.data().category) {
+              dataUpdate["category." + certificate.data().category] =
+                analytics.data().category[certificate.data().category]
+                  ? analytics.data().category[certificate.data().category] - 1
+                  : 0;
+
+              dataUpdate["category." + updateRecord.category] = analytics.data()
+                .category[updateRecord.category]
+                ? analytics.data().category[updateRecord.category] + 1
+                : 1;
             }
 
             if (updateRecord.nationality != certificate.data().nationality) {
@@ -414,7 +425,8 @@ const View = ({ certificate, children, set, reloadCertificate, ...props }) => {
       if (!analytics.exists()) {
         await setDoc(doc(db, "analytics", data.dateIssued.year), {
           numberOfCertificates: 0,
-          baranggay: { [data.placeOfWork]: 0 },
+          baranggay: { [data.barangay]: 0 },
+          category: { [data.category]: 0 },
           byMonth: { [data.dateIssued.month.toString().padStart(2, 0)]: 0 },
           nationality: { [data.nationality]: 0 },
         });
@@ -429,8 +441,11 @@ const View = ({ certificate, children, set, reloadCertificate, ...props }) => {
         const newCertificateCountByMonth =
           (certificateCountByMonth ? certificateCountByMonth : 0) - 1;
 
-        const baranggayCount = analytics.data().baranggay?.[data.placeOfWork];
+        const baranggayCount = analytics.data().baranggay?.[data.barangay];
         const updateCount = (baranggayCount ? baranggayCount : 0) - 1;
+
+        const categoryCount = analytics.data().category?.[data.category];
+        const updateCategoryCount = (categoryCount ? categoryCount : 0) - 1;
 
         const nationalityCount =
           analytics.data().nationality?.[data.nationality];
@@ -438,8 +453,9 @@ const View = ({ certificate, children, set, reloadCertificate, ...props }) => {
           (nationalityCount ? nationalityCount : 0) - 1;
         transaction.update(ref, {
           numberOfCertificates: newCertificates,
-          ["baranggay." + data.placeOfWork]: updateCount,
-          ["byMonth." + (currentDate.getMonth() + 1).toString()]:
+          ["category." + data.category]: updateCategoryCount,
+          ["baranggay." + data.barangay]: updateCount,
+          ["byMonth." + (currentDate.getMonth() + 1).toString().padStart(2, 0)]:
             newCertificateCountByMonth,
           ["nationality." + data.nationality]: updateNationalityCount,
         });
@@ -565,6 +581,20 @@ const EditCertificate = ({ data, setData }) => {
             }}
           />
         </div>
+        <div className="grid grid-cols-4 items-center gap-4 ">
+          <Label className="text-right">Category</Label>
+          <SelectOption
+            value={data.category}
+            className="col-span-3"
+            data={[
+              { value: "food", text: "Food" },
+              { value: "nonfood", text: "Non Food" },
+            ]}
+            onValueChange={(value) => {
+              setData({ ...data, category: value });
+            }}
+          />
+        </div>
         <div className="grid grid-cols-4 items-center gap-4">
           <Label className="text-right">Occupation</Label>
           <Input
@@ -577,26 +607,26 @@ const EditCertificate = ({ data, setData }) => {
           />
         </div>
         <div className="grid grid-cols-4 items-center gap-4">
-          <Label className="text-right">Company Name</Label>
+          <Label className="text-right">Place of Work</Label>
           <Input
             className="col-span-3 disabled:cursor-default disabled:opacity-100 disabled:bg-accent"
             type="text"
-            value={data.company}
+            value={data.placeOfWork}
             onChange={(e) => {
-              setData({ ...data, company: e.target.value });
+              setData({ ...data, placeOfWork: e.target.value });
             }}
           />
         </div>
         <div className="grid grid-cols-4 items-center gap-4 ">
-          <Label className="text-right">Place of Work</Label>
+          <Label className="text-right">Barangay</Label>
           <SelectOption
-            value={data.placeOfWork}
+            value={data.barangay}
             className="col-span-3"
             data={baranggays.map((baranggay) => {
               return { value: baranggay, text: baranggay };
             })}
             onValueChange={(value) => {
-              setData({ ...data, placeOfWork: value });
+              setData({ ...data, barangay: value });
             }}
           />
         </div>
