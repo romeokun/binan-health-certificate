@@ -23,9 +23,6 @@ export function AuthUser({ children }) {
         setIsAdmin(false);
       }
       setIsLoading(false);
-      if(!user) {
-        router.push("/login")
-      }
     });
   }, []);
 

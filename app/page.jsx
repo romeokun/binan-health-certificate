@@ -1,161 +1,74 @@
 "use client";
-import { AuthContext } from "@/components/auth-provider";
-import { useContext, useEffect, useState } from "react";
-
-import { CertificateForm } from "@/components/certificateForm";
-import FormButton from "@/components/main page components/formButton";
-import Modal from "@/components/main page components/modal";
-
-import { SingleCertificate } from "@/components/main page components/singleCertificate";
-import { collection, getDocs, query, orderBy } from "firebase/firestore";
-import { db } from "@/config/firebase";
-import { CertificateFormView } from "@/components/certificateFormView";
-import SearchView from "@/components/searchView";
-import { useRouter } from "next/navigation";
-
-async function loadQuery(func) {
-  func("");
-  const q = query(collection(db, "certificates"), orderBy("created", "desc"));
-  const querySnapshot = await getDocs(q);
-  func(querySnapshot);
-}
+import { useEffect, useId, useRef, useState } from "react";
+import { Html5QrcodeScanner } from "html5-qrcode";
+import { useRouter, usePathname } from "next/navigation";
+import { Button } from "@/components/ui/button";
 
 export default function Home() {
   const router = useRouter();
-  const { currentUser, isLoading, signout } = useContext(AuthContext);
+  const cameraDivID = useId();
+  const pathname = usePathname();
+  const html5QrcodeScanner = useRef(null);
+  const [show, setShow] = useState(true);
 
-  const [querySnapshot, setQuerySnapshot] = useState("");
-  const [certificate, setCertificate] = useState("");
-
-  const [modalView, setModalView] = useState("none");
+  function onScanSuccess(decodedText, decodedResult) {
+    let result = decodedText.split("-");
+    if (result[0] === "binancert") {
+      html5QrcodeScanner.current.clear();
+      router.push("/certificate/" + result[1]);
+    } else {
+      console.log("qr is not binancert");
+    }
+  }
 
   useEffect(() => {
-    if (!currentUser && !isLoading) {
-      router.push("/login");
-    } else {
-      loadQuery(setQuerySnapshot);
-    }
-  }, []);
+    try {
+      if (pathname == "/") {
+        html5QrcodeScanner.current = new Html5QrcodeScanner(
+          cameraDivID,
+          { fps: 10, qrbox: 250 },
+          /* verbose= */ false
+        );
+      }
+    } catch (error) {}
 
-  function showCreateForm() {
-    const modal = document.getElementById("modal");
-    setModalView("new");
-    modal.classList.remove("hidden");
-  }
-
-  function reload() {
-    loadQuery(setQuerySnapshot);
-  }
-
-  function view() {
-    const modal = document.getElementById("modal");
-    setModalView("view");
-    modal.classList.remove("hidden");
-  }
-
-  function search() {
-    const modal = document.getElementById("modal");
-    setModalView("search");
-    modal.classList.remove("hidden");
-  }
-  function report() {
-    let arr = [
-      "name,occupation,age,sex,placeofwork,nationality",
-
-      ...querySnapshot?.docs?.map((x) => {
-        const data = x.data();
-        const str =
-          data.Name +
-          "," +
-          data.Occupation +
-          "," +
-          data.Age +
-          "," +
-          data.Sex +
-          "," +
-          data.PlaceOfWork +
-          "," +
-          data.Nationality;
-        return str;
-      }),
-    ];
-
-    const csv = arr.join("\n");
-    console.log(csv);
-
-    const blob = new Blob([csv], { type: "text/csv" });
-    const url = window.URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.setAttribute("href", url);
-    a.setAttribute("download", "download.csv");
-    a.click();
-  }
+    return () => {
+      try {
+        html5QrcodeScanner.current.clear();
+      } catch (error) {}
+    };
+  }, [pathname]);
 
   return (
     <main>
-      <nav className="bg-emerald-400 mb-[12px] min-w-[800px]">
-        binan health office - Username
-        <button
-          className="border m-2"
-          onClick={(e) => {
-            console.log("clicked");
-            signout();
-          }}
-        >
-          signout
-        </button>
-      </nav>
-
-      <div className="rounded-t-lg bg-emerald-200 min-w-[800px] mx-[24px] mt-[4px] h-[48px] border-b-[1px] border-black flex justify-center content-center gap-2">
-        <FormButton func={reload} text={"reload"} />
-        <FormButton func={showCreateForm} text={"new"} />
-        <FormButton func={search} text={"search"} />
-        <FormButton func={report} text={"report"} />
-        <FormButton
-          func={() => {
-            location.href = "/analytics";
-          }}
-          text={"analytics"}
-        />
+      <div className="p-4 bg-slate-800 text-white text-lg">
+        Binan City Health Office
       </div>
-      <section className=" mx-[24px] flex flex-row min-h-[600px] box-content min-w-[800px]">
-        <div
-          id="mainContent"
-          className="rounded-br-lg bg-emerald-200 min-w-[800px] shadow-xl flex flex-col p-[8px] flex-auto transition-[width] ease-in-out gap-[12px] "
-        >
-          {querySnapshot?.docs?.map((Certificate, index) => {
-            return (
-              <SingleCertificate
-                className="w-full overflow-hidden"
-                key={Certificate.id}
-                certificate={Certificate}
-                set={setCertificate}
-                viewForm={view}
-                reload={reload}
-              />
-            );
-          })}
-        </div>
+      <section className=" p-6">
+        Lorem ipsum dolor, sit amet consectetur adipisicing elit. Illum magnam
+        iste obcaecati iusto eum odit, perspiciatis minus, culpa sapiente
+        deserunt nam dolorem distinctio minima fugit ut tenetur atque sit dolor!
       </section>
+      <section className="bg-accent p-6">
+        <div>Scan a Certificate</div>
 
-      <Modal reload={reload} setModalView={setModalView}>
-        {modalView === "new" && (
-          <CertificateForm
-            key={certificate.id}
-            submitFunction={setCertificate}
-          />
+        {show && (
+          <Button
+            onClick={() => {
+              setShow(false);
+              setTimeout(() => {
+                const container = document.getElementById(cameraDivID);
+                if (html5QrcodeScanner.current && container?.innerHTML == "") {
+                  html5QrcodeScanner.current.render(onScanSuccess);
+                }
+              }, 0);
+            }}
+          >
+            Open Scanner
+          </Button>
         )}
-        {modalView === "view" && (
-          <CertificateFormView key={certificate.id} certificate={certificate} />
-        )}
-        {modalView === "search" && (
-          <SearchView
-            modalView={modalView}
-            changeModalView={setModalView}
-            setCertificate={setCertificate}
-          />
-        )}
-      </Modal>
+        <div className="max-w-[720px]" id={cameraDivID}></div>
+      </section>
     </main>
   );
 }

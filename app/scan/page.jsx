@@ -2,13 +2,15 @@
 import { useEffect, useId, useRef } from "react";
 import { Html5QrcodeScanner } from "html5-qrcode";
 import { useRouter, usePathname } from "next/navigation";
+import { AuthContext } from "@/components/auth-provider";
 
 function Page() {
   const router = useRouter();
   const cameraDivID = useId();
   const pathname = usePathname();
   const html5QrcodeScanner = useRef(null);
-
+  const { currentUser, isLoading } = useContext(AuthContext);
+  
   function onScanSuccess(decodedText, decodedResult) {
     let result = decodedText.split("-");
     if (result[0] === "binancert") {
@@ -18,6 +20,12 @@ function Page() {
       console.log("qr is not binancert");
     }
   }
+
+  useEffect(() => {
+    if (!currentUser && !isLoading) {
+      router.push("/login");
+    }
+  }, []);
 
   useEffect(() => {
     try {
