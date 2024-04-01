@@ -262,7 +262,7 @@ const CertificateRow = memo(({ data, ...props }) => {
       className="hover:cursor-pointer"
     >
       <TableCell className="font-medium">{data.data().employeeName}</TableCell>
-      <TableCell>{data.data().company}</TableCell>
+      <TableCell>{data.data().placeOfWork}</TableCell>
       <TableCell className="">{data.data().occupation}</TableCell>
       <TableCell className="text-center">
         {data.data().dateIssued.year}
