@@ -34,6 +34,7 @@ function Analytics() {
     employees: 0,
   });
   const [baranggayData, setBaranggayData] = useState({});
+  const [categoryData, setCategoryData] = useState({});
   const [monthlyData, setMonthlyData] = useState({});
   const [natinalitiesData, setNationalitiesData] = useState({});
 
@@ -56,6 +57,12 @@ function Analytics() {
                 : 0;
               return [x.text, count];
             }),
+          ]);
+
+          setCategoryData([
+            ["Category", "Count"],
+            ["Food", res.data().category["food"]?res.data().category["food"]:0],
+            ["Nonfood", res.data().category["nonfood"]?res.data().category["nonfood"]:0],
           ]);
 
           setBaranggayData([
@@ -136,6 +143,15 @@ function Analytics() {
             </div>
           </div>
           <br />
+          <div className="w-full border bg-accent p-4 mb-8 overflow-x-auto">
+            <div className="text-xl font-semibold pb-2">Category</div>
+            <Chart
+              chartType="ColumnChart"
+              data={categoryData}
+              height="400px"
+              // width="1000px"
+            />
+          </div>
           <div className="w-full border bg-accent p-4 mb-8 overflow-x-auto">
             <div className="text-xl font-semibold pb-2">Baranggays</div>
             <Chart
