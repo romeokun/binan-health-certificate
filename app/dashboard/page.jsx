@@ -49,6 +49,7 @@ import {
   runTransaction,
 } from "firebase/firestore";
 import { db } from "@/config/firebase";
+import { auth } from "@/config/firebase";
 
 import { months } from "@/config/local";
 const currentDate = new Date();
@@ -98,7 +99,7 @@ function Records() {
       case "year":
         return [where("dateIssued.year", "==", searchParams.get("year"))];
       case "company":
-        return [where("company", "==", searchParams.get("company"))];
+        return [where("placeOfWork", "==", searchParams.get("company"))];
 
       default:
         return [];
@@ -164,6 +165,30 @@ function Records() {
     });
   };
 
+  const handlePrint = () => {
+    auth.currentUser
+      .getIdToken(false)
+      .then(function (idToken) {
+        return fetch("/api/print-record", {
+          method: "POST",
+          body: JSON.stringify({
+            token: idToken,
+            month: searchParams.get("month")?searchParams.get("month"):null,
+            year: searchParams.get("year")?searchParams.get("year"):null,
+            company: searchParams.get("company")?searchParams.get("company"):null,
+          }),
+        });
+      })
+      .then((res) => {
+        return res.json();
+      }).then(res => {
+        const str = res.print
+        download( new Blob([str]), "download.txt")
+      }).catch(e=>{
+        console.error(e);
+      });
+  };
+
   return (
     <>
       <div className="grid mt-2 grid-cols-[1fr_min-content]">
@@ -191,7 +216,9 @@ function Records() {
           >
             Filter
           </Button>
-          <Button className="mx-1">Print</Button>
+          <Button className="mx-1" onClick={handlePrint}>
+            Print
+          </Button>
           <Button
             className="mx-1"
             variant="outline"
@@ -545,6 +572,7 @@ const View = ({ certificate, children, set, reloadCertificate, ...props }) => {
 };
 
 import { nationalities, baranggays } from "@/config/local";
+import download from "downloadjs";
 const EditCertificate = ({ data, setData }) => {
   return (
     <div className="shadow-md border p-4 min-h-full">
