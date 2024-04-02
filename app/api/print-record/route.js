@@ -24,20 +24,20 @@ export async function POST(request) {
   response.print =
     "No.\tName\tGender\tPlace Of Work\tBarangay\tCategory\tIssuance\n";
 
-  let chain = firestore()
-    .collection("records");
+  let chain = firestore().collection("records");
 
-  if(res.month) {
-    chain = chain.where("dateIssued.month", "==", res.month)
+  if (res.month) {
+    chain = chain.where("dateIssued.month", "==", res.month);
   }
-  if(res.year) {
-    chain = chain.where("dateIssued.year", "==", res.year)
+  if (res.year) {
+    chain = chain.where("dateIssued.year", "==", res.year);
   }
-  if(res.company) {
-    chain = chain.where("placeOfWork", "==", res.company)
+  if (res.company) {
+    chain = chain.where("placeOfWork", "==", res.company);
   }
 
   await chain
+    .orderBy("created", "desc")
     .get()
     .then((snap) => {
       snap.forEach((x) => {

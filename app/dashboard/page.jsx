@@ -173,18 +173,33 @@ function Records() {
           method: "POST",
           body: JSON.stringify({
             token: idToken,
-            month: searchParams.get("month")?searchParams.get("month"):null,
-            year: searchParams.get("year")?searchParams.get("year"):null,
-            company: searchParams.get("company")?searchParams.get("company"):null,
+            month: searchParams.get("month") ? searchParams.get("month") : null,
+            year: searchParams.get("year") ? searchParams.get("year") : null,
+            company: searchParams.get("company")
+              ? searchParams.get("company")
+              : null,
           }),
         });
       })
       .then((res) => {
         return res.json();
-      }).then(res => {
-        const str = res.print
-        download( new Blob([str]), "download.txt")
-      }).catch(e=>{
+      })
+      .then((res) => {
+        const str = res.print;
+        let fileName = ""
+        if(searchParams.get("month")) {
+          fileName += searchParams.get("month") + "-"
+        }
+        if(searchParams.get("year")) {
+          fileName += searchParams.get("year")
+        }
+        if(searchParams.get("company")) {
+          fileName += searchParams.get("company")
+        }
+        
+        download(new Blob([str]), fileName != ""?fileName:"all"+".txt");
+      })
+      .catch((e) => {
         console.error(e);
       });
   };
