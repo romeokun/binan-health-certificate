@@ -53,6 +53,8 @@ import { format } from "date-fns";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { auth } from "@/config/firebase";
 import { nationalities, baranggays } from "@/config/local";
+import Image from "next/image";
+import NoProfileImg from "@/public/no-profile-picture-icon.png";
 
 const PAGELIMIT = 25;
 
@@ -560,6 +562,8 @@ const View = ({ children, employee, isQuerying, set, ...props }) => {
   );
 };
 
+import { ref, uploadBytes } from "firebase/storage";
+import { storageDB } from "@/config/firebase";
 const AddCertificateDialog = ({ employee }) => {
   const { currentUser } = useContext(AuthContext);
   const currentDate = new Date();
@@ -600,12 +604,15 @@ const AddCertificateDialog = ({ employee }) => {
   const [data, setData] = useState(dataDefault);
   const router = useRouter();
 
+  const [photo, setPhoto] = useState(NoProfileImg);
   const handleOnOpenChange = (open) => {
     if (!open) {
       setData(dataDefault);
+      setPhoto(NoProfileImg);
     }
   };
 
+  const imageInputRef = useRef(null);
   const handleAdd = (e) => {
     e.preventDefault();
     e.target.disabled = true;
@@ -624,6 +631,12 @@ const AddCertificateDialog = ({ employee }) => {
             });
           })
           .then(async (res) => {
+            // image upload
+            if (imageInputRef.current.files[0]) {
+              const uploadRef = ref(storageDB, "photos/" + res.id);
+              uploadBytes(uploadRef, imageInputRef.current.files[0]);
+            }
+            // analytics
             await runTransaction(db, async (transaction) => {
               const ref = doc(db, "analytics", data.dateIssued.year.toString());
               const analytics = await transaction.get(ref);
@@ -658,7 +671,8 @@ const AddCertificateDialog = ({ employee }) => {
 
                 const categoryCount =
                   analytics.data().category?.[data.barangay];
-                const updatecategoryCount = (categoryCount ? categoryCount : 0) + 1;
+                const updatecategoryCount =
+                  (categoryCount ? categoryCount : 0) + 1;
 
                 const nationalityCount =
                   analytics.data().nationality?.[data.nationality];
@@ -700,6 +714,17 @@ const AddCertificateDialog = ({ employee }) => {
       }
     }
   };
+
+  const handleImageUpload = (e) => {
+    if (e.target.files[0]) {
+      let file = e.target.files[0];
+      let url = URL.createObjectURL(file);
+      setPhoto(url);
+    } else {
+      setPhoto(NoProfileImg);
+    }
+  };
+
   return (
     <Dialog onOpenChange={handleOnOpenChange}>
       <DialogTrigger className={buttonVariants({ variant: "default" })}>
@@ -712,6 +737,27 @@ const AddCertificateDialog = ({ employee }) => {
         <ScrollArea type="auto" className="max-h-[50vh]">
           <form className="mt-4 grid gap-4 p-4 pt-0">
             <div className="mt-4 grid gap-4 pb-4">
+              <div className="grid grid-cols-4 items-center gap-4 w-[400px] ">
+                <Label className="text-right">Upload Photo</Label>
+                <Input
+                  ref={imageInputRef}
+                  type="file"
+                  className="col-span-3"
+                  accept=".jpg,.png"
+                  onChange={handleImageUpload}
+                />
+                <div className="col-span-4 grid place-content-center relative h-[100px]">
+                  <Image
+                    src={photo}
+                    fill={true}
+                    width={100}
+                    height={100}
+                    className="object-contain"
+                    alt="Certificate Photo"
+                  />
+                </div>
+              </div>
+
               <AddInput data={data} setData={setData} title="OR" value="or" />
               <AddInput data={data} setData={setData} title="No" value="no" />
               <div className="grid grid-cols-4 items-center gap-4 w-[400px] ">
@@ -719,7 +765,10 @@ const AddCertificateDialog = ({ employee }) => {
                 <SelectOption
                   value={data.category}
                   className="col-span-3"
-                  data={[{value: "food", text: "Food"}, {value: "nonfood", text: "Non Food"}]}
+                  data={[
+                    { value: "food", text: "Food" },
+                    { value: "nonfood", text: "Non Food" },
+                  ]}
                   onValueChange={(value) => {
                     setData({ ...data, category: value });
                   }}

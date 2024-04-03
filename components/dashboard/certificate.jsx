@@ -1,7 +1,16 @@
-import React, { useEffect } from "react";
+"use client"
+import React, { useEffect, useState } from "react";
 import QRCode from "qrcode";
+import Image from "next/image";
+
+import Logo from "@/public/binan-logo.png";
+import NoProfileImg from "@/public/no-profile-picture-icon.png";
+import { ref as refStorage, getDownloadURL } from "firebase/storage";
+import { storageDB } from "@/config/firebase";
 
 export const Certificate = React.forwardRef(({ data }, ref) => {
+
+  const [photoURL, setPhotoURL] = useState(NoProfileImg)
   useEffect(() => {
     const canvas = document.getElementById("canvas");
 
@@ -13,6 +22,30 @@ export const Certificate = React.forwardRef(({ data }, ref) => {
         if (error) console.error(error);
       }
     );
+
+    getDownloadURL(refStorage(storageDB, "photos/" + data.id)) // rename refstorage
+      .then((url) => {
+        setPhotoURL(url);
+      })
+      .catch((error) => {
+        switch (error.code) {
+          case "storage/object-not-found":
+            // File doesn't exist
+            break;
+          case "storage/unauthorized":
+            // User doesn't have permission to access the object
+            break;
+          case "storage/canceled":
+            // User canceled the upload
+            break;
+
+          // ...
+
+          case "storage/unknown":
+            // Unknown error occurred, inspect the server response
+            break;
+        }
+      });
   }, []);
 
   return (
@@ -21,7 +54,9 @@ export const Certificate = React.forwardRef(({ data }, ref) => {
       className="border w-[700px] h-[500px] p-[10px] bg-slate-300 grid grid-rows-[100px_70px_1fr]"
     >
       <div className="grid grid-cols-12 place-items-center">
-        <div className=" col-span-2 w-[100px] h-[100px] border">Logo</div>
+        <div className=" col-span-2 w-[100px] h-[100px] relative">
+          <Image src={Logo} fill={true} alt="binan logo"/>
+        </div>
         <div className=" col-span-8 w-full h-[100px] text-center text-2xl font-bold tracking-tighter leading-none">
           Republic&nbsp;of&nbsp;the&nbsp;Philippines <br />{" "}
           City&nbsp;of&nbsp;Biñan <br /> Province&nbsp;of&nbsp;Laguna
@@ -40,7 +75,13 @@ export const Certificate = React.forwardRef(({ data }, ref) => {
             <div className="grid grid-cols-[min-content_1fr]">
               <div className="grid place-content-center">
                 <div className=" border h-[100px] w-[100px] mx-2 grid place-content-center">
-                  <span>1 x 1</span>
+                  <Image
+                    src={photoURL}
+                    width={100}
+                    height={100}
+                    alt="1x1 Photo"
+                    className="object-cover"
+                  />
                 </div>
               </div>
               <div className="grid content-center">

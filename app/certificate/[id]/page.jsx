@@ -16,10 +16,12 @@ function Page({ params }) {
     age: "",
     sex: "",
     nationality: "",
+    category: "",
     placeOfWork: "",
-    company: "",
+    barangay: "",
     issuerName: "",
     dateIssuance: "2024-1-1",
+    
   };
   const [data, setData] = useState(defaultData);
 
@@ -40,8 +42,8 @@ function Page({ params }) {
           Binan City Health Office
         </div>
       </Link>
-      <div className="mt-4">Certificate - {params.id}</div>
-      <div className="max-w-full overflow-x-auto">
+      <div className="mt-4 text-center">Certificate - {params.id}</div>
+      <div className="max-w-full overflow-x-auto grid place-content-center">
         {data.error ? (
           <div className="bg-red-400">{data.error}</div>
         ) : (
