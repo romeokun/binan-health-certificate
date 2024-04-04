@@ -749,8 +749,6 @@ const AddCertificateDialog = ({ employee }) => {
                   <Image
                     src={photo}
                     fill={true}
-                    width={100}
-                    height={100}
                     className="object-contain"
                     alt="Certificate Photo"
                   />
