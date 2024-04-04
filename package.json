@@ -31,7 +31,8 @@
     "react-google-charts": "^4.0.1",
     "react-to-print": "^2.15.1",
     "tailwind-merge": "^2.2.1",
-    "tailwindcss-animate": "^1.0.7"
+    "tailwindcss-animate": "^1.0.7",
+    "xlsx": "https://cdn.sheetjs.com/xlsx-0.20.1/xlsx-0.20.1.tgz"
   },
   "devDependencies": {
     "autoprefixer": "^10.0.1",

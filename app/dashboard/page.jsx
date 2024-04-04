@@ -78,6 +78,7 @@ async function loadQuery({ collectionID, order, conditions = [], loadAfter }) {
   return getDocs(q);
 }
 
+import * as XLSX from "xlsx";
 function Records() {
   const { currentUser, isLoading } = useContext(AuthContext);
   const searchParams = useSearchParams();
@@ -186,18 +187,25 @@ function Records() {
       })
       .then((res) => {
         const str = res.print;
-        let fileName = ""
-        if(searchParams.get("month")) {
-          fileName += searchParams.get("month") + "-"
+        console.log(str);
+
+        let fileName = "";
+        if (searchParams.get("month")) {
+          fileName += searchParams.get("month") + "-";
         }
-        if(searchParams.get("year")) {
-          fileName += searchParams.get("year")
+        if (searchParams.get("year")) {
+          fileName += searchParams.get("year");
         }
-        if(searchParams.get("company")) {
-          fileName += searchParams.get("company")
+        if (searchParams.get("company")) {
+          fileName += searchParams.get("company");
         }
-        
-        download(new Blob([str]), fileName != ""?fileName:"all"+".txt");
+
+        fileName = fileName ? fileName : "all";
+
+        const worksheet = XLSX.utils.json_to_sheet(str);
+        const workbook = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(workbook, worksheet, "Certificates");
+        XLSX.writeFile(workbook, fileName + ".xlsx", { compression: true });
       })
       .catch((e) => {
         console.error(e);

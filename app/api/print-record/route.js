@@ -40,24 +40,14 @@ export async function POST(request) {
     .orderBy("created", "desc")
     .get()
     .then((snap) => {
+      const arr = [];
       snap.forEach((x) => {
-        response.print = response.print.concat(
-          x.data().no +
-            "\t" +
-            x.data().employeeName +
-            "\t" +
-            x.data().sex +
-            "\t" +
-            x.data().placeOfWork +
-            "\t" +
-            x.data().barangay +
-            "\t" +
-            x.data().category +
-            "\t" +
-            x.data().dateIssuance +
-            "\n"
-        );
+        const {created ,...tmp} = x.data()
+        tmp.dateIssued = tmp.dateIssued.full
+
+        arr.push(tmp);
       });
+      response.print = arr;
     });
 
   return NextResponse.json(response, { status: 200 });
