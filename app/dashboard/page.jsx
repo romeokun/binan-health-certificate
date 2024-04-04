@@ -595,7 +595,6 @@ const View = ({ certificate, children, set, reloadCertificate, ...props }) => {
 };
 
 import { nationalities, baranggays } from "@/config/local";
-import download from "downloadjs";
 const EditCertificate = ({ data, setData }) => {
   return (
     <div className="shadow-md border p-4 min-h-full">

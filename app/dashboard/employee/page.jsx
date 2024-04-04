@@ -584,7 +584,6 @@ const AddCertificateDialog = ({ employee }) => {
   };
 
   const dataDefault = {
-    company: "",
     dateIssuance: currentDateString,
     dateIssued: toDateIssued(currentDateString),
     employee: doc(db, "employees", employee.id),
