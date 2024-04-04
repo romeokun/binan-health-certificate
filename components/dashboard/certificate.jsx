@@ -74,11 +74,10 @@ export const Certificate = React.forwardRef(({ data }, ref) => {
           <div>
             <div className="grid grid-cols-[min-content_1fr]">
               <div className="grid place-content-center">
-                <div className=" border h-[100px] w-[100px] mx-2 grid place-content-center">
+                <div className=" border h-[100px] w-[100px] mx-2 grid place-content-center relative">
                   <Image
                     src={photoURL}
-                    width={100}
-                    height={100}
+                    fill={true}
                     alt="1x1 Photo"
                     className="object-cover"
                   />
