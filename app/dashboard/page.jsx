@@ -170,10 +170,11 @@ function Records() {
     auth.currentUser
       .getIdToken(false)
       .then(function (idToken) {
-        return fetch("https://printrecords-q24eqvlj5q-uc.a.run.app", {
+        return fetch("http://127.0.0.1:5001/binan-health-certificate/us-central1/printRecords", {
           method: "POST",
           headers: new Headers({
-            Authorization: "Bearer " + idToken,
+            "Authorization": "Bearer " + idToken,
+            "Content-Type": 'application/json',
           }),
           body: JSON.stringify({
             month: searchParams.get("month") ? searchParams.get("month") : null,

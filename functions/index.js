@@ -51,14 +51,14 @@ exports.printRecords = onRequest({ cors: true }, async (request, response) => {
 
     let chain = getFirestore().collection("records");
 
-    if (request.query.month) {
-      chain = chain.where("dateIssued.month", "==", request.query.month);
+    if (request.body.month) {
+      chain = chain.where("dateIssued.month", "==", request.body.month);
     }
-    if (request.query.year) {
-      chain = chain.where("dateIssued.year", "==", request.query.year);
+    if (request.body.year) {
+      chain = chain.where("dateIssued.year", "==", request.body.year);
     }
-    if (request.query.company) {
-      chain = chain.where("placeOfWork", "==", request.query.company);
+    if (request.body.company) {
+      chain = chain.where("placeOfWork", "==", request.body.company);
     }
 
     await chain

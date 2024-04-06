@@ -1,0 +1,140 @@
+[debug] [2024-04-06T04:02:58.436Z] ----------------------------------------------------------------------
+[debug] [2024-04-06T04:02:58.443Z] Command:       C:\Program Files\nodejs\node.exe C:\Users\jerome\AppData\Roaming\npm\node_modules\firebase-tools\lib\bin\firebase.js emulators:start
+[debug] [2024-04-06T04:02:58.444Z] CLI Version:   13.6.1
+[debug] [2024-04-06T04:02:58.445Z] Platform:      win32
+[debug] [2024-04-06T04:02:58.445Z] Node Version:  v20.5.1
+[debug] [2024-04-06T04:02:58.445Z] Time:          Sat Apr 06 2024 12:02:58 GMT+0800 (Philippine Standard Time)
+[debug] [2024-04-06T04:02:58.446Z] ----------------------------------------------------------------------
+[debug] 
+[debug] [2024-04-06T04:02:58.812Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2024-04-06T04:02:58.814Z] > authorizing via signed-in user (c18-1618-514@uphsl.edu.ph)
+[info] i  emulators: Starting emulators: functions, hosting {"metadata":{"emulator":{"name":"hub"},"message":"Starting emulators: functions, hosting"}}
+[debug] [2024-04-06T04:02:58.974Z] [logging] Logging Emulator only supports listening on one address (127.0.0.1). Not listening on ::1
+[debug] [2024-04-06T04:02:58.975Z] [hosting] Hosting Emulator only supports listening on one address (127.0.0.1). Not listening on ::1
+[debug] [2024-04-06T04:02:58.977Z] assigned listening specs for emulators {"user":{"hub":[{"address":"127.0.0.1","family":"IPv4","port":4400},{"address":"::1","family":"IPv6","port":4400}],"ui":[{"address":"127.0.0.1","family":"IPv4","port":4000},{"address":"::1","family":"IPv6","port":4000}],"logging":[{"address":"127.0.0.1","family":"IPv4","port":4500}],"hosting":[{"address":"127.0.0.1","family":"IPv4","port":5000}]},"metadata":{"message":"assigned listening specs for emulators"}}
+[debug] [2024-04-06T04:02:59.004Z] [hub] writing locator at C:\Users\jerome\AppData\Local\Temp\hub-binan-health-certificate.json
+[debug] [2024-04-06T04:02:59.173Z] >>> [apiv2][query] GET https://firebase.googleapis.com/v1beta1/projects/binan-health-certificate [none]
+[debug] [2024-04-06T04:02:59.877Z] <<< [apiv2][status] GET https://firebase.googleapis.com/v1beta1/projects/binan-health-certificate 200
+[debug] [2024-04-06T04:02:59.878Z] <<< [apiv2][body] GET https://firebase.googleapis.com/v1beta1/projects/binan-health-certificate {"projectId":"binan-health-certificate","projectNumber":"953782364171","displayName":"binan-health-certificate","name":"projects/binan-health-certificate","resources":{"hostingSite":"binan-health-certificate","storageBucket":"binan-health-certificate.appspot.com","locationId":"asia-east2"},"state":"ACTIVE","etag":"1_f4e07602-b1f4-48db-ad73-2083127bc71a"}
+[info] 
+   Thank you for trying our early preview of Next.js support on Firebase Hosting.
+   During the preview, support is best-effort and breaking changes can be expected. Proceed with caution.
+
+   Documentation: https://firebase.google.com/docs/hosting/frameworks/nextjs
+   File a bug: https://github.com/firebase/firebase-tools/issues/new?template=bug_report.md
+   Submit a feature request: https://github.com/firebase/firebase-tools/issues/new?template=feature_request.md
+
+   We'd love to learn from you. Express your interest in helping us shape the future of Firebase Hosting: https://goo.gle/41enW5X
+
+[debug] [2024-04-06T04:04:25.326Z] [web frameworks] effective firebase.json:  {
+  "hosting": [
+    {
+      "source": ".",
+      "ignore": [
+        "firebase.json",
+        "**/.*",
+        "**/node_modules/**"
+      ],
+      "frameworksBackend": {
+        "region": "asia-east1"
+      },
+      "site": "binan-health-certificate",
+      "rewrites": [],
+      "redirects": [],
+      "headers": [],
+      "cleanUrls": true,
+      "public": ".firebase\\binan-health-certificate\\hosting",
+      "webFramework": "next"
+    }
+  ],
+  "functions": [
+    {
+      "source": "functions",
+      "codebase": "default",
+      "ignore": [
+        "node_modules",
+        ".git",
+        "firebase-debug.log",
+        "firebase-debug.*.log"
+      ]
+    }
+  ]
+}
+[debug] [2024-04-06T04:04:25.345Z] [functions] Functions Emulator only supports listening on one address (127.0.0.1). Not listening on ::1
+[debug] [2024-04-06T04:04:25.346Z] [eventarc] Eventarc Emulator only supports listening on one address (127.0.0.1). Not listening on ::1
+[debug] [2024-04-06T04:04:25.346Z] late-assigned ports for functions and eventarc emulators {"user":{"hub":[{"address":"127.0.0.1","family":"IPv4","port":4400},{"address":"::1","family":"IPv6","port":4400}],"ui":[{"address":"127.0.0.1","family":"IPv4","port":4000},{"address":"::1","family":"IPv6","port":4000}],"logging":[{"address":"127.0.0.1","family":"IPv4","port":4500}],"hosting":[{"address":"127.0.0.1","family":"IPv4","port":5000}],"functions":[{"address":"127.0.0.1","family":"IPv4","port":5001}],"eventarc":[{"address":"127.0.0.1","family":"IPv4","port":9299}]},"metadata":{"message":"late-assigned ports for functions and eventarc emulators"}}
+[warn] !  functions: The following emulators are not running, calls to these services from the Functions emulator will affect production: auth, firestore, database, pubsub, storage {"metadata":{"emulator":{"name":"functions"},"message":"The following emulators are not running, calls to these services from the Functions emulator will affect production: \u001b[1mauth, firestore, database, pubsub, storage\u001b[22m"}}
+[debug] [2024-04-06T04:04:25.377Z] defaultcredentials: writing to file C:\Users\jerome\AppData\Roaming\firebase\c18-1618-514_uphsl_edu.ph_application_default_credentials.json
+[debug] [2024-04-06T04:04:25.392Z] Setting GAC to C:\Users\jerome\AppData\Roaming\firebase\c18-1618-514_uphsl_edu.ph_application_default_credentials.json {"metadata":{"emulator":{"name":"functions"},"message":"Setting GAC to C:\\Users\\jerome\\AppData\\Roaming\\firebase\\c18-1618-514_uphsl_edu.ph_application_default_credentials.json"}}
+[debug] [2024-04-06T04:04:25.398Z] >>> [apiv2][query] GET https://firebase.googleapis.com/v1beta1/projects/binan-health-certificate/adminSdkConfig [none]
+[debug] [2024-04-06T04:04:27.371Z] <<< [apiv2][status] GET https://firebase.googleapis.com/v1beta1/projects/binan-health-certificate/adminSdkConfig 200
+[debug] [2024-04-06T04:04:27.372Z] <<< [apiv2][body] GET https://firebase.googleapis.com/v1beta1/projects/binan-health-certificate/adminSdkConfig {"projectId":"binan-health-certificate","storageBucket":"binan-health-certificate.appspot.com","locationId":"asia-east2"}
+[debug] [2024-04-06T04:04:27.412Z] >>> [apiv2][query] GET https://firebasehosting.googleapis.com/v1beta1/projects/binan-health-certificate/sites 
+[debug] [2024-04-06T04:04:28.345Z] <<< [apiv2][status] GET https://firebasehosting.googleapis.com/v1beta1/projects/binan-health-certificate/sites 200
+[debug] [2024-04-06T04:04:28.345Z] <<< [apiv2][body] GET https://firebasehosting.googleapis.com/v1beta1/projects/binan-health-certificate/sites {"sites":[{"name":"projects/binan-health-certificate/sites/binan-health-certificate","defaultUrl":"https://binan-health-certificate.web.app","appId":"1:953782364171:web:f09f14d4ac3667e7a7ff0e","type":"DEFAULT_SITE"}]}
+[debug] [2024-04-06T04:04:28.346Z] >>> [apiv2][query] GET https://firebase.googleapis.com/v1beta1/projects/binan-health-certificate/webApps/1:953782364171:web:f09f14d4ac3667e7a7ff0e/config [none]
+[debug] [2024-04-06T04:04:29.723Z] <<< [apiv2][status] GET https://firebase.googleapis.com/v1beta1/projects/binan-health-certificate/webApps/1:953782364171:web:f09f14d4ac3667e7a7ff0e/config 200
+[debug] [2024-04-06T04:04:29.724Z] <<< [apiv2][body] GET https://firebase.googleapis.com/v1beta1/projects/binan-health-certificate/webApps/1:953782364171:web:f09f14d4ac3667e7a7ff0e/config {"projectId":"binan-health-certificate","appId":"1:953782364171:web:f09f14d4ac3667e7a7ff0e","storageBucket":"binan-health-certificate.appspot.com","locationId":"asia-east2","apiKey":"AIzaSyCB94zmaq_GZv71FC7xKCchSCiJtK84CBU","authDomain":"binan-health-certificate.firebaseapp.com","messagingSenderId":"953782364171","measurementId":"G-TZWKG74K4E"}
+[info] i  hosting[binan-health-certificate]: Serving hosting files from: .firebase\binan-health-certificate\hosting {"metadata":{"emulator":{"name":"hosting"},"message":"Serving hosting files from: \u001b[1m.firebase\\binan-health-certificate\\hosting\u001b[22m"}}
+[info] +  hosting[binan-health-certificate]: Local server: http://127.0.0.1:5000 {"metadata":{"emulator":{"name":"hosting"},"message":"Local server: \u001b[4m\u001b[1mhttp://127.0.0.1:5000\u001b[22m\u001b[24m"}}
+[debug] [2024-04-06T04:04:29.861Z] Ignoring unsupported arg: auto_download {"metadata":{"emulator":{"name":"ui"},"message":"Ignoring unsupported arg: auto_download"}}
+[debug] [2024-04-06T04:04:29.861Z] Ignoring unsupported arg: port {"metadata":{"emulator":{"name":"ui"},"message":"Ignoring unsupported arg: port"}}
+[debug] [2024-04-06T04:04:29.861Z] Starting Emulator UI with command {"binary":"node","args":["C:\\Users\\jerome\\.cache\\firebase\\emulators\\ui-v1.11.8\\server\\server.mjs"],"optionalArgs":[],"joinArgs":false} {"metadata":{"emulator":{"name":"ui"},"message":"Starting Emulator UI with command {\"binary\":\"node\",\"args\":[\"C:\\\\Users\\\\jerome\\\\.cache\\\\firebase\\\\emulators\\\\ui-v1.11.8\\\\server\\\\server.mjs\"],\"optionalArgs\":[],\"joinArgs\":false}"}}
+[info] i  ui: Emulator UI logging to ui-debug.log {"metadata":{"emulator":{"name":"ui"},"message":"Emulator UI logging to \u001b[1mui-debug.log\u001b[22m"}}
+[debug] [2024-04-06T04:04:30.382Z] Web / API server started at 127.0.0.1:4000
+ {"metadata":{"emulator":{"name":"ui"},"message":"Web / API server started at 127.0.0.1:4000\n"}}
+[debug] [2024-04-06T04:04:30.382Z] Web / API server started at ::1:4000
+ {"metadata":{"emulator":{"name":"ui"},"message":"Web / API server started at ::1:4000\n"}}
+[info] i  functions: Watching "C:\binanHealthCertificate\binan-health-certificate\functions" for Cloud Functions... {"metadata":{"emulator":{"name":"functions"},"message":"Watching \"C:\\binanHealthCertificate\\binan-health-certificate\\functions\" for Cloud Functions..."}}
+[debug] [2024-04-06T04:04:30.537Z] Validating nodejs source
+[debug] [2024-04-06T04:04:36.118Z] > [functions] package.json contents: {
+  "name": "functions",
+  "description": "Cloud Functions for Firebase",
+  "scripts": {
+    "serve": "firebase emulators:start --only functions",
+    "shell": "firebase functions:shell",
+    "start": "npm run shell",
+    "deploy": "firebase deploy --only functions",
+    "logs": "firebase functions:log"
+  },
+  "engines": {
+    "node": "18"
+  },
+  "main": "index.js",
+  "dependencies": {
+    "firebase-admin": "^11.8.0",
+    "firebase-functions": "^4.3.1"
+  },
+  "devDependencies": {
+    "firebase-functions-test": "^3.1.0"
+  },
+  "private": true
+}
+[debug] [2024-04-06T04:04:36.120Z] Building nodejs source
+[debug] [2024-04-06T04:04:36.122Z] Failed to find version of module node: reached end of search path C:\binanHealthCertificate\binan-health-certificate\functions\node_modules
+[info] +  functions: Using node@20 from host. 
+[debug] [2024-04-06T04:04:36.128Z] Could not find functions.yaml. Must use http discovery
+[debug] [2024-04-06T04:04:36.182Z] Found firebase-functions binary at 'C:\binanHealthCertificate\binan-health-certificate\functions\node_modules\.bin\firebase-functions'
+[info] Serving at port 8050
+
+[debug] [2024-04-06T04:04:38.858Z] Got response from /__/functions.yaml {"endpoints":{"printRecords":{"availableMemoryMb":null,"timeoutSeconds":null,"minInstances":null,"maxInstances":null,"ingressSettings":null,"concurrency":null,"serviceAccountEmail":null,"vpc":null,"platform":"gcfv2","labels":{},"httpsTrigger":{},"entryPoint":"printRecords"}},"specVersion":"v1alpha1","requiredAPIs":[]}
+[info] +  functions: Loaded functions definitions from source: printRecords. {"metadata":{"emulator":{"name":"functions"},"message":"Loaded functions definitions from source: printRecords."}}
+[info] +  functions[us-central1-printRecords]: http function initialized (http://127.0.0.1:5001/binan-health-certificate/us-central1/printRecords). {"metadata":{"emulator":{"name":"functions"},"message":"\u001b[1mhttp\u001b[22m function initialized (http://127.0.0.1:5001/binan-health-certificate/us-central1/printRecords)."}}
+[info] 
+┌─────────────────────────────────────────────────────────────┐
+│ ✔  All emulators ready! It is now safe to connect your app. │
+│ i  View Emulator UI at http://127.0.0.1:4000/               │
+└─────────────────────────────────────────────────────────────┘
+
+┌───────────┬────────────────┬─────────────────────────────────┐
+│ Emulator  │ Host:Port      │ View in Emulator UI             │
+├───────────┼────────────────┼─────────────────────────────────┤
+│ Functions │ 127.0.0.1:5001 │ http://127.0.0.1:4000/functions │
+├───────────┼────────────────┼─────────────────────────────────┤
+│ Hosting   │ 127.0.0.1:5000 │ n/a                             │
+└───────────┴────────────────┴─────────────────────────────────┘
+  Emulator Hub running at 127.0.0.1:4400
+  Other reserved ports: 4500
+
+Issues? Report them at https://github.com/firebase/firebase-tools/issues and attach the *-debug.log files.
+ 
