@@ -583,6 +583,38 @@ const AddCertificateDialog = ({ employee }) => {
     };
   };
 
+  const defaultTableData = [...Array(9).keys()].map((x, index) => {
+    return { key: index + 1, "col-1": "", "col-2": "", "col-3": "" };
+  });
+
+  defaultTableData[0] = {
+    ...defaultTableData[0],
+    "col-2": "X-RAY",
+  };
+  defaultTableData[1] = {
+    ...defaultTableData[1],
+    "col-2": "UA",
+  };
+  defaultTableData[2] = {
+    ...defaultTableData[2],
+    "col-2": "FA",
+  };
+
+  const [tableData, setTableData] = useState(defaultTableData);
+
+  const handleTableChange = (e, key) => {
+    const { name, value } = e.target;
+    const newData = tableData.map((x) => {
+      if (x.key == key) {
+        return { ...x, [name]: value };
+      } else {
+        return x;
+      }
+    });
+
+    setTableData(newData);
+  };
+
   const dataDefault = {
     dateIssuance: currentDateString,
     dateIssued: toDateIssued(currentDateString),
@@ -618,14 +650,15 @@ const AddCertificateDialog = ({ employee }) => {
     if (data.dateIssued) {
       try {
         addToDatabase({
-              collectionID: "records",
-              data: {
-                ...data,
-                issuerName: "Mirbelle M. Benjamin, MD, MPH",
-                age: currentDate.getFullYear() - +employee.data().birthyear,
-                created: serverTimestamp(),
-              },
-            })
+          collectionID: "records",
+          data: {
+            ...data,
+            issuerName: "Mirbelle M. Benjamin, MD, MPH",
+            age: currentDate.getFullYear() - +employee.data().birthyear,
+            exams: tableData,
+            created: serverTimestamp(),
+          },
+        })
           .then(async (res) => {
             // image upload
             if (imageInputRef.current.files[0]) {
@@ -666,7 +699,7 @@ const AddCertificateDialog = ({ employee }) => {
                 const updateCount = (baranggayCount ? baranggayCount : 0) + 1;
 
                 const categoryCount =
-                  analytics.data().category?.[data.barangay];
+                  analytics.data().category?.[data.category];
                 const updatecategoryCount =
                   (categoryCount ? categoryCount : 0) + 1;
 
@@ -753,6 +786,20 @@ const AddCertificateDialog = ({ employee }) => {
               </div>
 
               <AddInput data={data} setData={setData} title="OR" value="or" />
+              <div className="grid grid-cols-4 items-center gap-4 w-[400px] ">
+                <Label className="text-right">OR Date Issued</Label>
+                <input
+                  type="date"
+                  className="col-span-3 border px-3 py-2 rounded-md"
+                  onChange={(e) => {
+                    setData({
+                      ...data,
+                      dateIssued: toDateIssued(e.target.value),
+                    });
+                  }}
+                  value={data.dateIssued?.full}
+                />
+              </div>
               <AddInput data={data} setData={setData} title="No" value="no" />
               <div className="grid grid-cols-4 items-center gap-4 w-[400px] ">
                 <Label className="text-right">Category</Label>
@@ -805,21 +852,7 @@ const AddCertificateDialog = ({ employee }) => {
                 />
               </div>
               <div className="grid grid-cols-4 items-center gap-4 w-[400px] ">
-                <Label className="text-right">Date Issued</Label>
-                <input
-                  type="date"
-                  className="col-span-3 border px-3 py-2 rounded-md"
-                  onChange={(e) => {
-                    setData({
-                      ...data,
-                      dateIssued: toDateIssued(e.target.value),
-                    });
-                  }}
-                  value={data.dateIssued?.full}
-                />
-              </div>
-              <div className="grid grid-cols-4 items-center gap-4 w-[400px] ">
-                <Label className="text-right">Date Issuance</Label>
+                <Label className="text-right">Date Of Issuance</Label>
                 <input
                   type="date"
                   className="col-span-3 border px-3 py-2 rounded-md"
@@ -828,6 +861,42 @@ const AddCertificateDialog = ({ employee }) => {
                   }}
                   value={data.dateIssuance}
                 />
+              </div>
+              <div className="grid grid-rows-[min-content)] border border-black p-2">
+                <div className="text-center">Exam Table</div>
+                <div className="grid grid-cols-3">
+                  <span className="border border-black">DATE</span>
+                  <span className="border border-black">KIND</span>
+                  <span className="border border-black">RESULT</span>
+                </div>
+
+                {tableData.map((x) => {
+                  return (
+                    <div className="grid grid-cols-3" key={x.key}>
+                      <input
+                        onChange={(e) => handleTableChange(e, x.key)}
+                        value={x["col-1"]}
+                        name="col-1"
+                        type="text"
+                        className="border border-black text-center"
+                      />
+                      <input
+                        onChange={(e) => handleTableChange(e, x.key)}
+                        value={x["col-2"]}
+                        name="col-2"
+                        type="text"
+                        className="border border-black text-center"
+                      />
+                      <input
+                        onChange={(e) => handleTableChange(e, x.key)}
+                        value={x["col-3"]}
+                        name="col-3"
+                        type="text"
+                        className="border border-black text-center"
+                      />
+                    </div>
+                  );
+                })}
               </div>
             </div>
             <div className="grid grid-cols-4 items-center gap-4">

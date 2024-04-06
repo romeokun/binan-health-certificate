@@ -11,15 +11,8 @@ import { storageDB } from "@/config/firebase";
 
 export const Certificate = React.forwardRef(({ data }, ref) => {
   const defaultTableData = [...Array(9).keys()].map((x, index) => {
-    return { key: index, "col-1": "", "col-2": "", "col-3": "" };
+    return { key: index + 1, "col-1": "", "col-2": "", "col-3": "" };
   });
-
-  // defaultTableData[0] = {
-  //   ...defaultTableData[0],
-  //   "col-1": "DATE",
-  //   "col-2": "KIND",
-  //   "col-3": "RESULT",
-  // };
 
   let tableData = [
     {
@@ -30,9 +23,9 @@ export const Certificate = React.forwardRef(({ data }, ref) => {
     },
   ];
   if (data.exams) {
-    tableData = [...tableData, ...data.exams]
+    tableData = [...tableData, ...data.exams];
   } else {
-    tableData = [...tableData, ...defaultTableData]
+    tableData = [...tableData, ...defaultTableData];
   }
 
   const [photoURL, setPhotoURL] = useState(NoProfileImg);
@@ -226,9 +219,27 @@ export const Certificate = React.forwardRef(({ data }, ref) => {
           {tableData.map((x) => {
             return (
               <tr className="h-[28px]" key={x.key}>
-                <td className="border border-black">{x["col-1"]}</td>
-                <td className="border border-black">{x["col-2"]}</td>
-                <td className="border border-black">{x["col-3"]}</td>
+                <td
+                  className={
+                    "border border-black " + (x.key == 0 ? "font-bold" : "")
+                  }
+                >
+                  {x["col-1"]}
+                </td>
+                <td
+                  className={
+                    "border border-black " + (x.key == 0 ? "font-bold" : "")
+                  }
+                >
+                  {x["col-2"]}
+                </td>
+                <td
+                  className={
+                    "border border-black " + (x.key == 0 ? "font-bold" : "")
+                  }
+                >
+                  {x["col-3"]}
+                </td>
               </tr>
             );
           })}

@@ -173,8 +173,8 @@ function Records() {
         return fetch("https://printrecords-q24eqvlj5q-uc.a.run.app/", {
           method: "POST",
           headers: new Headers({
-            "Authorization": "Bearer " + idToken,
-            "Content-Type": 'application/json',
+            Authorization: "Bearer " + idToken,
+            "Content-Type": "application/json",
           }),
           body: JSON.stringify({
             month: searchParams.get("month") ? searchParams.get("month") : null,
@@ -365,12 +365,22 @@ const View = ({ certificate, children, set, reloadCertificate, ...props }) => {
 
   const [data, setData] = useState(null);
 
+  const defaultTableData = [...Array(9).keys()].map((x, index) => {
+    return { key: index + 1, "col-1": "", "col-2": "", "col-3": "" };
+  });
+
   useEffect(() => {
     if (certificate) {
       setData({
         ...certificate.data(),
         id: certificate.id,
       });
+
+      if (!data.exams) {
+        setData((prev) => {
+          return { ...prev, exams: defaultTableData };
+        });
+      }
     }
   }, [certificate]);
 
@@ -599,6 +609,18 @@ const View = ({ certificate, children, set, reloadCertificate, ...props }) => {
 
 import { nationalities, baranggays } from "@/config/local";
 const EditCertificate = ({ data, setData }) => {
+  const handleTableChange = (e, key) => {
+    const { name, value } = e.target;
+    const newData = data.exams.map((x) => {
+      if (x.key == key) {
+        return { ...x, [name]: value };
+      } else {
+        return x;
+      }
+    });
+
+    setData({ ...data,exams:newData});
+  };
   return (
     <div className="shadow-md border p-4 min-h-full">
       Edit Certificate
@@ -704,6 +726,43 @@ const EditCertificate = ({ data, setData }) => {
               setData({ ...data, issuerName: e.target.value });
             }}
           />
+        </div>
+
+        <div className="grid grid-rows-[min-content)] border border-black p-2">
+          <div className="text-center">Exam Table</div>
+          <div className="grid grid-cols-3">
+            <span className="border border-black">DATE</span>
+            <span className="border border-black">KIND</span>
+            <span className="border border-black">RESULT</span>
+          </div>
+
+          {data.exams.map((x) => {
+            return (
+              <div className="grid grid-cols-3" key={x.key}>
+                <input
+                  onChange={(e) => handleTableChange(e, x.key)}
+                  value={x["col-1"]}
+                  name="col-1"
+                  type="text"
+                  className="border border-black text-center"
+                />
+                <input
+                  onChange={(e) => handleTableChange(e, x.key)}
+                  value={x["col-2"]}
+                  name="col-2"
+                  type="text"
+                  className="border border-black text-center"
+                />
+                <input
+                  onChange={(e) => handleTableChange(e, x.key)}
+                  value={x["col-3"]}
+                  name="col-3"
+                  type="text"
+                  className="border border-black text-center"
+                />
+              </div>
+            );
+          })}
         </div>
       </div>
     </div>
