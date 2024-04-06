@@ -4,6 +4,7 @@ import QRCode from "qrcode";
 import Image from "next/image";
 
 import Logo from "@/public/binan-logo.png";
+import ISOLogo from "@/public/ISO-logo.png";
 import NoProfileImg from "@/public/no-profile-picture-icon.png";
 import { ref as refStorage, getDownloadURL } from "firebase/storage";
 import { storageDB } from "@/config/firebase";
@@ -17,7 +18,7 @@ export const Certificate = React.forwardRef(({ data }, ref) => {
     QRCode.toCanvas(
       canvas,
       "binancert-" + data?.id,
-      { width: 220 },
+      { width: 150 },
       function (error) {
         if (error) console.error(error);
       }
@@ -53,13 +54,16 @@ export const Certificate = React.forwardRef(({ data }, ref) => {
       ref={ref}
       className="border w-[700px] h-[500px] p-[10px] bg-slate-300 grid grid-rows-[100px_70px_1fr]"
     >
-      <div className="grid grid-cols-12 place-items-center">
+      <div className="grid grid-cols-12 place-items-center place-content-center">
         <div className=" col-span-2 w-[100px] h-[100px] relative">
           <Image src={Logo} fill={true} alt="binan logo"/>
         </div>
         <div className=" col-span-8 w-full h-[100px] text-center text-2xl font-bold tracking-tighter leading-none">
           Republic&nbsp;of&nbsp;the&nbsp;Philippines <br />{" "}
           City&nbsp;of&nbsp;Biñan <br /> Province&nbsp;of&nbsp;Laguna
+        </div>
+        <div className=" col-span-2 w-[100px] h-[100px] relative">
+          <Image className="object-contain" src={ISOLogo} fill={true} alt="ISO logo"/>
         </div>
       </div>
       <div className=" grid place-content-center text-center leading-none">
@@ -143,14 +147,20 @@ export const Certificate = React.forwardRef(({ data }, ref) => {
               <span className="border-b-2 border-black">{data?.barangay}</span>
             </div>
           </div>
-          <div className="grid grid-cols-2 gap-4">
-            <div className="text-xs grid grid-rows-[1fr_min-content]">
+          <div className="grid grid-cols-1 gap-4 place-content-center place-items-center pt-4">
+            <div className="w-[200px] text-xs grid grid-rows-[1fr_min-content]">
               <span className="text-center text-[.6rem] self-end"></span>
               <span className="border-t-2 border-black text-center">
                 SIGNATURE&nbsp;OF&nbsp;HOLDER
               </span>
             </div>
-            <div className="text-xs grid grid-rows-[1fr_min-content]">
+          </div>
+        </div>
+        <div className=" h-full grid grid-rows-[1fr_min-content_50px]">
+          <div className="place-self-center relative">
+            <canvas id="canvas" className="w-[100px]"></canvas>
+          </div>
+          <div className="text-xs grid grid-rows-[1fr_min-content] px-6 mb-4">
               <span className="text-center text-[.6rem] self-end">
                 {data?.issuerName}
               </span>
@@ -158,14 +168,8 @@ export const Certificate = React.forwardRef(({ data }, ref) => {
                 CITY&nbsp;HEALTH&nbsp;OFFICER
               </span>
             </div>
-          </div>
-        </div>
-        <div className=" h-full grid grid-rows-[1fr_50px]">
-          <div className="bg-black border place-self-center w-[220px] h-[220px]">
-            <canvas id="canvas" className="w-full"></canvas>
-          </div>
-          <div className=" grid grid-cols-[min-content_1fr]">
-            <div className="mx-2">DATE&nbsp;ISSUANCE</div>
+          <div className=" grid grid-cols-[min-content_1fr] text-sm">
+            <div className="mx-2">DATE&nbsp;OF&nbsp;ISSUANCE</div>
             <div className="border-b-2 border-black text-center">
               {data?.dateIssuance}
             </div>

@@ -18,6 +18,7 @@ initializeApp();
 // https://firebase.google.com/docs/functions/get-started
 
 exports.printRecords = onRequest({ cors: true }, async (request, response) => {
+  logger.log("body: ", request.body.company)
   if (request.method == "POST") {
     let result = {};
     let uid = "";

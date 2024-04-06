@@ -170,7 +170,7 @@ function Records() {
     auth.currentUser
       .getIdToken(false)
       .then(function (idToken) {
-        return fetch("http://127.0.0.1:5001/binan-health-certificate/us-central1/printRecords", {
+        return fetch("https://printrecords-q24eqvlj5q-uc.a.run.app/", {
           method: "POST",
           headers: new Headers({
             "Authorization": "Bearer " + idToken,
