@@ -13,6 +13,7 @@ import { baranggays, nationalities } from "@/config/local";
 import { doc, getDoc } from "firebase/firestore";
 import { db } from "@/config/firebase";
 import { months } from "@/config/local";
+import { useRouter } from "next/navigation";
 
 const currentDate = new Date();
 const currentYear = currentDate.getFullYear();
@@ -26,7 +27,7 @@ const reversedYears = years.reverse();
 
 function Analytics() {
   const [analyticsYear, setAnalyticsYear] = useState(currentYear.toString());
-  const { currentUser } = useContext(AuthContext);
+  const { currentUser, isLoading } = useContext(AuthContext);
 
   const [dataAvailable, setDataAvailable] = useState(false);
   const [totalsData, setTotalsData] = useState({
@@ -37,6 +38,8 @@ function Analytics() {
   const [categoryData, setCategoryData] = useState({});
   const [monthlyData, setMonthlyData] = useState({});
   const [natinalitiesData, setNationalitiesData] = useState({});
+
+  const router = useRouter();
 
   const getData = () => {
     getDoc(doc(db, "analytics", analyticsYear))
@@ -61,8 +64,16 @@ function Analytics() {
 
           setCategoryData([
             ["Category", "Count"],
-            ["Food", res.data().category["food"]?res.data().category["food"]:0],
-            ["Nonfood", res.data().category["nonfood"]?res.data().category["nonfood"]:0],
+            [
+              "Food",
+              res.data().category["food"] ? res.data().category["food"] : 0,
+            ],
+            [
+              "Nonfood",
+              res.data().category["nonfood"]
+                ? res.data().category["nonfood"]
+                : 0,
+            ],
           ]);
 
           setBaranggayData([
@@ -100,92 +111,94 @@ function Analytics() {
     }
 
     if (!initialized.current) {
-
-
       initialized.current = true;
     }
   }, []);
 
-  useEffect(()=>{
+  useEffect(() => {
     getData();
-  },[analyticsYear])
+  }, [analyticsYear]);
 
-  return (
-    <div className=" p-4">
-      <h1 className="pl-4 pb-2 text-2xl font-semibold">Analytics</h1>
-      <SelectOption
-        title="Select Year"
-        data={reversedYears}
-        className={"w-[20ch] m-1"}
-        value={analyticsYear}
-        onValueChange={(value) => {
-          setAnalyticsYear(value);
-          getData();
-        }}
-      />{" "}
-      <br />
-      {dataAvailable ? (
-        <>
-          <div className="grid gap-2 grid-cols-[repeat(auto-fit,minmax(300px,1fr))] place-items-center">
-            <div className="shadow w-full text-lg p-4 border text-center bg-accent">
-              <span className="text-2xl font-bold text-blue-950">
-                {totalsData.certificates}
-              </span>
-              <br />
-              <span className="">TOTAL 2024 CERTIFICATE</span>
+  if (currentUser) {
+    return (
+      <div className=" p-4">
+        <h1 className="pl-4 pb-2 text-2xl font-semibold">Analytics</h1>
+        <SelectOption
+          title="Select Year"
+          data={reversedYears}
+          className={"w-[20ch] m-1"}
+          value={analyticsYear}
+          onValueChange={(value) => {
+            setAnalyticsYear(value);
+            getData();
+          }}
+        />{" "}
+        <br />
+        {dataAvailable ? (
+          <>
+            <div className="grid gap-2 grid-cols-[repeat(auto-fit,minmax(300px,1fr))] place-items-center">
+              <div className="shadow w-full text-lg p-4 border text-center bg-accent">
+                <span className="text-2xl font-bold text-blue-950">
+                  {totalsData.certificates}
+                </span>
+                <br />
+                <span className="">TOTAL 2024 CERTIFICATE</span>
+              </div>
+              <div className="shadow w-full text-lg p-4 border text-center bg-accent">
+                <span className="text-2xl font-bold text-blue-950">
+                  {totalsData.employees}
+                </span>
+                <br />
+                <span className="">NEW 2024 EMPLOYEE</span>
+              </div>
             </div>
-            <div className="shadow w-full text-lg p-4 border text-center bg-accent">
-              <span className="text-2xl font-bold text-blue-950">
-                {totalsData.employees}
-              </span>
-              <br />
-              <span className="">NEW 2024 EMPLOYEE</span>
+            <br />
+            <div className="w-full border bg-accent p-4 mb-8 overflow-x-auto">
+              <div className="text-xl font-semibold pb-2">Category</div>
+              <Chart
+                chartType="ColumnChart"
+                data={categoryData}
+                height="400px"
+                // width="1000px"
+              />
             </div>
-          </div>
-          <br />
-          <div className="w-full border bg-accent p-4 mb-8 overflow-x-auto">
-            <div className="text-xl font-semibold pb-2">Category</div>
-            <Chart
-              chartType="ColumnChart"
-              data={categoryData}
-              height="400px"
-              // width="1000px"
-            />
-          </div>
-          <div className="w-full border bg-accent p-4 mb-8 overflow-x-auto">
-            <div className="text-xl font-semibold pb-2">Baranggays</div>
-            <Chart
-              chartType="ColumnChart"
-              data={baranggayData}
-              height="400px"
-              // width="1000px"
-            />
-          </div>
-          <div className="w-full border bg-accent p-4 my-8 overflow-x-auto">
-            <div className="text-xl font-semibold pb-2">Monthly chart</div>
-            <Chart
-              chartType="ColumnChart"
-              data={monthlyData}
-              height="400px"
-              // width="1000px"
-            />
-          </div>
-          <div className="w-full border bg-accent p-4 my-8 overflow-x-auto">
-            <div className="text-xl font-semibold pb-2">Nationalities</div>
-            <Chart
-              chartType="PieChart"
-              data={natinalitiesData}
-              options={{ sliceVisibilityThreshold: 1 / 196 }}
-              height="400px"
-              // width="1000px"
-            />
-          </div>
-        </>
-      ) : (
-        <>not available</>
-      )}
-    </div>
-  );
+            <div className="w-full border bg-accent p-4 mb-8 overflow-x-auto">
+              <div className="text-xl font-semibold pb-2">Baranggays</div>
+              <Chart
+                chartType="ColumnChart"
+                data={baranggayData}
+                height="400px"
+                // width="1000px"
+              />
+            </div>
+            <div className="w-full border bg-accent p-4 my-8 overflow-x-auto">
+              <div className="text-xl font-semibold pb-2">Monthly chart</div>
+              <Chart
+                chartType="ColumnChart"
+                data={monthlyData}
+                height="400px"
+                // width="1000px"
+              />
+            </div>
+            <div className="w-full border bg-accent p-4 my-8 overflow-x-auto">
+              <div className="text-xl font-semibold pb-2">Nationalities</div>
+              <Chart
+                chartType="PieChart"
+                data={natinalitiesData}
+                options={{ sliceVisibilityThreshold: 1 / 196 }}
+                height="400px"
+                // width="1000px"
+              />
+            </div>
+          </>
+        ) : (
+          <>not available</>
+        )}
+      </div>
+    );
+  } else {
+    return <>Not Authorized</>;
+  }
 }
 
 const SelectOption = ({ title, data, className, onValueChange, value }) => {

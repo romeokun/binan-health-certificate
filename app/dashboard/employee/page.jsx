@@ -173,117 +173,121 @@ function Employee() {
     });
   };
 
-  return (
-    <>
-      <div className="grid mt-2 grid-cols-[1fr_min-content]">
-        <div className="grid content-center">
-          <span>
-            Showing {!searchParams.has("filter") && "All"}
-            {searchParams.has("filter") &&
-              searchParams.has("name") &&
-              searchParams.get("name") + " "}
-          </span>
-        </div>
+  if (currentUser) {
+    return (
+      <>
+        <div className="grid mt-2 grid-cols-[1fr_min-content]">
+          <div className="grid content-center">
+            <span>
+              Showing {!searchParams.has("filter") && "All"}
+              {searchParams.has("filter") &&
+                searchParams.has("name") &&
+                searchParams.get("name") + " "}
+            </span>
+          </div>
 
-        <div className="grid grid-cols-[min-content_min-content_min-content]">
-          <Button
-            className="mx-1"
-            onClick={() => {
-              setShowFilter(!showFilter);
-            }}
-          >
-            Filter
-          </Button>
-          <Button
-            className="mx-1"
-            onClick={() => {
-              setShowNewDialog(true);
-            }}
-          >
-            New
-          </Button>
-          <Button
-            id="reload-table"
-            onClick={handleTableReload}
-            className="mx-1"
-            variant="outline"
-          >
-            <RotateCcw />
-          </Button>
-        </div>
-      </div>
-      <Filter hidden={showFilter} searchParams={searchParams} />
-      <ScrollArea className="mt-4 ">
-        <Table>
-          <TableCaption>
-            {/* {query?.docs && !tableQuerying && "Showing 1 of 10" } */}
-            {!tableQuery && !tableQuerying && "Nothing to Show"}
-          </TableCaption>
-          <TableHeader>
-            <TableRow>
-              <TableHead className="w-[200px]">Created</TableHead>
-              <TableHead className="">Name</TableHead>
-              <TableHead className="w-[10ch]">Sex</TableHead>
-              <TableHead className="w-[10ch]">Birthyear</TableHead>
-              <TableHead className="w-[100px]"></TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {tableQuery?.map((data) => {
-              const created = data.data().created.toDate();
-              return (
-                <TableRow key={data.id}>
-                  <TableCell className="font-medium">
-                    {format(created, "PP")}
-                  </TableCell>
-                  <TableCell>{data.data().name}</TableCell>
-                  <TableCell className="">
-                    {data.data().sex.charAt(0).toUpperCase() +
-                      data.data().sex.slice(1)}
-                  </TableCell>
-                  <TableCell className="">{data.data().birthyear}</TableCell>
-                  <TableCell className="grid place-items-center">
-                    <Link
-                      href={{
-                        pathname: "/dashboard/employee",
-                        query: { id: data.id },
-                      }}
-                    >
-                      <MoreHorizontal />
-                    </Link>
-                  </TableCell>
-                </TableRow>
-              );
-            })}
-          </TableBody>
-        </Table>
-        <div className="grid place-items-center">
-          {tableQuerying ? (
-            "loading"
-          ) : (
+          <div className="grid grid-cols-[min-content_min-content_min-content]">
             <Button
-              onClick={handleLoadMore}
-              disabled={tableQuerying || endOfQuery.current}
+              className="mx-1"
+              onClick={() => {
+                setShowFilter(!showFilter);
+              }}
+            >
+              Filter
+            </Button>
+            <Button
+              className="mx-1"
+              onClick={() => {
+                setShowNewDialog(true);
+              }}
+            >
+              New
+            </Button>
+            <Button
+              id="reload-table"
+              onClick={handleTableReload}
+              className="mx-1"
               variant="outline"
             >
-              Load More
+              <RotateCcw />
             </Button>
-          )}
+          </div>
         </div>
-      </ScrollArea>
-      <View
-        open={showDialog}
-        employee={employee}
-        isQuerying={isQuerying}
-        set={setShowDialog}
-      ></View>
-      <NewDialog
-        open={showNewDialog}
-        set={setShowNewDialog}
-        reload={handleTableReload}
-      ></NewDialog>
-    </>
-  );
+        <Filter hidden={showFilter} searchParams={searchParams} />
+        <ScrollArea className="mt-4 ">
+          <Table>
+            <TableCaption>
+              {/* {query?.docs && !tableQuerying && "Showing 1 of 10" } */}
+              {!tableQuery && !tableQuerying && "Nothing to Show"}
+            </TableCaption>
+            <TableHeader>
+              <TableRow>
+                <TableHead className="w-[200px]">Created</TableHead>
+                <TableHead className="">Name</TableHead>
+                <TableHead className="w-[10ch]">Sex</TableHead>
+                <TableHead className="w-[10ch]">Birthyear</TableHead>
+                <TableHead className="w-[100px]"></TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {tableQuery?.map((data) => {
+                const created = data.data().created.toDate();
+                return (
+                  <TableRow key={data.id}>
+                    <TableCell className="font-medium">
+                      {format(created, "PP")}
+                    </TableCell>
+                    <TableCell>{data.data().name}</TableCell>
+                    <TableCell className="">
+                      {data.data().sex.charAt(0).toUpperCase() +
+                        data.data().sex.slice(1)}
+                    </TableCell>
+                    <TableCell className="">{data.data().birthyear}</TableCell>
+                    <TableCell className="grid place-items-center">
+                      <Link
+                        href={{
+                          pathname: "/dashboard/employee",
+                          query: { id: data.id },
+                        }}
+                      >
+                        <MoreHorizontal />
+                      </Link>
+                    </TableCell>
+                  </TableRow>
+                );
+              })}
+            </TableBody>
+          </Table>
+          <div className="grid place-items-center">
+            {tableQuerying ? (
+              "loading"
+            ) : (
+              <Button
+                onClick={handleLoadMore}
+                disabled={tableQuerying || endOfQuery.current}
+                variant="outline"
+              >
+                Load More
+              </Button>
+            )}
+          </div>
+        </ScrollArea>
+        <View
+          open={showDialog}
+          employee={employee}
+          isQuerying={isQuerying}
+          set={setShowDialog}
+        ></View>
+        <NewDialog
+          open={showNewDialog}
+          set={setShowNewDialog}
+          reload={handleTableReload}
+        ></NewDialog>
+      </>
+    );
+  } else {
+    return <>Not Authorized</>;
+  }
 }
 
 const View = ({ children, employee, isQuerying, set, ...props }) => {

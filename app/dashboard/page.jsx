@@ -50,6 +50,7 @@ import {
 } from "firebase/firestore";
 import { db } from "@/config/firebase";
 import { auth } from "@/config/firebase";
+import { Loading } from "@/components/loading";
 
 import { months } from "@/config/local";
 const currentDate = new Date();
@@ -215,88 +216,95 @@ function Records() {
       });
   };
 
-  return (
-    <>
-      <div className="grid mt-2 grid-cols-[1fr_min-content]">
-        <div className="grid content-center">
-          <span>
-            Showing {!searchParams.has("filter") && "All"}
-            {searchParams.has("filter") &&
-              searchParams.has("month") &&
-              months.find((x) => x.value == searchParams.get("month"))?.text +
-                " "}
-            {searchParams.has("filter") &&
-              searchParams.has("year") &&
-              searchParams.get("year") + " "}
-            {searchParams.has("filter") &&
-              searchParams.has("company") &&
-              "Company: " + searchParams.get("company") + " "}
-          </span>
-        </div>
-        <div className="grid grid-cols-[min-content_min-content_min-content]">
-          <Button
-            className="mx-1"
-            onClick={() => {
-              setShowFilter(!showFilter);
-            }}
-          >
-            Filter
-          </Button>
-          <Button className="mx-1" onClick={handlePrint}>
-            Print
-          </Button>
-          <Button
-            className="mx-1"
-            variant="outline"
-            onClick={getCertificatesQuery}
-          >
-            <RotateCcw />
-          </Button>
-        </div>
-      </div>
-      <Filter hidden={showFilter} searchParams={searchParams} />
-      <div className="mt-4">
-        <Table>
-          <TableCaption>
-            {!tableQuery && !tableQuerying && "Nothing to Show"}
-          </TableCaption>
-          <TableHeader>
-            <TableRow>
-              <TableHead className="w-[200px]">Name</TableHead>
-              <TableHead className="w-[200px]">Place of Work</TableHead>
-              <TableHead className="">Occupation</TableHead>
-              <TableHead className="text-center">Date Issued</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {!tableQuerying &&
-              tableQuery?.map((data) => {
-                return <CertificateRow key={data.id} data={data} />;
-              })}
-          </TableBody>
-        </Table>
-        <div className="grid place-items-center">
-          {tableQuerying ? (
-            "loading"
-          ) : (
+  if (currentUser) {
+    return (
+      <>
+        <div className="grid mt-2 grid-cols-[1fr_min-content]">
+          <div className="grid content-center">
+            <span>
+              Showing {!searchParams.has("filter") && "All"}
+              {searchParams.has("filter") &&
+                searchParams.has("month") &&
+                months.find((x) => x.value == searchParams.get("month"))?.text +
+                  " "}
+              {searchParams.has("filter") &&
+                searchParams.has("year") &&
+                searchParams.get("year") + " "}
+              {searchParams.has("filter") &&
+                searchParams.has("company") &&
+                "Company: " + searchParams.get("company") + " "}
+            </span>
+          </div>
+          <div className="grid grid-cols-[min-content_min-content_min-content]">
             <Button
-              onClick={handleLoadMore}
-              disabled={tableQuerying || endOfQuery.current}
-              variant="outline"
+              className="mx-1"
+              onClick={() => {
+                setShowFilter(!showFilter);
+              }}
             >
-              Load More
+              Filter
             </Button>
-          )}
+            <Button className="mx-1" onClick={handlePrint}>
+              Print
+            </Button>
+            <Button
+              className="mx-1"
+              variant="outline"
+              onClick={getCertificatesQuery}
+            >
+              <RotateCcw />
+            </Button>
+          </div>
         </div>
-      </div>
-      <View
-        open={showDialog}
-        set={setShowDialog}
-        certificate={certificate}
-        reloadCertificate={reloadCertificate}
-      />
-    </>
-  );
+        <Filter hidden={showFilter} searchParams={searchParams} />
+        <div className="mt-4">
+          <Table>
+            <TableCaption>
+              {!tableQuery && !tableQuerying && "Nothing to Show"}
+            </TableCaption>
+            <TableHeader>
+              <TableRow>
+                <TableHead className="w-[200px]">Name</TableHead>
+                <TableHead className="w-[200px]">Place of Work</TableHead>
+                <TableHead className="">Occupation</TableHead>
+                <TableHead className="text-center">Date Issued</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {!tableQuerying &&
+                tableQuery?.map((data) => {
+                  return <CertificateRow key={data.id} data={data} />;
+                })}
+            </TableBody>
+          </Table>
+          <div className="grid place-items-center">
+            {tableQuerying ? (
+              "loading"
+            ) : (
+              <Button
+                onClick={handleLoadMore}
+                disabled={tableQuerying || endOfQuery.current}
+                variant="outline"
+              >
+                Load More
+              </Button>
+            )}
+          </div>
+        </div>
+        <View
+          open={showDialog}
+          set={setShowDialog}
+          certificate={certificate}
+          reloadCertificate={reloadCertificate}
+        />
+      </>
+    );
+  } else {
+    return <>Not Authorized</>
+  }
+
+
+  
 }
 
 const CertificateRow = ({ data, ...props }) => {

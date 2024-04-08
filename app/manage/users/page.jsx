@@ -140,87 +140,91 @@ function Manage() {
       });
   };
 
-  return (
-    <>
-      <div className="grid grid-cols-[1fr_min-content_min-content]">
-        <div></div>
-        <Button
-          className="mx-1"
-          onClick={() => {
-            // setShowFilter(!showFilter);
-          }}
-        >
-          Filter
-        </Button>
-        <Button
-          className="mx-1"
-          onClick={() => {
-            setShowNewDialog(true);
-          }}
-        >
-          New
-        </Button>
-      </div>
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead className="w-[200px]">Created</TableHead>
-            <TableHead className="w-[250px]">User UID</TableHead>
-            <TableHead className="">Name</TableHead>
-            <TableHead className="w-[100px]">Role</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {table.map((element) => {
-            if (!namesQuery.current.includes(element.uid)) {
-              namesQuery.current.push(element.uid);
-              getDoc(doc(db, "users", element.uid)).then((res) => {
-                setUserNames((prev) => ({
-                  ...prev,
-                  [element.uid]: res.data(),
-                }));
-              });
-            }
-            return (
-              <TableRow
-                key={element.uid}
-                onClick={() => {
-                  router.push("/manage/users?id=" + element.uid);
-                }}
-                className="hover:cursor-pointer"
-              >
-                <TableCell>{element.created}</TableCell>
-                <TableCell>{element.uid}</TableCell>
-                <TableCell>{userNames[element.uid]?.name}</TableCell>
-                <TableCell>
-                  {userNames[element.uid]?.role.charAt(0).toUpperCase() +
-                    userNames[element.uid]?.role.slice(1)}
-                </TableCell>
-              </TableRow>
-            );
-          })}
-        </TableBody>
-      </Table>
-      <div className="grid place-items-center mt-2">
-        {status == "loading" && <>Loading</>}
-        {status == "ok" && (
+  if (currentUser) {
+    return (
+      <>
+        <div className="grid grid-cols-[1fr_min-content_min-content]">
+          <div></div>
           <Button
-            onClick={handleLoadMore}
-            disabled={tableQuerying || !nextPageToken.current}
-            variant="outline"
+            className="mx-1"
+            onClick={() => {
+              // setShowFilter(!showFilter);
+            }}
           >
-            Load More
+            Filter
           </Button>
-        )}
-      </div>
-      <NewDialog
-        open={showNewDialog}
-        set={setShowNewDialog}
-        reload={initialize}
-      ></NewDialog>
-      <View refresh={initialize} />
-    </>
-  );
+          <Button
+            className="mx-1"
+            onClick={() => {
+              setShowNewDialog(true);
+            }}
+          >
+            New
+          </Button>
+        </div>
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead className="w-[200px]">Created</TableHead>
+              <TableHead className="w-[250px]">User UID</TableHead>
+              <TableHead className="">Name</TableHead>
+              <TableHead className="w-[100px]">Role</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {table.map((element) => {
+              if (!namesQuery.current.includes(element.uid)) {
+                namesQuery.current.push(element.uid);
+                getDoc(doc(db, "users", element.uid)).then((res) => {
+                  setUserNames((prev) => ({
+                    ...prev,
+                    [element.uid]: res.data(),
+                  }));
+                });
+              }
+              return (
+                <TableRow
+                  key={element.uid}
+                  onClick={() => {
+                    router.push("/manage/users?id=" + element.uid);
+                  }}
+                  className="hover:cursor-pointer"
+                >
+                  <TableCell>{element.created}</TableCell>
+                  <TableCell>{element.uid}</TableCell>
+                  <TableCell>{userNames[element.uid]?.name}</TableCell>
+                  <TableCell>
+                    {userNames[element.uid]?.role.charAt(0).toUpperCase() +
+                      userNames[element.uid]?.role.slice(1)}
+                  </TableCell>
+                </TableRow>
+              );
+            })}
+          </TableBody>
+        </Table>
+        <div className="grid place-items-center mt-2">
+          {status == "loading" && <>Loading</>}
+          {status == "ok" && (
+            <Button
+              onClick={handleLoadMore}
+              disabled={tableQuerying || !nextPageToken.current}
+              variant="outline"
+            >
+              Load More
+            </Button>
+          )}
+        </div>
+        <NewDialog
+          open={showNewDialog}
+          set={setShowNewDialog}
+          reload={initialize}
+        ></NewDialog>
+        <View refresh={initialize} />
+      </>
+    );
+  } else {
+    return <>Not Authorized</>;
+  }
 }
 
 const NewDialog = ({ children, set, reload, ...props }) => {

@@ -102,64 +102,68 @@ function Manage() {
     });
   };
 
-  return (
-    <>
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead className="w-[250px]">Time</TableHead>
-            <TableHead className="w-[150px]">User</TableHead>
-            <TableHead className="w-[150px]">Target</TableHead>
-            <TableHead className="">Action</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {table.map((element) => {
-            if (!namesQuery.current.includes(element.data().userUID)) {
-              namesQuery.current.push(element.data().userUID);
-              getDoc(doc(db, "users", element.data().userUID)).then((res) => {
-                setUserNames((prev) => ({
-                  ...prev,
-                  [element.data().userUID]: res.data().name,
-                }));
-              });
-            }
-            return (
-              <TableRow key={element.id}>
-                <TableCell>
-                  {format(element.data().created.toDate(), "Pp")}
-                </TableCell>
-                <TableCell>{userNames[element.data().userUID]}</TableCell>
-                <TableCell>
-                  {typeof element.data().target == "object"
-                    ? element.data().target.id
-                    : element.data().target}
-                </TableCell>
-                <TableCell>{element.data().action.text}</TableCell>
-              </TableRow>
-            );
-          })}
-        </TableBody>
-      </Table>
-      <div className="grid place-items-center mt-2">
-        {tableQuerying || error.isError ? (
-          tableQuerying ? (
-            "Loading"
+  if (currentUser) {
+    return (
+      <>
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead className="w-[250px]">Time</TableHead>
+              <TableHead className="w-[150px]">User</TableHead>
+              <TableHead className="w-[150px]">Target</TableHead>
+              <TableHead className="">Action</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {table.map((element) => {
+              if (!namesQuery.current.includes(element.data().userUID)) {
+                namesQuery.current.push(element.data().userUID);
+                getDoc(doc(db, "users", element.data().userUID)).then((res) => {
+                  setUserNames((prev) => ({
+                    ...prev,
+                    [element.data().userUID]: res.data().name,
+                  }));
+                });
+              }
+              return (
+                <TableRow key={element.id}>
+                  <TableCell>
+                    {format(element.data().created.toDate(), "Pp")}
+                  </TableCell>
+                  <TableCell>{userNames[element.data().userUID]}</TableCell>
+                  <TableCell>
+                    {typeof element.data().target == "object"
+                      ? element.data().target.id
+                      : element.data().target}
+                  </TableCell>
+                  <TableCell>{element.data().action.text}</TableCell>
+                </TableRow>
+              );
+            })}
+          </TableBody>
+        </Table>
+        <div className="grid place-items-center mt-2">
+          {tableQuerying || error.isError ? (
+            tableQuerying ? (
+              "Loading"
+            ) : (
+              error.message
+            )
           ) : (
-            error.message
-          )
-        ) : (
-          <Button
-            onClick={handleLoadMore}
-            disabled={tableQuerying || endOfQuery.current}
-            variant="outline"
-          >
-            Load More
-          </Button>
-        )}
-      </div>
-    </>
-  );
+            <Button
+              onClick={handleLoadMore}
+              disabled={tableQuerying || endOfQuery.current}
+              variant="outline"
+            >
+              Load More
+            </Button>
+          )}
+        </div>
+      </>
+    );
+  } else {
+    return <>Not Authorized</>;
+  }
 }
 
 export default Manage;

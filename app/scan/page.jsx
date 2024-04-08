@@ -10,7 +10,7 @@ function Page() {
   const pathname = usePathname();
   const html5QrcodeScanner = useRef(null);
   const { currentUser, isLoading } = useContext(AuthContext);
-  
+
   function onScanSuccess(decodedText, decodedResult) {
     let result = decodedText.split("-");
     if (result[0] === "binancert") {
@@ -51,13 +51,17 @@ function Page() {
     };
   }, [pathname]);
 
-  return (
-    <div className="shadow-md w-full h-full md:w-[720px] md:min-h-[80%] rounded bg-white">
-      <div className="">
-        <div className="" id={cameraDivID}></div>
+  if (currentUser) {
+    return (
+      <div className="shadow-md w-full h-full md:w-[720px] md:min-h-[80%] rounded bg-white">
+        <div className="">
+          <div className="" id={cameraDivID}></div>
+        </div>
       </div>
-    </div>
-  );
+    );
+  } else {
+    return <>Not Authorized</>;
+  }
 }
 
 export default Page;
