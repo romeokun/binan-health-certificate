@@ -371,16 +371,17 @@ const View = ({ certificate, children, set, reloadCertificate, ...props }) => {
 
   useEffect(() => {
     if (certificate) {
+      console.log("table ", certificate.data().exams);
+      
+      let tmp = certificate.data()
+      if (!certificate.data().exams) {
+        tmp = { ...tmp, exams: defaultTableData }
+      }
+
       setData({
-        ...certificate.data(),
+        ...tmp,
         id: certificate.id,
       });
-
-      if (!data?.exams) {
-        setData((prev) => {
-          return { ...prev, exams: defaultTableData };
-        });
-      }
     }
   }, [certificate]);
 

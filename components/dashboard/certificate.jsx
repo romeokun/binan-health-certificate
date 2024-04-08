@@ -216,33 +216,35 @@ export const Certificate = React.forwardRef(({ data }, ref) => {
         </div>
         <div className="text-center">X-RAY/STOOL/OTHER EXAM</div>
         <table className="text-center">
-          {tableData.map((x) => {
-            return (
-              <tr className="h-[28px]" key={x.key}>
-                <td
-                  className={
-                    "border border-black " + (x.key == 0 ? "font-bold" : "")
-                  }
-                >
-                  {x["col-1"]}
-                </td>
-                <td
-                  className={
-                    "border border-black " + (x.key == 0 ? "font-bold" : "")
-                  }
-                >
-                  {x["col-2"]}
-                </td>
-                <td
-                  className={
-                    "border border-black " + (x.key == 0 ? "font-bold" : "")
-                  }
-                >
-                  {x["col-3"]}
-                </td>
-              </tr>
-            );
-          })}
+          <tbody>
+            {tableData.map((x) => {
+              return (
+                <tr className="h-[28px]" key={x.key}>
+                  <td
+                    className={
+                      "border border-black " + (x.key == 0 ? "font-bold" : "")
+                    }
+                  >
+                    {x["col-1"]}
+                  </td>
+                  <td
+                    className={
+                      "border border-black " + (x.key == 0 ? "font-bold" : "")
+                    }
+                  >
+                    {x["col-2"]}
+                  </td>
+                  <td
+                    className={
+                      "border border-black " + (x.key == 0 ? "font-bold" : "")
+                    }
+                  >
+                    {x["col-3"]}
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
         </table>
       </div>
     </div>
