@@ -49,11 +49,13 @@ function Page({ params }) {
         </div>
       </div>
       <div className="mt-4 text-center">Certificate - {data.employeeName}</div>
-      <div className="max-w-full overflow-x-auto grid place-content-center">
+      <div className="max-w-full overflow-x-auto">
         {data.error ? (
           <div className="bg-red-400">{data.error}</div>
         ) : (
-          <Certificate data={data} />
+          <div className="w-min m-auto">
+            <Certificate data={data} />
+          </div>
         )}
       </div>
     </main>

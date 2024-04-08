@@ -67,7 +67,7 @@ export const Certificate = React.forwardRef(({ data }, ref) => {
   }, []);
 
   return (
-    <div ref={ref}>
+    <div ref={ref} className="w-min">
       <div className="border w-[700px] h-[500px] p-[10px] bg-slate-300 grid grid-rows-[100px_70px_1fr]">
         <div className="grid grid-cols-12 place-items-center place-content-center">
           <div className=" col-span-2 w-[100px] h-[100px] relative">
