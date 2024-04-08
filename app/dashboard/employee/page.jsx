@@ -964,6 +964,8 @@ const NewDialog = ({ children, set, reload, ...props }) => {
     birthyear: "",
     sex: "",
   });
+  const currentDate = new Date();
+  const currentYear = currentDate.getFullYear();
 
   const router = useRouter();
   const handleOnOpenChange = (open) => {
@@ -971,6 +973,7 @@ const NewDialog = ({ children, set, reload, ...props }) => {
     if (!open) {
       setData({
         name: "",
+        currentAge: 0,
         birthyear: "",
         sex: "",
         created: "",
@@ -1076,16 +1079,20 @@ const NewDialog = ({ children, set, reload, ...props }) => {
             />
           </div>
           <div className="grid grid-cols-4 items-center gap-4">
-            <Label className="text-right">Birthyear</Label>
+            <Label className="text-right">Current age</Label>
             <Input
               required
               type="text"
               pattern="[0-9]+"
               className="col-span-3 disabled:cursor-default disabled:opacity-100"
-              value={data.birthyear}
+              value={data.currentAge}
               onChange={(e) => {
-                if (!e.target.value.match("[^0-9]$")) {
-                  setData({ ...data, birthyear: e.target.value });
+                if (!e.target.value.match("[^0-9]$") && e.target.value != "") {
+                  setData({
+                    ...data,
+                    currentAge: e.target.value,
+                    birthyear: currentYear - e.target.value,
+                  });
                 }
               }}
             />
