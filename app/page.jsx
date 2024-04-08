@@ -3,6 +3,9 @@ import { useEffect, useId, useRef, useState } from "react";
 import { Html5QrcodeScanner } from "html5-qrcode";
 import { useRouter, usePathname } from "next/navigation";
 import { Button } from "@/components/ui/button";
+import Image from "next/image";
+import NavLogo from "@/public/bch-logo.png";
+import Banner from "@/public/banner1.jpg";
 
 export default function Home() {
   const router = useRouter();
@@ -41,16 +44,22 @@ export default function Home() {
 
   return (
     <main>
-      <div className="p-4 bg-slate-800 text-white text-lg">
-        Binan City Health Office
+      <div className="p-4 grid grid-cols-[min-content_1fr] border-b gap-2">
+        <div className="relative w-[200px]">
+          <Image src={NavLogo} alt="binan logo" />
+        </div>
+        <div className="grid content-center">
+          <span>Office Of The City Health Officer</span>
+        </div>
+      </div>
+      <div className="relative">
+        <Image src={Banner} alt="binan logo" />
       </div>
       <section className=" p-6">
-        Lorem ipsum dolor, sit amet consectetur adipisicing elit. Illum magnam
-        iste obcaecati iusto eum odit, perspiciatis minus, culpa sapiente
-        deserunt nam dolorem distinctio minima fugit ut tenetur atque sit dolor!
+        Welcome to Biñan City Health Office Website.
       </section>
       <section className="bg-accent p-6">
-        <div>Scan a Certificate</div>
+        <div>Scan a Biñan Health Certificate</div>
 
         {show && (
           <Button

@@ -4,6 +4,8 @@ import { Certificate } from "@/components/dashboard/certificate";
 import Link from "next/link";
 import { db } from "@/config/firebase";
 import { getDoc, doc } from "firebase/firestore";
+import Image from "next/image";
+import NavLogo from "@/public/bch-logo.png";
 
 function Page({ params }) {
   const defaultData = {
@@ -21,7 +23,6 @@ function Page({ params }) {
     barangay: "",
     issuerName: "",
     dateIssuance: "2024-1-1",
-    
   };
   const [data, setData] = useState(defaultData);
 
@@ -37,12 +38,17 @@ function Page({ params }) {
 
   return (
     <main>
-      <Link href={"/"}>
-        <div className="p-4 bg-slate-800 text-white text-lg">
-          Binan City Health Office
+      <div className="p-4 grid grid-cols-[min-content_1fr] border-b gap-2">
+        <div className="relative w-[200px]">
+          <Link href={"/"}>
+            <Image src={NavLogo} alt="binan logo" />
+          </Link>
         </div>
-      </Link>
-      <div className="mt-4 text-center">Certificate - {params.id}</div>
+        <div className="grid content-center">
+          <span>Office Of The City Health Officer</span>
+        </div>
+      </div>
+      <div className="mt-4 text-center">Certificate - {data.employeeName}</div>
       <div className="max-w-full overflow-x-auto grid place-content-center">
         {data.error ? (
           <div className="bg-red-400">{data.error}</div>

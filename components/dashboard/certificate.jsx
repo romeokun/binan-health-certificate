@@ -173,8 +173,8 @@ export const Certificate = React.forwardRef(({ data }, ref) => {
                 </span>
               </div>
             </div>
-            <div className="grid grid-cols-1 gap-4 place-content-center place-items-center pt-4">
-              <div className="w-[200px] text-xs grid grid-rows-[1fr_min-content]">
+            <div className="grid grid-cols-1 gap-4 content-stretch place-items-center pt-4">
+              <div className="w-[200px] h-full text-xs grid grid-rows-[1fr_min-content]">
                 <span className="text-center text-[.6rem] self-end"></span>
                 <span className="border-t-2 border-black text-center">
                   SIGNATURE&nbsp;OF&nbsp;HOLDER
