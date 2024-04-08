@@ -68,7 +68,7 @@ exports.printRecords = onRequest({ cors: true }, async (request, response) => {
       .then((snap) => {
         const arr = [];
         snap.forEach((x) => {
-          const { created, ...tmp } = x.data();
+          const { created, exams, ...tmp } = x.data();
           tmp.dateIssued = tmp.dateIssued.full;
 
           arr.push(tmp);
