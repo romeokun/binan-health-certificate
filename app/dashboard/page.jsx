@@ -376,7 +376,7 @@ const View = ({ certificate, children, set, reloadCertificate, ...props }) => {
         id: certificate.id,
       });
 
-      if (!data.exams) {
+      if (!data?.exams) {
         setData((prev) => {
           return { ...prev, exams: defaultTableData };
         });
