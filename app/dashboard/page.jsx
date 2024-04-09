@@ -50,7 +50,7 @@ import {
 } from "firebase/firestore";
 import { db } from "@/config/firebase";
 import { auth } from "@/config/firebase";
-import { Loading } from "@/components/loading";
+import Link from "next/link";
 
 import { months } from "@/config/local";
 const currentDate = new Date();
@@ -300,11 +300,8 @@ function Records() {
       </>
     );
   } else {
-    return <>Not Authorized</>
+    return <>Not Authorized</>;
   }
-
-
-  
 }
 
 const CertificateRow = ({ data, ...props }) => {
@@ -380,10 +377,10 @@ const View = ({ certificate, children, set, reloadCertificate, ...props }) => {
   useEffect(() => {
     if (certificate) {
       console.log("table ", certificate.data().exams);
-      
-      let tmp = certificate.data()
+
+      let tmp = certificate.data();
       if (!certificate.data().exams) {
-        tmp = { ...tmp, exams: defaultTableData }
+        tmp = { ...tmp, exams: defaultTableData };
       }
 
       setData({
@@ -602,6 +599,9 @@ const View = ({ certificate, children, set, reloadCertificate, ...props }) => {
                   </DialogFooter>
                 </DialogContent>
               </Dialog>
+              <Link href={"/dashboard/employee?id=" + data?.employeeID}>
+                <Button>Employee</Button>
+              </Link>
               <Button onClick={handlePrint} type="">
                 Print
               </Button>
@@ -628,7 +628,7 @@ const EditCertificate = ({ data, setData }) => {
       }
     });
 
-    setData({ ...data,exams:newData});
+    setData({ ...data, exams: newData });
   };
   return (
     <div className="shadow-md border p-4 min-h-full">
