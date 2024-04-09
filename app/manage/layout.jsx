@@ -32,7 +32,7 @@ const DashLink = ({ href, children }) => {
   );
 };
 
-function layout({ children }) {
+function Layout({ children }) {
   const { currentUser, isLoading } = useContext(AuthContext);
   const [state, setState] = useState("loading");
 
@@ -77,4 +77,4 @@ function layout({ children }) {
   );
 }
 
-export default layout;
+export default Layout;
