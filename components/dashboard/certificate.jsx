@@ -175,9 +175,11 @@ export const Certificate = React.forwardRef(({ data }, ref) => {
             </div>
             <div className="grid grid-cols-1 gap-4 content-stretch place-items-center pt-4">
               <div className="w-[200px] h-full text-xs grid grid-rows-[1fr_min-content]">
-                <span className="text-center text-[.6rem] self-end"></span>
+                <span className="text-center text-[.6rem] self-end">
+                  {data?.issuerName}
+                </span>
                 <span className="border-t-2 border-black text-center">
-                  SIGNATURE&nbsp;OF&nbsp;HOLDER
+                  CITY&nbsp;HEALTH&nbsp;OFFICER
                 </span>
               </div>
             </div>
@@ -187,11 +189,9 @@ export const Certificate = React.forwardRef(({ data }, ref) => {
               <canvas id="canvas" className="w-[100px]"></canvas>
             </div>
             <div className="text-xs grid grid-rows-[1fr_min-content] px-6 mb-4">
-              <span className="text-center text-[.6rem] self-end">
-                {data?.issuerName}
-              </span>
+              <span className="text-center text-[.6rem] self-end"></span>
               <span className="border-t-2 border-black text-center">
-                CITY&nbsp;HEALTH&nbsp;OFFICER
+                SIGNATURE&nbsp;OF&nbsp;HOLDER
               </span>
             </div>
             <div className=" grid grid-cols-[min-content_1fr] text-sm">
