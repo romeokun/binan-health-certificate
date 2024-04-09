@@ -657,7 +657,7 @@ const AddCertificateDialog = ({ employee }) => {
           collectionID: "records",
           data: {
             ...data,
-            issuerName: "Mirbelle M. Benjamin, MD, MPH",
+            issuerName: "MIRABELLE M. BENJAMIN, MD, MPH",
             age: currentDate.getFullYear() - +employee.data().birthyear,
             exams: tableData,
             created: serverTimestamp(),
