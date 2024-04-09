@@ -14,7 +14,7 @@ export async function POST(request) {
       uid = user.uid;
     })
     .catch((error) => {
-      console.log("Error fetching user data:", error);      
+      console.log("Error fetching user data:", error);
       return NextResponse.json(response, { status: 403 });
     });
 
@@ -66,6 +66,14 @@ export async function POST(request) {
       }
     })
     .then(async (analyticsRef) => {
+      await firestore()
+        .collection("logs")
+        .add({
+          created: firestore.Timestamp.now(),
+          action: { text: "deleted an employee", value: "employee_delete" },
+          target: employeeRef.id,
+          userUID: uid,
+        });
       await employeeRef.delete();
       await firestore().runTransaction(async (transaction) => {
         return transaction.get(analyticsRef).then((doc) => {
