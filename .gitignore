@@ -41,3 +41,4 @@ next-env.d.ts
 firebase.json
 
 firebase-debug.log
+ui-debug.log
