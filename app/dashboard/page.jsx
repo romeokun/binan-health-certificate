@@ -103,6 +103,10 @@ function Records() {
         return [where("dateIssued.year", "==", searchParams.get("year"))];
       case "company":
         return [where("placeOfWork", "==", searchParams.get("company"))];
+      case "or":
+        return [where("or", "==", searchParams.get("or"))];
+      case "no":
+        return [where("no", "==", searchParams.get("no"))];
 
       default:
         return [];
@@ -234,6 +238,12 @@ function Records() {
               {searchParams.has("filter") &&
                 searchParams.has("company") &&
                 "Company: " + searchParams.get("company") + " "}
+              {searchParams.has("filter") &&
+                searchParams.has("or") &&
+                "Or: " + searchParams.get("or") + " "}
+              {searchParams.has("filter") &&
+                searchParams.has("no") &&
+                "No: " + searchParams.get("no") + " "}
             </span>
           </div>
           <div className="grid grid-cols-[min-content_min-content_min-content]">
@@ -788,6 +798,10 @@ const Filter = ({ searchParams, hidden }) => {
         return "byYear";
       case "company":
         return "byCompany";
+      case "or":
+        return "byOr";
+      case "no":
+        return "byNo";
 
       default:
         return "none";
@@ -798,6 +812,8 @@ const Filter = ({ searchParams, hidden }) => {
     month: searchParams.has("month") ? searchParams.get("month") : "",
     year: searchParams.has("year") ? searchParams.get("year") : "",
     company: searchParams.has("company") ? searchParams.get("company") : "",
+    or: searchParams.has("or") ? searchParams.get("or") : "",
+    no: searchParams.has("no") ? searchParams.get("no") : "",
   };
 
   const [filter, setFilter] = useState(defaultFilter);
@@ -826,6 +842,16 @@ const Filter = ({ searchParams, hidden }) => {
           search = "filter=company&company=" + filterData.company;
         }
         break;
+      case "byOr":
+        if (filterData.or != "") {
+          search = "filter=or&or=" + filterData.or;
+        }
+        break;
+      case "byNo":
+        if (filterData.no != "") {
+          search = "filter=no&no=" + filterData.no;
+        }
+        break;
     }
     router.push("/dashboard?" + search);
   };
@@ -844,6 +870,9 @@ const Filter = ({ searchParams, hidden }) => {
           { value: "byMonth", text: "By Month" },
           { value: "byYear", text: "By Year" },
           { value: "byCompany", text: "By Company" },
+          { value: "byYear", text: "By Year" },
+          { value: "byOr", text: "By OR No." },
+          { value: "byNo", text: "By No." },
         ]}
         value={filter}
         onValueChange={(value) => {
@@ -895,6 +924,28 @@ const Filter = ({ searchParams, hidden }) => {
             value={filterData.company}
             onChange={(e) => {
               setFilterData({ ...filterData, company: e.target.value });
+            }}
+          />
+        )}
+        {filter == "byOr" && (
+          <Input
+            className="col-span-2"
+            type="text"
+            placeholder="OR number"
+            value={filterData.or}
+            onChange={(e) => {
+              setFilterData({ ...filterData, or: e.target.value });
+            }}
+          />
+        )}
+        {filter == "byNo" && (
+          <Input
+            className="col-span-2"
+            type="text"
+            placeholder="No"
+            value={filterData.no}
+            onChange={(e) => {
+              setFilterData({ ...filterData, no: e.target.value });
             }}
           />
         )}
