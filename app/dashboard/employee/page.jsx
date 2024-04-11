@@ -55,6 +55,7 @@ import { auth } from "@/config/firebase";
 import { nationalities, baranggays } from "@/config/local";
 import Image from "next/image";
 import NoProfileImg from "@/public/no-profile-picture-icon.png";
+import { Loading } from "@/components/loading";
 
 const PAGELIMIT = 25;
 
@@ -123,6 +124,7 @@ function Employee() {
 
   function initializeEmployees() {
     setTableQuerying(true);
+    setQuery(null);
     loadQuery({
       collectionID: "employees",
       order: orderBy("created", "desc"),
@@ -260,7 +262,7 @@ function Employee() {
           </Table>
           <div className="grid place-items-center">
             {tableQuerying ? (
-              "loading"
+              <Loading />
             ) : (
               <Button
                 onClick={handleLoadMore}

@@ -51,6 +51,7 @@ import {
 import { db } from "@/config/firebase";
 import { auth } from "@/config/firebase";
 import Link from "next/link";
+import { Loading } from "@/components/loading";
 
 import { months } from "@/config/local";
 const currentDate = new Date();
@@ -279,7 +280,7 @@ function Records() {
           </Table>
           <div className="grid place-items-center">
             {tableQuerying ? (
-              "loading"
+              <Loading />
             ) : (
               <Button
                 onClick={handleLoadMore}
