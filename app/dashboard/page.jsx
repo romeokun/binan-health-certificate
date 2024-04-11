@@ -214,6 +214,12 @@ function Records() {
         if (searchParams.get("company")) {
           fileName += searchParams.get("company");
         }
+        if (searchParams.get("or")) {
+          fileName += searchParams.get("or");
+        }
+        if (searchParams.get("no")) {
+          fileName += searchParams.get("no");
+        }
 
         fileName = fileName ? fileName : "all";
 
