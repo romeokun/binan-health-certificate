@@ -61,6 +61,12 @@ exports.printRecords = onRequest({ cors: true }, async (request, response) => {
     if (request.body.company) {
       chain = chain.where("placeOfWork", "==", request.body.company);
     }
+    if (request.body.or) {
+      chain = chain.where("or", "==", request.body.or);
+    }
+    if (request.body.no) {
+      chain = chain.where("no", "==", request.body.no);
+    }
 
     await chain
       .orderBy("created", "desc")

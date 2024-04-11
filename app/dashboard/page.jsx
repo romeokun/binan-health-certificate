@@ -188,6 +188,12 @@ function Records() {
             company: searchParams.get("company")
               ? searchParams.get("company")
               : null,
+            or: searchParams.get("or")
+              ? searchParams.get("or")
+              : null,
+            no: searchParams.get("no")
+              ? searchParams.get("no")
+              : null,
           }),
         });
       })
