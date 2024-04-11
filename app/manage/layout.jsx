@@ -13,6 +13,7 @@ import Link from "next/link";
 import { AuthContext } from "@/components/auth-provider";
 import { doc, getDoc } from "firebase/firestore";
 import { db } from "@/config/firebase";
+import { Loading } from "@/components/loading";
 
 const DashLink = ({ href, children }) => {
   const pathname = usePathname();
@@ -58,7 +59,7 @@ function Layout({ children }) {
       <div className="grid place-items-center min-h-screen min-w-[500px]">
         <div className="bg-white my-6 min-h-[75vh] w-3/4 rounded shadow p-9">
           <h1 className="pl-4 pb-2 text-2xl font-semibold">Manage</h1>
-          {state == "loading" && <>Loading</>}
+          {state == "loading" && <div className="h-[50vh]"><Loading /></div>}
           {state == "unauthorized" && <>Unauthorized</>}
           {state == "authorized" && (
             <>
