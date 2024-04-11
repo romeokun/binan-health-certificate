@@ -27,7 +27,10 @@ export function AuthUser({ children }) {
   }, []);
 
   if(isLoading) {
-    return <Loading/>
+    return <div className="h-screen">
+      <Loading/>
+    </div> 
+    
   }
 
   const signout = async () => {
