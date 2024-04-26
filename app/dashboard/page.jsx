@@ -135,7 +135,7 @@ function Records() {
   useEffect(() => {
     endOfQuery.current = false;
     setShowFilter(searchParams.has("filter"));
-    getCertificatesQuery();    
+    getCertificatesQuery();
     if (searchParams.has("id")) {
       getDoc(doc(db, "records", searchParams.get("id"))).then((res) => {
         if (res.exists()) {
@@ -188,12 +188,8 @@ function Records() {
             company: searchParams.get("company")
               ? searchParams.get("company")
               : null,
-            or: searchParams.get("or")
-              ? searchParams.get("or")
-              : null,
-            no: searchParams.get("no")
-              ? searchParams.get("no")
-              : null,
+            or: searchParams.get("or") ? searchParams.get("or") : null,
+            no: searchParams.get("no") ? searchParams.get("no") : null,
           }),
         });
       })
@@ -294,10 +290,9 @@ function Records() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {!tableQuerying &&
-                tableQuery?.map((data) => {
-                  return <CertificateRow key={data.id} data={data} />;
-                })}
+              {tableQuery?.map((data) => {
+                return <CertificateRow key={data.id} data={data} />;
+              })}
             </TableBody>
           </Table>
           <div className="grid place-items-center">
