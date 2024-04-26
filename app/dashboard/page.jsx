@@ -122,6 +122,7 @@ function Records() {
     }).then((result) => {
       setQuery(result.docs);
       setTableQuerying(false);
+      if (result.docs.length < PAGELIMIT) endOfQuery.current = true;
     });
   }
 
@@ -134,8 +135,7 @@ function Records() {
   useEffect(() => {
     endOfQuery.current = false;
     setShowFilter(searchParams.has("filter"));
-    getCertificatesQuery();
-    if (tableQuery.length < PAGELIMIT) endOfQuery.current = true;
+    getCertificatesQuery();    
     if (searchParams.has("id")) {
       getDoc(doc(db, "records", searchParams.get("id"))).then((res) => {
         if (res.exists()) {
@@ -882,7 +882,6 @@ const Filter = ({ searchParams, hidden }) => {
           { value: "byMonth", text: "By Month" },
           { value: "byYear", text: "By Year" },
           { value: "byCompany", text: "By Company" },
-          { value: "byYear", text: "By Year" },
           { value: "byOr", text: "By OR No." },
           { value: "byNo", text: "By No." },
         ]}

@@ -132,6 +132,7 @@ function Employee() {
     }).then((result) => {
       setQuery(result.docs);
       setTableQuerying(false);
+      if (result.docs.length < PAGELIMIT) endOfQuery.current = true;
     });
   }
 
@@ -145,7 +146,6 @@ function Employee() {
     endOfQuery.current = false;
     setShowFilter(searchParams.has("filter"));
     initializeEmployees();
-    if (tableQuery.length < PAGELIMIT) endOfQuery.current = true;
     if (searchParams.has("id")) {
       loadDoc(searchParams.get("id"), setEmployee, setIsQuerying);
       setShowDialog(true);
@@ -166,6 +166,7 @@ function Employee() {
       collectionID: "employees",
       order: orderBy("created", "desc"),
       loadAfter: startAfter(tableQuery[tableQuery.length - 1]),
+      conditions: []
     }).then((result) => {
       setQuery([...tableQuery, ...result.docs]);
       setTableQuerying(false);
