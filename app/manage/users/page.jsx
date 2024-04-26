@@ -573,7 +573,7 @@ const View = ({ children, set, reloadCertificate, refresh, ...props }) => {
                         setData({ ...data, role: e.target.value });
                       }}
                     >
-                      <option value="default">Default</option>
+                      <option value="standard">Standard</option>
                       <option value="admin">Admin</option>
                     </select>
                   </div>
