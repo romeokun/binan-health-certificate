@@ -577,7 +577,7 @@ const View = ({ certificate, children, set, reloadCertificate, ...props }) => {
         <DialogHeader>
           <DialogTitle>Certificate</DialogTitle>
         </DialogHeader>
-        <div className="p-4 place-content-center overflow-auto">
+        <div className="p-4 overflow-auto">
           <div className="w-[700px] m-auto">
             {!isEdit ? (
               <Certificate ref={componentToPrint} data={data} />
