@@ -166,7 +166,7 @@ function Employee() {
       collectionID: "employees",
       order: orderBy("created", "desc"),
       loadAfter: startAfter(tableQuery[tableQuery.length - 1]),
-      conditions: []
+      conditions: [],
     }).then((result) => {
       setQuery([...tableQuery, ...result.docs]);
       setTableQuerying(false);
@@ -594,26 +594,12 @@ const AddCertificateDialog = ({ employee }) => {
     return { key: index + 1, "col-1": "", "col-2": "", "col-3": "" };
   });
 
-  defaultTableData[0] = {
-    ...defaultTableData[0],
-    "col-2": "X-RAY",
-  };
-  defaultTableData[1] = {
-    ...defaultTableData[1],
-    "col-2": "UA",
-  };
-  defaultTableData[2] = {
-    ...defaultTableData[2],
-    "col-2": "FA",
-  };
-
   const [tableData, setTableData] = useState(defaultTableData);
 
-  const handleTableChange = (e, key) => {
-    const { name, value } = e.target;
+  const handleTableChange = (key, ...e) => {
     const newData = tableData.map((x) => {
       if (x.key == key) {
-        return { ...x, [name]: value };
+        return Object.assign({}, x, ...e);
       } else {
         return x;
       }
@@ -879,29 +865,7 @@ const AddCertificateDialog = ({ employee }) => {
 
                 {tableData.map((x) => {
                   return (
-                    <div className="grid grid-cols-3" key={x.key}>
-                      <input
-                        onChange={(e) => handleTableChange(e, x.key)}
-                        value={x["col-1"]}
-                        name="col-1"
-                        type="text"
-                        className="border border-black text-center"
-                      />
-                      <input
-                        onChange={(e) => handleTableChange(e, x.key)}
-                        value={x["col-2"]}
-                        name="col-2"
-                        type="text"
-                        className="border border-black text-center"
-                      />
-                      <input
-                        onChange={(e) => handleTableChange(e, x.key)}
-                        value={x["col-3"]}
-                        name="col-3"
-                        type="text"
-                        className="border border-black text-center"
-                      />
-                    </div>
+                    <TestRow data={x} handleTableChange={handleTableChange} />
                   );
                 })}
               </div>
@@ -915,6 +879,52 @@ const AddCertificateDialog = ({ employee }) => {
         </ScrollArea>
       </DialogContent>
     </Dialog>
+  );
+};
+
+const TestRow = ({ data, handleTableChange }) => {
+  return (
+    <div className="grid grid-cols-3" key={data.key}>
+      <input
+        onChange={(e) => handleTableChange(data.key, {"col-1": e.target.value})}
+        value={data["col-1"]}
+        name="date"
+        type="text"
+        className="border border-black text-center"
+        readOnly={data["col-2"] == "" || !data["col-2"]}
+      />
+      <select
+        name="value"
+        value={data["col-2"]}
+        onChange={(e) => {
+          handleTableChange(data.key, {
+            "col-2": e.target.value,
+            "col-1": "",
+            "col-3": "",
+          });
+        }}
+      >
+        <option value="">Empty</option>
+        <option value="H&S SEMINAR">Health and Sanitation Seminar</option>
+        <option value="FECALYSIS">Fecalysis</option>
+        <option value="X-RAY">Chest X-Ray</option>
+        <option value="DRUG TEST">Drug Test</option>
+        <option value="URINALYSIS">Urinalysis</option>
+        <option value="VDRL TEST">VDRL test</option>
+        <option value="GRAM'S STAIN">Gram's Stain</option>
+        <option value="HBSAG">HbsAg Screening Test</option>
+        <option value="HIV">HIV</option>
+        <option value="STD SEMINAR">STD Seminar</option>
+      </select>
+      <input
+        onChange={(e) => handleTableChange(data.key, {"col-3": e.target.value})}
+        value={data["col-3"]}
+        name="result"
+        type="text"
+        className="border border-black text-center"
+        readOnly={data["col-2"] == "" || !data["col-2"]}
+      />
+    </div>
   );
 };
 
