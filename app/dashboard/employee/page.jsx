@@ -865,7 +865,7 @@ const AddCertificateDialog = ({ employee }) => {
 
                 {tableData.map((x) => {
                   return (
-                    <TestRow data={x} handleTableChange={handleTableChange} />
+                    <TestRow key={data.key} data={x} handleTableChange={handleTableChange} />
                   );
                 })}
               </div>
@@ -884,7 +884,7 @@ const AddCertificateDialog = ({ employee }) => {
 
 const TestRow = ({ data, handleTableChange }) => {
   return (
-    <div className="grid grid-cols-3" key={data.key}>
+    <div className="grid grid-cols-3">
       <input
         onChange={(e) => handleTableChange(data.key, {"col-1": e.target.value})}
         value={data["col-1"]}
@@ -911,7 +911,7 @@ const TestRow = ({ data, handleTableChange }) => {
         <option value="DRUG TEST">Drug Test</option>
         <option value="URINALYSIS">Urinalysis</option>
         <option value="VDRL TEST">VDRL test</option>
-        <option value="GRAM'S STAIN">Gram's Stain</option>
+        <option value="GRAM&apos STAIN">Gram's Stain</option>
         <option value="HBSAG">HbsAg Screening Test</option>
         <option value="HIV">HIV</option>
         <option value="STD SEMINAR">STD Seminar</option>
